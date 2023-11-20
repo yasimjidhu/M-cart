@@ -1,0 +1,84 @@
+<!---Navbar-->
+
+<!-- Navbar -->
+        <nav
+          class="navbar navbar-expand-lg user-nav "
+          style="border-bottom: 1px solid rgba(45, 45, 45, 0.164)"
+        >
+          <div class="container-fluid">
+            <div class="col-lg-2">
+            <a class="navbar-brand" href="#" style="width: 100px"
+              ><span style="font-size: 38px; color: #FF7D00">M-</span
+              ><span style="font-size: 38px; color: #FFECD1">CART</span>
+            </a>
+          </div>
+            <div class="main" style="width: 304px">
+              <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ml-auto">
+                  <li class="nav-item">
+                    <a class="nav-link " aria-current="page" href="/user/home"
+                      >Home</a
+                    >
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">Contact</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="#">About</a>
+                  </li>
+                  <li class="nav-item">
+                    <a class="nav-link" href="/user/tosignup"
+                      >Signup</a
+                    >
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <button
+              class="navbar-toggler"
+              type="button"
+              data-bs-toggle="collapse"
+              data-bs-target="#navbarNav"
+            >
+              <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="d-flex">
+              <div class="search input-group justify-content-center me-3">
+                <input
+                  class="form-control"
+                  type="text"
+                  placeholder="What are you searching for?"
+                  style="background: #f5f5f5; border: 0"
+                />
+                <button
+                  class="btn btn-outline-secondary b-0"
+                  type="button"
+                  style="background-color: #f5f5f5; border: 0"
+                >
+                  <i class="fas fa-search"></i>
+                </button>
+              </div>
+            </div>
+            <div class="cart-like">
+              <i class="fa-solid fa-heart" style="color: #ffffff; font-size: 28px;cursor: pointer;"></i>
+              <i class="fa-solid fa-cart-shopping" style="color: #ffffff;font-size: 28px;cursor: pointer;"></i>
+            </div>
+            <div class="dropdown">
+              <!-- User logo as a link to trigger the dropdown -->
+              <a href="#" class="dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <i class="fa-solid fa-user" style="color: #ffffff; font-size: 28px;"></i>
+              </a>
+              <div class="dropdown-menu" aria-labelledby="userDropdown" style="left: -100px;">
+                  <a class="dropdown-item" href="#">Profile</a>
+                  <a class="dropdown-item" href="#">Settings</a>
+                  <div class="dropdown-divider"></div>
+                  <a class="dropdown-item" href="/user/logout">Logout</a>
+              </div>
+          </div>
+      
+          </div>
+        </nav>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>

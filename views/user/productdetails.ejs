@@ -1,0 +1,69 @@
+<!--header-->
+<%- include('../user/partials/header') %> 
+<%- include('../user/partials/links') %>
+<!--Navbar-->
+<%- include('../user/partials/navbar') %>
+
+<!-- Product Details Page -->
+<div class="container my-5">
+    <div class="row">
+        <!-- Sub Images Column -->
+        <div class="col-lg-2" id="sub-images-container">
+            <% data.forEach(function(subImages) { %>
+                <div class="sub-images-group">
+                    <% for (let i = 0; i < 4 && i < subImages.image.length; i++) { %>
+                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 100px;">
+                            <img style="width: 100%;" src="/uploads/<%= subImages.image[i] %>" alt="Sub Image" class="img-fluid">
+                        </div>
+                    <% } %>
+                </div>
+            <% }); %>
+        </div>
+    
+    
+        <% data.forEach(function(product) { %>
+            <div class="col-lg-4" id="img-container">
+                <img width="100%" src="/uploads/<%= product.image[0] %>" alt="<%= product.productName %>" class="">
+            </div>
+            <div class="col-lg-6">
+                <h1><%= product.productName %></h1>
+                <p class="phone-price">$<%= product.price %></p>
+                <p><%= product.description %></p>
+                <button class="btn btn-sub">Add to Cart</button>
+                <button class="btn btn-cancel">Buy Now</button>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <div class="row my-5">
+        <div class="col-lg-5  ">
+            <h3 class="text-center">Specifications</h3>
+            <div class="spec" style="display: flex;justify-content: center;margin: 50px;">
+                
+            <ul style="list-style: none;">
+                <li><%= product.specifications[0] %></li>
+                <li><%= product.specifications[1] %></li>
+                <li><%= product.specifications[3] %></li>
+                <li><%= product.specifications[4] %></li>
+                <!-- Add more specifications as needed -->
+            </ul>
+        </div>
+        </div>
+    </div>
+    <% }) %>
+</div>
+
+<!--footer-->
+<%- include('../user/partials/footer') %>
+
+<!-- Include Bootstrap and any additional scripts or styles as needed -->
+<script src="https://unpkg.com/js-image-zoom@0.4.1/js-image-zoom.js"></script>
+<script>
+    var options = {
+        width: 300,
+        zoomWidth: 200,
+        offset: { vertical: 10, horizontal: 10 }
+    };
+    new ImageZoom(document.getElementById("img-container"), options);
+</script>

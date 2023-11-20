@@ -1,0 +1,20 @@
+
+
+    <div class="container-fluid p-0">
+        <div class="admin-sidebar">
+            <a href="/admin/dashboard" onclick="updateTitle('Dashboard')">Dashboard</a>
+            <a href="/admin/customers">Customers</a>
+            <a href="/admin/products">Products</a>
+            <a href="/admin/category">Category</a>
+            <a href="/admin/brands">Brands</a>
+            <a href="/admin/orders">Orders</a>
+            <a href="/admin/banner">Banner</a>
+        </div>
+    </div>
+
+    <script>
+        function updateTitle(page){
+            document.getElementById('current-page').textContent = page;
+        }
+    </script>
+

@@ -1,0 +1,14 @@
+<!--header-->
+
+<%- include('../user/partials/header') %> 
+
+<!--Navbar-->
+
+<%-include('../user/partials/navbar') %>
+
+<h1>Send otp via Email</h1>
+<form action="/send-otp" method="POST">
+    <label for="email">Receiver email</label>
+    <input type="email" id="email" name="email1" required>
+    <button type="submit">Send Otp</button> 
+</form>

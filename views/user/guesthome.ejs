@@ -1,0 +1,426 @@
+<!--header-->
+
+<%- include('../user/partials/header') %> 
+
+<!--Navbar-->
+
+<%-include('../user/partials/navbar') %>
+  <style>
+    /* Add this CSS to your stylesheet to set a fixed size for the images */
+.product-image {
+  width: 100%;
+  height: 200px; /* Adjust the height to your desired value */
+  object-fit: cover; /* Ensures the image covers the entire container */
+}
+
+  </style>
+  <body>
+   
+        <div class="container mt-3">
+          <div class="row">
+            <div class="col-sm-3 col-md-4 col-lg-2">
+              <ul class="category">
+                <li><a href="#">Best seller</a></li>
+                <li><a href="#">Latest Model</a></li>
+                <li><a href="#">Flagship</a></li>
+                <li><a href="#">Gaming</a></li>
+                <li><a href="#">Premium</a></li>
+              </ul>
+            </div>
+            <div
+              class="col-sm-5 col-md-4 col-lg-5 d-flex banner-main"
+              style="background-color: black"
+            >
+              <div class="left">
+                <div class="left-logo ">
+                  <img src="/svg/apple logo.svg" alt="" />
+                  <h5>iPhone 14</h5>
+                </div>
+                  <h3>
+                    Up to 10% <br />
+                    off Voucher
+                  </h3>
+                  <h6>Shop Now <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i></h6>
+                  
+              </div>
+            </div>
+            <div
+              class="col-sm-4 col-md-4 col-lg-5 d-flex"
+              style="background-color: black"
+            >
+              <div class="right d-flex justify-content-center align-items-center">
+                <img width="100%" src="/svg/iphone banner.svg" alt="" />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Inside your EJS template -->
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="premium">
+        <div class="premium-text">
+          <div class="square"></div>
+          <h6>Premium Segment</h6>
+        </div>
+        <div class="pre-head1">
+          <h3>Latest Premium Collections</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<div class="container">
+  <div class="row">
+    <% data.forEach(function(x) { %>
+      <div class="col-sm-12 col-md-4 col-lg-3">
+        <div class="iphone" style="position: relative;">
+          <!-- Create a link around the image with the product ID as a query parameter -->
+          <a href="/productview/<%= x._id %>">
+            <img class="product-image" src="/uploads/<%= x.image[0] %>" alt="<%= x.productName %>" />
+          </a>
+          <i class="fas fa-heart" style="position: absolute; right: 5px; top: 5px;font-size: 35px;color:#001524;"></i>
+        </div>
+        <div class="details">
+          <!-- Display product information dynamically -->
+          <h6><%= x.productName %></h6>
+          <p>$<%= x.price %></p>
+          <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
+
+<div class="view-all">
+  <a href="/productview"><button type="submit">View All Products</button></a>
+</div>
+
+<section>
+  <div class="container">
+    <div class="row">
+      <div class="premium">
+        <div class="premium-text">
+          <div class="square"></div>
+          <h6>Categories</h6>
+        </div>
+        <div class="pre-head2">
+          <h3>Browse By Brands</h3>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+          <div class="container">
+            <div class="row">
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/apple.svg" alt="">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/Samsung_Logo.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/vivo.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/oneplus.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/redmi.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/oppo.svg" alt="" class="sam">
+                    </div>
+                </div>
+            
+
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/nokia.svg" class="nokia" alt="">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/poco.svg" alt="" class="nokia">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/infinix.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/realme.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/huawei.svg" alt="" class="sam">
+                    </div>
+                </div>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                    <div class="rectangle">
+                        <img src="/svg/moto.svg" alt="" class="sam">
+                    </div>
+                </div>
+            </div>
+          </div>
+
+          <section>
+            <div class="container">
+              <div class="row">
+                <div class="premium">
+                  <div class="premium-text">
+                    <div class="square"></div>
+                    <h6>Today's</h6>
+                  </div>
+                  <div class="flash">
+                    <h3>Flash sales</h3>
+                    <!-- <section class="wrapper">
+                        <section id="countdown-container" class="countdown-container">
+                          <article id="js-countdown" class="countdown">
+                            <section id="js-days" class="number"></section>
+                            <section id="js-separator" class="separator">:</section>
+                            <section id="js-hours" class="number"></section>
+                            <section id="js-separator" class="separator">:</section>
+                            <section id="js-minutes" class="number"></section>
+                            <section id="js-separator" class="separator">:</section>
+                            <section id="js-seconds" class="number"></section>
+                          </article>
+                        </section>
+                      </section> -->
+                      </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+            <div class="container">
+                <div class="row">
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="iphone">
+                      <img src="/svg/iphone 14.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Apple iphone 14</h6>
+                      <p>64,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="s23">
+                      <img src="/svg/s23.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Sasmsun Galaxy s23</h6>
+                      <p>1,14,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="iphone">
+                      <img src="/svg/flip.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Samsung Galaxy Z Flip</h6>
+                      <p>85,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="iphone">
+                      <img src="/svg/fold.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Samsung Galaxy Fold</h6>
+                      <p>164,999</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              
+              <section>
+                <div class="container">
+                    <div class="row" style="background-color: black;">
+                        <div class="col-md-6 d-flex justify-content-center align-items-center">
+                            <div class="inner-div">
+                                <p>All-Rounder</p>
+                                <h2>EXPERIENCE THE <br>SUPER RETINA <br> XDR DISPLAY</h2>
+                                <div class="contain d-flex justify-content-start">
+                                <div id="circles">
+                                    <p>Hours</p>
+                                </div>
+                                <div id="circles">
+                                    <p>Hours</p>
+                                </div>
+                                <div id="circles">
+                                    <p>Hours</p>
+                                </div>
+                                <div id="circles">
+                                    <p>Hours</p>
+                                </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="inner-div2">
+                                <img src="/svg/iphone big.svg" alt="">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="view-all2">
+                        <button type="submit">View All Products</button>
+                    </div>
+                </div>
+                
+              </section>
+
+              <section>
+                <div class="container">
+                  <div class="row">
+                    <div class="premium">
+                      <div class="premium-text">
+                        <div class="square"></div>
+                        <h6>Latest</h6>
+                      </div>
+                      <div class="pre-head1">
+                        <h3>Best Seller</h3>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+      
+              <div class="container">
+                <div class="row">
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="iphone">
+                      <img src="/svg/iphone 14.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Apple iphone 14</h6>
+                      <p>64,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="s23">
+                      <img src="/svg/s23.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Sasmsun Galaxy s23</h6>
+                      <p>1,14,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="flip">
+                      <img src="/svg/flip.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Galaxy Z Flip 3 5G</h6>
+                      <p>79,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="fold">
+                      <img src="/svg/fold.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Samsung Galaxy Z Fold 5</h6>
+                      <p>164,999</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="container">
+                <div class="row">
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="iphone">
+                      <img src="/svg/iphone 14.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Apple iphone 14</h6>
+                      <p>64,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="s23">
+                      <img src="/svg/s23.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Sasmsun Galaxy s23</h6>
+                      <p>1,14,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="flip">
+                      <img src="/svg/flip.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Galaxy Z Flip 3 5G</h6>
+                      <p>79,999</p>
+                    </div>
+                  </div>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="fold">
+                      <img src="/svg/fold.svg" alt="" />
+                    </div>
+                    <div class="details">
+                      <h6>Samsung Galaxy Z Fold 5</h6>
+                      <p>164,999</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <section>
+                <div class="container">
+                  <div class="row">
+                    <div class="round-icon">
+                      <div class="foot-icon"><img src="/svg/delivery.svg" alt=""></div>
+                      <div class="foot-icon"><img src="/svg/service.svg" alt=""></div>
+                      <div class="foot-icon"><img src="/svg/secure.svg" alt=""></div>
+                    </div>
+                    <div class="trade-mark">
+                      <div class="td1">
+                        <h4>FREE AND FAST DELIVERY</h4>
+                        <p>free delivery for all orders over $140</p>
+                      </div>
+                      <div class="td1">
+                        <h4>24/7 CUTOMER SERVICE</h4>
+                        <p>friendly 24/7 cutomer support</p>
+                      </div>
+                      <div class="td1">
+                        <h4>MONEY BACK GUARANTEE</h4>
+                        <p>we return money within 30 days </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </section>
+
+              <%-include('./partials/footer.ejs')  %>
+
+
+
+
+        <!-- Include Bootstrap 5 JavaScript -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.min.js"></script>
+        <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
+
+        <script src="/js/timer.js"></script>
+      </body>
+    </html>
+  </body>
+</html>

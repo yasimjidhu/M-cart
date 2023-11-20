@@ -1,0 +1,144 @@
+<!--header-->
+<%- include('../user/partials/header') %> 
+
+<!--Navbar-->
+<%- include('../admin/partials/nav') %>
+<style>
+
+.small-img {
+            margin-bottom: 10px;
+        }
+        .preview-image {
+            max-width: 100%;
+            height: auto;
+        }
+
+</style>
+
+
+<section>
+    <div class="container-fluid p-0 m-0">
+        <div class="row p-0">
+            <div class="col-2 p-0">
+                <%- include('../admin/partials/sidebar') %>
+            </div>
+            <div class="col-10 p-0 m-0">
+                <form action="/admin/add-product" method="post" enctype="multipart/form-data">
+                    <div class="row p-0 " style="justify-content: space-evenly;">
+                        <div class="col-10 p-0 m-0">
+                    <form action="/admin/add-product" method="post" enctype="multipart/form-data">
+                        <div class="row p-0">
+                            <div class="col-lg-3 p-0">
+                                <div class="col-lg-12 small-img">
+                                    <input type="file" name="productImage1" id="productImage1" accept="image/*" onchange="previewImage(event, 'preview1')">
+                                    <div class="preview" id="preview1"></div>
+                                </div>
+                                <div class="col-lg-12 small-img">
+                                    <input type="file" name="productImage2" id="productImage2" accept="image/*" onchange="previewImage(event, 'preview2')">
+                                    <div class="preview" id="preview2"></div>
+                                </div>
+                                <div class="col-lg-12 small-img">
+                                    <input type="file" name="productImage3" id="productImage3" accept="image/*" onchange="previewImage(event, 'preview3')">
+                                    <div class="preview" id="preview3"></div>
+                                </div>
+                            <div class="col-lg-12 small-img">
+                                <input type="file" name="productImage4" id="productImage4" accept="image/*" onchange="previewImage(event, 'preview4')">
+                                <div class="preview" id="preview4"></div>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <input type="file" name="mainImage" id="mainImage" accept="image/*" onchange="previewImage(event, 'preview5')">
+                            <div class="preview" style="width: 100%;height:50%; background-color: #9da4aa;" id="preview5"></div>
+                        </div>
+                        <div class="col-4">
+                                         <!-- Your form fields here -->
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <select class="form-control" id="category" name="category">
+                                    <% categories.forEach(category => { %>
+                                        <option value="<%= category._id %>">"<%= category.CategoryName %>"</option>
+                                    <% }); %>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="productName">Product Name</label>
+                                <input type="text" class="form-control" id="productName" name="productName" placeholder="eg:Samsung S23 Ultra">
+                                <% if (locals.err) { %>
+                                    <p style="color: rgb(207, 0, 0); font-size: 13px;" id="productError"><%= locals.err %></p>
+                                  <% } %>
+                            </div>
+                            <div class="form-group">
+                                <label for="price">Price</label>
+                                <input type="number" class="form-control" id="price" name="price" placeholder="eg:8000">
+                            </div>
+                            <div class="form-group">
+                                <label for="brand">Brand</label>
+                                <select class="form-control" id="brand" name="brand">
+                                    <% Brand.forEach(brand => { %>
+                                        <option value="<%= brand._id %>"><%= brand.brandName %></option>
+                                        <!-- Replace 'brandName' with the actual field name containing brand names -->
+                                    <% }); %>
+                                </select>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="description">Description</label>
+                                <textarea class="form-control" id="description" name="description" placeholder="This is flagship edition of Samsung and it's very expensive"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="specification1">Specification 1</label>
+                                <textarea class="form-control" id="specification1" name="specifications[]" placeholder="8 GB RAM 128 GB ROM"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="specification2">Specification 2</label>
+                                <textarea class="form-control" id="specification2" name="specifications[]" placeholder="Another specification"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="specification3">Specification 3</label>
+                                <textarea class="form-control" id="specification3" name="specifications[]" placeholder="Yet another specification"></textarea>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="specification4">Specification 4</label>
+                                <textarea class="form-control" id="specification4" name="specifications[]" placeholder="One more specification"></textarea>
+                            </div>
+                            <div class="cancel-sub">
+                                <a href="/admin/products"><button class="btn-cancel">Cancel</button></a>
+                                <button type="submit" class="btn-sub">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    function previewImage(event, previewId) {
+        const file = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const preview = document.getElementById(previewId);
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.className = 'preview-image';
+            preview.innerHTML = '';
+            preview.appendChild(img);
+        };
+
+        if (file) {
+            reader.readAsDataURL(file);
+        }
+    }
+
+    var errmsg = document.getElementById('productError')
+    setTimeout(() => {
+        errmsg.innerHTML = ""
+    }, 3000);
+
+</script>

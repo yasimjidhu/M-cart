@@ -1,0 +1,114 @@
+<!--header-->
+<%- include('../user/partials/header') %> 
+
+<!--Navbar-->
+<%- include('../user/partials/navbar') %>
+
+<style>
+    .requires {
+        margin-left: 10px;
+    }
+</style>
+
+<body class="container-fluid">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <% if (locals.err) { %>
+                <p id="existmsg" class="text-center" style="color: rgb(207, 0, 0);"><%= locals.err %></p>
+            <% } %>
+
+            <% if (locals.msg) { %>
+                <p id="existmsg" class="text-center" style="color: green;"><%= locals.msg %></p>
+            <% } %>
+
+            <div id="errorMessage" style="color: rgb(207, 0, 0);"></div>
+
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <h3 class="card-title">Reset Password</h3>
+                            <p class="card-text">Enter the OTP sent to your email and set a new password.</p>
+                            <form action="/reset-pass" method="post">
+                                <div class="form-group">
+                                    <label for="otp">Enter OTP</label>
+                                    <div class="row">
+                                        <div class="col">
+                                            <input type="text" name="otp1" class="form-control" maxlength="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" name="otp2" class="form-control" maxlength="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" name="otp3" class="form-control" maxlength="1" required>
+                                        </div>
+                                        <div class="col">
+                                            <input type="text" name="otp4" class="form-control" maxlength="1" required>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label for="password">New Password</label>
+                                    <input type="password"  name="password" class="form-control" id="password" placeholder="Enter new password" required >
+                                </div>
+                                <div class="form-group">
+                                    <label for="confirmPassword">Confirm Password</label>
+                                    <input type="password" name="confirmPassword" class="form-control" placeholder="Confirm new password" required>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Reset Password</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    
+    // Password requirements display update function
+    function updatePasswordRequirements() {
+        var password = document.getElementById('password').value;
+        var lengthRequirement = document.getElementById('lengthRequirement');
+        var uppercaseRequirement = document.getElementById('uppercaseRequirement');
+        var lowercaseRequirement = document.getElementById('lowercaseRequirement');
+        var digitRequirement = document.getElementById('digitRequirement');
+        var symbolRequirement = document.getElementById('symbolRequirement');
+        var noSpaceRequirement = document.getElementById('noSpaceRequirement');
+        var passwordRequirements = document.getElementById('passwordRequirements');
+
+        lengthRequirement.style.color = password.length >= 8 ? 'green' : 'red';
+        uppercaseRequirement.style.color = /[A-Z]/.test(password) ? 'green' : 'red';
+        lowercaseRequirement.style.color = /[a-z]/.test(password) ? 'green' : 'red';
+        digitRequirement.style.color = /\d/.test(password) ? 'green' : 'red';
+        symbolRequirement.style.color = /[^A-Za-z0-9]/.test(password) ? 'green' : 'red';
+        noSpaceRequirement.style.color = /\s/.test(password) ? 'red' : 'green';
+
+        // Show the password requirements message
+        passwordRequirements.style.display = 'block';
+    }
+</script>
+
+<script src="https://unpkg.com/password-validator@5.1.1/dist/password-validator.min.js"></script>
+
+<!--footer-->
+<%- include('../user/partials/footer') %>
+
+
+    <script>
+
+    setTimeout(function() {
+    var errmsg = document.getElementById('existmsg');
+    errmsg.innerHTML = ""
+    },3000);
+
+    </script>
+
+
+
+
+
+
+  <!---footer-->
+  <%-include('../user/partials/footer') %>

@@ -1,0 +1,54 @@
+<%- include('../user/partials/header') %>
+<%- include('../user/partials/links') %>
+
+<!-- Navbar -->
+<%- include('../admin/partials/nav') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-5 addcategory-img">
+            <img src="/images/theme/brand-bg.jpg" alt="" style="width:100%;">
+        </div>
+        <div class="col-lg-4 add-brand ">
+            <form class="signup-form1 " action="/admin/add-brand" method="post" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="brandName" class="form-label text-center">Enter the Brand Name</label>
+                    <input type="text" class="form-control1" id="brand" name="brandName" placeholder="Samsung">
+                    <label for="sales" class="form-label text-center">Enter the sales</label>
+                    <input type="number" class="form-control1" id="brand" name="sales" placeholder="10000">
+                    <label for="stock" class="form-label text-center">Enter the Stock</label>
+                    <input type="number" class="form-control1" id="brand" name="stock" placeholder="120">
+                    <label for="image" class="form-label text-center">Upload Image</label>
+                    <input type="file" class="form-control1" id="logo" name="logo" onchange="displaySelectedImage(event)">
+                    <!-- Include the onchange event to trigger the displaySelectedImage function -->
+                </div>
+                <!-- Add more form elements if needed -->
+                <button type="submit" class="btn category-btn">Submit</button>
+            </form>
+        </div>
+        <div class="col-lg-3"  id="selected-image-container" style="background-color:#a198988a ;">
+            <!-- Selected image will be displayed here -->
+            <h6 class="text-center">Brand Logo</h6>
+        </div>
+        
+    </div>
+</div>
+<script>
+    function displaySelectedImage(event) {
+        const selectedImage = event.target.files[0];
+        const reader = new FileReader();
+
+        reader.onload = function(event) {
+            const selectedImageContainer = document.getElementById('selected-image-container');
+            const img = document.createElement('img');
+            img.src = event.target.result;
+            img.style.width = '100%'; // Set image width to 100%
+            selectedImageContainer.innerHTML = ''; // Clear previous content
+            selectedImageContainer.appendChild(img); // Append the image to the container
+        };
+
+        if (selectedImage) {
+            reader.readAsDataURL(selectedImage); // Read the selected image as Data URL
+        }
+    }
+</script>

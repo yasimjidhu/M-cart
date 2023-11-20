@@ -1,0 +1,59 @@
+<!--header-->
+
+<%- include('../user/partials/header') %> 
+
+<!--Navbar-->
+
+<%-include('../user/partials/navbar') %>
+
+
+
+<section>
+    <div class="main w-100">
+      <div class="sign-image vw-50">
+          <img src="/images/signup-image.png" alt="">
+      </div>
+      <div class="sign-form vw-50 ">
+          <form class="signup-form" action="/admin/login" method="post">
+            <h3>Admin Login</h3>
+            <p>Enter your details below </p>
+              <div class="mb-3 ">
+                
+                <label for="exampleInputPassword1" class="form-label">Email</label>
+                <input type="email"  class="form-control" name="email" placeholder="Email or Phone Number" id="exampleInputEmail1">
+                <p id="errmsg1" style="color: red; font-size: 13px;"><%=(locals.err) %></p>
+                
+              </div>
+              <div class="mb-3">
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input type="password" class="form-control" name="password" placeholder="Password"  id="exampleInputPassword1">
+                <p id="errmsg2" style="color: red; font-size: 13px;"><%=(locals.err) %></p>
+              </div>
+              <div class="login-items">
+                <button class="adlogin-btn"  type="submit">Login</button>
+                <a class=" forgot ml-5" href="#">Forgot Password ?</a>
+              </div>
+            </form>
+      </div>
+    </div>
+    </section>
+  </body>
+  </html>
+
+  <!---footer-->
+  <%-include('../user/partials/footer') %>
+
+  <script>
+
+    setTimeout(() => {
+
+      var msg1 = document.getElementById('errmsg1')
+      var msg2 = document.getElementById('errmsg2')
+      msg1.innerHTML = ""
+      msg2.innerHTML= ""
+    },2000);
+    
+
+
+  </script>
+  

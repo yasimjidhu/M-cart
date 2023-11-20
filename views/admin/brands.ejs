@@ -1,0 +1,124 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+<!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+
+<style>
+
+  .product-image {
+    max-width: 100px; 
+    height: auto;
+  }
+</style>
+<div class="button-div bg-danger ">
+    
+
+</div>
+
+  <div class="container-fluid p-0">
+    
+    <div class="test">
+      <div class="row">
+        <div class="col-2 ">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        
+        <div class="col-10 ">
+            <div class="button-div d-flex justify-content-end">
+                <button class="add-btn">
+                    <a href="/admin/add-brand" style="color: rgb(255, 255, 255); text-decoration: none;">Add Brand</a>
+                </button>
+            </div>
+            
+          <div class="table-responsive">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>No</th>
+                  <th>Brand</th>
+                  <th>Sales</th>
+                  <th>Stock</th>
+                  <th>Added Date</th>
+                  <th>Status</th>
+                  <th>Logo</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% brand.forEach((brand, index) => { %>
+                <tr>
+                  <td><%= index + 1 %></td>
+                  <td><%= brand.brandName%></td>
+                  <td>$<%= brand.sales %></td>
+                  <td><%= brand.stock %></td>
+                  <td><% if (brand.addedDate instanceof Date) { %>
+                    <%= brand.addedDate.toLocaleDateString('en-GB') %>
+                  <% } else { %>
+                    N/A <!-- or any default value if addedDate doesn't exist or is invalid -->
+                  <% } %></td>
+                  <td><%= brand.brandStatus %></td>
+                  <td>
+                    <!-- Display the main brand image if available -->
+                        <img width="75px"
+                            src="/uploads/<%= brand.image%>"
+                            alt="Main brand Image"
+                            class="brand-image"
+                        />
+
+                </td>
+                <td>
+                  <a href="/admin/edit-brand/<%= brand._id %>">
+                  <i class="fa-solid fa-pen-to-square" style="color: #000000;"></i>
+                  </a>
+              </td>
+              <td>
+                <!-- Toggle Brand Status: Block or Unblock -->
+                <% if (brand.brandStatus) { %>
+                  <!-- Brand is currently unblocked -->
+                  <form action="/admin/block-brand/<%=brand._id %>" method="post">
+                    <input type="hidden" name="brandId" value="<%= brand._id %>">
+                    <button type="submit" style="border: none; background-color: red; color: white; cursor: pointer;">
+                      Block <!-- Change button text based on brand status -->
+                    </button>
+                  </form>
+                <% } else { %>
+                  <!-- Brand is currently blocked -->
+                  <form action="/admin/unblock-brand/<%=brand._id %>" method="post">
+                    <input type="hidden" name="brandId" value="<%= brand._id %>">
+                    <button type="submit" style="border: none; background-color: green; color: white; cursor: pointer;">
+                      Unblock <!-- Change button text based on brand status -->
+                    </button>
+                  </form>
+                <% } %>
+              </td>
+                </tr>
+                <% }); %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
+  <script>
+    function confirmDelete(productId) {
+      // Show a confirmation dialog
+      const confirmation = confirm("Are you sure you want to delete this product?");
+  
+      // If user confirms, proceed with the deletion
+      if (confirmation) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+  </script>
+ 
+  <!---footer-->
+  <%-include('../user/partials/footer') %>
+

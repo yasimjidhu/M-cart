@@ -1,0 +1,23 @@
+<%- include('../user/partials/header') %>
+<%- include('../user/partials/links') %>
+
+<!-- Navbar -->
+<%- include('../admin/partials/nav') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-6 addcategory-img">
+            <img src="/images/theme/update.jpg" alt="" style="width:100%;">
+        </div>
+        <div class="col-lg-6 addcategory-form ">
+            <form class="signup-form1 " action="/admin/edit-category/<%=Category._id %>" method="post">
+                <div class="mb-3">
+                    <label for="CategoryName" class="form-label text-center">Enter new category</label>
+                    <input type="text" class="form-control1" id="category" name="CategoryName" value="<%=Category.CategoryName %>" placeholder="Best seller" required>
+                </div>
+                <!-- Add more form elements if needed -->
+                <button type="submit" class="btn category-btn">Update</button>
+            </form>
+        </div>
+    </div>
+</div>

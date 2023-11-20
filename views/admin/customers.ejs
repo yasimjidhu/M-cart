@@ -1,0 +1,104 @@
+
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+<!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+
+
+
+    <!-- Content -->
+    <div class="container-fluid p-0">
+        <div class="test">
+            <div class="row">
+                <div class="col-2 p-0">
+                    <%-include('../admin/partials/sidebar') %>
+                </div>
+                <div class="col-10">
+                    <main class="col-md-10 ms-sm-auto col-lg-10 px-md-4 ">
+        
+       
+                        <h6 class="text-danger text-center" id="existmsg"><%=(locals.msg)%></h6>
+                       
+                        <br>
+                        
+                        <table class="table table-striped w-100">
+
+                            <thead>
+                                <tr>
+                                    <th scope="col">No</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Email</th>
+                                    <th scope="col">Status</th>
+                                    <th scope="col">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% usersData.forEach(function(user, index){ %>
+                                    <tr>
+                                        <td><%= index + 1 %></td>
+                                        <td><%= user.name %></td>
+                                        <td><%= user.email %></td>
+                                        <td><%= user.status ? 'Blocked' : 'Active' %></td>
+                                        <td>
+                                            <% if (user.status) { %>
+                                                <a href="/admin/block/<%- user._id %>">Block</a>
+                                            <% } else { %>
+                                                <a href="/admin/unblock/<%- user._id %>">Unblock</a>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                    </main>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+
+
+ 
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    <!-- Add Bootstrap JS and Popper.js for Dropdowns (if needed) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        function openSidebar() {
+            document.getElementById("sidebar").classList.add("open-sidebar");
+        }
+        function closeSidebar() {
+            document.getElementById("sidebar").classList.remove("open-sidebar");
+        }
+ 
+    setTimeout(function() {
+      var errmsg = document.getElementById('existmsg');
+      console.log('function called');
+      errmsg.innerHTML = ""
+    },3000);
+
+
+
+    function openAddBrandModal() {
+      $('#staticBackdrop').modal('show');
+    };
+
+    // Handle the "Add" button click
+    document.getElementById('addBrandButton').addEventListener('click', function() {
+        $('#staticBackdrop').modal('hide');
+    });
+  </script>

@@ -1,0 +1,32 @@
+<!-- Add Bootstrap JS and Popper.js for Dropdowns (if needed) -->
+
+<!-- Navbar -->
+<div class="container-fluid m-0 p-0">
+    <div class="row" id="adminNav">
+        <div class="col-2" id="admin-logo">
+            <h1><span style="color: #FF7D00" id="m">M-</span><span style="color:#FFECD1;" id="cart">CART</span></h1>
+        </div>
+        <div class="col-8">
+            <a class="nav-link" id="current-page" href="">Dashboard</a>
+        </div>
+        <div class="col-2" id="noti">
+            <i class="fa-regular fa-bell" style="color:#ffffff;font-size: 30px;"></i>
+            <div class="dropdown">
+                <!-- User logo as a link to trigger the dropdown -->
+                <a href="#" class="dropdown-toggle" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <img src="/images/user.png" alt="User Logo" width="30">
+                </a>
+                <div class="dropdown-menu" aria-labelledby="userDropdown">
+                    <a class="dropdown-item" href="#">Profile</a>
+                    <a class="dropdown-item" href="#">Settings</a>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item" href="/admin/logout">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.min.js"></script>

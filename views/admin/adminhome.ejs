@@ -1,0 +1,30 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+<%-include('../user/partials/links') %>
+
+<!--Navbar-->
+<%-include('../admin/partials/nav') %>
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+    </div>
+</div>
+
+
+<!-- Add Bootstrap JS and Popper.js for Dropdowns (if needed) -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script>
+  setTimeout(function () {
+    var errmsg = document.getElementById("existmsg");
+    console.log("function called");
+    errmsg.innerHTML = "";
+  }, 3000);
+
+ 
+</script>
