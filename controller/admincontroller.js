@@ -415,18 +415,55 @@ const getProductDetails = async () => {
   }
 };
 
+
+const getProductData = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1; // Get page number from query parameter or default to 1
+    const pageSize = 10; // Number of items per page
+
+    const totalProducts = await products.countDocuments();
+    const totalPages = Math.ceil(totalProducts / pageSize);
+
+    const productsData = await products.find()
+    const categories = await category.find()
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .exec();
+
+    res.render('./admin/products', {
+      productsData,
+      categories,
+      totalPages,
+      currentPage: page,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+};
+
+
+
+
+
 const toProducts = async (req, res) => {
   try {
-    console.log("toproducts called");
-    const productsData = await getProductDetails();
+    const page = parseInt(req.query.page) || 1; // Get page number from query parameter or default to 1
+    const pageSize = 10; // Number of items per page
 
+    const productsData = await getProductData(page, pageSize);
     const categories = await category.find();
-    res.render("./admin/products", { productsData, categories });
+
+    res.render("./admin/products", { productsData, categories,currentPage: page, });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
+
+
+
+
 
 /*----------------------------brands------------------------*/
 
@@ -621,5 +658,6 @@ module.exports = {
   toEditBrand,
   updateBrand,
   blockBrand,
-  unblockBrand
+  unblockBrand,
+  getProductData
 };

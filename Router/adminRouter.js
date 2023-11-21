@@ -38,7 +38,7 @@ admin.get('/dts',(req,res)=>{
 admin.get('/customers',adminauth.verifyAdmin,adminController.toCustomers)
 
 // Products
-admin.get('/products',adminauth.verifyAdmin,adminController.toProducts)
+admin.get('/products',adminauth.verifyAdmin,adminController.getProductData)
 admin.get('/add-product',adminauth.verifyAdmin,adminController.toaddProduct)
 const upload = multer({
     storage: storage,

@@ -81,8 +81,8 @@
             <img class="product-image" src="/uploads/<%= x.image[0] %>" alt="<%= x.productName %>" />
             
           </a>
-          <i class="fas fa-heart" style="position: absolute; right: 25px; top: 10px;font-size: 25px;color:#001524;"></i>
-          <i class="fa-solid fa-cart-shopping" style="color: #000000;font-size: 25px;cursor: pointer;position: absolute; right: 25px; top: 45px;"></i>
+          <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 35px;color:#001524;"></i>
+          
         </div>
         <div class="details">
           <!-- Display product information dynamically -->
@@ -97,8 +97,13 @@
 
 
 <div class="view-all">
-  <a href="/productview"><button type="submit">View All Products</button></a>
+  <form action="/allproductview/<%= Category._id %>" method="get">
+    <button type="submit">View All Products</button>
+  </form>
 </div>
+
+
+
 
 <section>
   <div class="container">
@@ -122,7 +127,7 @@
           <div class="col-sm-6 col-md-3 col-lg-2">
               <div class="rectangle">
                   <a id="brand-logo" href="/brand-wise/<%=brands._id%>">
-                      <img  src="/uploads/<%= brands.image %>" alt="<%= brands.productName %>" class="brand-logo">
+                      <img  src="/uploads/<%= brands.image %>" alt="<%= brands.productName %>" class="brand-logo ">
                   </a>
               </div>
           </div>
@@ -147,49 +152,33 @@
             </div>
           </section>
 
-            <div class="container">
-                <div class="row">
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="iphone">
-                      <img src="/svg/iphone 14.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Apple iphone 14</h6>
-                      <p>64,999</p>
-                    </div>
+          <div class="container mt-4">
+            <div class="row">
+              <% flashSales.forEach(product => { %>
+                <div class="col-sm-12 col-md-4 col-lg-3">
+                  <div class="<%= product.productName %>">
+                    
+                    <a href="/productview/<%= product._id %>"><img class="product-images" src="/uploads/<%= product.image[0] %>" alt="<%= product.name %>" /></a>
                   </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="s23">
-                      <img src="/svg/s23.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Sasmsun Galaxy s23</h6>
-                      <p>1,14,999</p>
-                    </div>
+                  <div class="details">
+                    <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
+                    <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
                   </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="iphone">
-                      <img src="/svg/flip.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Samsung Galaxy Z Flip</h6>
-                      <p>85,999</p>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="iphone">
-                      <img src="/svg/fold.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Samsung Galaxy Fold</h6>
-                      <p>164,999</p>
-                    </div>
-                  </div>
+                  <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
                 </div>
-              </div>
-              
+              <% }); %>
+            </div>
+          </div>
+          
+          <div class="view-all">
+            <form action="/allproductview/<%= flashSales._id %>" method="get">
+              <button type="submit">View All Products</button>
+            </form>
+          </div>
+  
+
               <section>
-                <div class="container">
+                <div class=" mt-5">
                     <div class="row" style="background-color: black;">
                         <div class="col-md-6 d-flex justify-content-center align-items-center">
                             <div class="inner-div">

@@ -5,14 +5,14 @@
 <%- include('../user/partials/navbar') %>
 
 <!-- Product Details Page -->
-<div class="container my-5">
+<div class="container-fluid my-5">
     <div class="row">
         <!-- Sub Images Column -->
         <div class="col-lg-2" id="sub-images-container">
             <% data.forEach(function(subImages) { %>
                 <div class="sub-images-group">
                     <% for (let i = 0; i < 4 && i < subImages.image.length; i++) { %>
-                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 100px;">
+                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 180px;">
                             <img style="width: 100%;" src="/uploads/<%= subImages.image[i] %>" alt="Sub Image" class="img-fluid">
                         </div>
                     <% } %>
@@ -24,6 +24,20 @@
         <% data.forEach(function(product) { %>
             <div class="col-lg-4" id="img-container">
                 <img width="100%" src="/uploads/<%= product.image[0] %>" alt="<%= product.productName %>" class="">
+
+                <div class="col-lg-12 mt-5" style="display: flex;justify-content: center;margin: 50px; flex-direction: column; align-items: flex-start;"  ">
+                    <h3 class="text-start">Specifications</h3>
+                    <div class="spec">
+                        
+                    <ul style="list-style: none;">
+                        <li><%= product.specifications[0] %></li>
+                        <li><%= product.specifications[1] %></li>
+                        <li><%= product.specifications[3] %></li>
+                        <li><%= product.specifications[4] %></li>
+                        <!-- Add more specifications as needed -->
+                    </ul>
+                </div>
+                </div>
             </div>
             <div class="col-lg-6">
                 <h1><%= product.productName %></h1>
@@ -36,21 +50,9 @@
     </div>
     </div>
 
-    <div class="row my-5">
-        <div class="col-lg-5  ">
-            <h3 class="text-center">Specifications</h3>
-            <div class="spec" style="display: flex;justify-content: center;margin: 50px;">
-                
-            <ul style="list-style: none;">
-                <li><%= product.specifications[0] %></li>
-                <li><%= product.specifications[1] %></li>
-                <li><%= product.specifications[3] %></li>
-                <li><%= product.specifications[4] %></li>
-                <!-- Add more specifications as needed -->
-            </ul>
-        </div>
-        </div>
-    </div>
+
+        
+  
     <% }) %>
 </div>
 

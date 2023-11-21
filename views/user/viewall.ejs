@@ -1,0 +1,30 @@
+<!--header-->
+<%- include('../user/partials/header') %> 
+<%- include('../user/partials/links') %>
+<!--Navbar-->
+<%- include('../user/partials/navbar') %>
+
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12 mb-4">
+            <div class="row">
+                <% productData.forEach((brand) => { %>
+                    <div class="contain d-flex flex-column">
+                        <div class="col">
+                            <img class="product-images" src="/uploads/<%= brand.image[0] %>" alt="<%= brand.productName %>">
+                        </div>
+                        <div class="col">
+                            <div class="card">
+                                <div class="card-body">
+                                    <h5 class="card-title"><%= brand.productName %></h5>
+                                    <p class="card-text" style="color: red;">Price: $<%= brand.price %></p>
+                                    <!-- Additional product details if needed -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                <% }); %>
+            </div>
+        </div>
+    </div>
+</div>

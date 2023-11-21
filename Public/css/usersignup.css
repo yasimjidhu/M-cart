@@ -818,3 +818,14 @@ body{
     background-color: #FF7D00;
     border-radius: 50px;
 }
+.product-image {
+    width: 100%;
+    object-fit: contain;
+    height: auto;
+}
+
+.product-images {
+    width: 70%; /* To ensure the image fills its container */
+    height: auto; /* Maintain the image's aspect ratio */
+    max-height: 270px; /* Set maximum height as needed */
+}

@@ -49,4 +49,7 @@ router.get('/brand-wise/:brandId',userauth.verifyUser,user.toBrandwise)
 router.get('/brands/filterbybrand',user.filterByBrand)
 
 
+router.get('/allproductview/:categoryId',user.toViewAll)
+
+
 module.exports = router

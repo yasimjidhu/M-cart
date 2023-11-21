@@ -7,6 +7,7 @@ const nodemailer = require('nodemailer');
 const router = require('../Router/userRouter');
 const { transporter, sendOtp, generateOTP } = require('./otpcontroller');
 const brands = require('../model/brands');
+const category = require('../model/category')
 
 
 
@@ -20,7 +21,7 @@ const toHome = async(req,res)=>{
     try{
         // Retrueve products from the database
         const data = await products.find()
-        console.log(data);
+        
 
         res.render('./user/guesthome',{title:'Home',data})
 
@@ -43,7 +44,7 @@ const userSignup = async(req,res)=>{
             res.render('.user/usersignup',{msg:'Fill out the fields'})
         }
         const check = await User.findOne({email:req.body.email})
-        console.log(req.body);
+        
         console.log(typeof(check));
         if (check === null) {
             const pass = await bcrypt.hash(req.body.password, 10);
@@ -166,18 +167,35 @@ const userlog = async (req, res) => {
     try {
         if (req.session.userlogged || req.user) {
             const user = req.session.userlogged;
-            
+
             // Fetch the IDs of blocked brands
             const blockedBrands = await brands.find({ brandStatus: true }, { _id: 1 });
             
             // Extract the IDs of blocked brands
             const blockedBrandIds = blockedBrands.map((brand) => brand._id);
             
-            // Fetch products excluding those associated with blocked brands
-            const data = await products.find();
-            const brand = await brands.find()
-            res.render('./user/userhome', { title: 'Home', err: false, data,brand });
-            console.log('iam data',data)
+            // Find the "_id" of the premium category
+            const flashsales = await category.findOne({CategoryName:'Flash Sales'})
+            console.log(flashsales)
+            // Find the "_id" of the "Premium" category
+            const premiumCategory = await category.findOne({ CategoryName: 'Premium' });
+
+            
+            
+            if (premiumCategory || flashsales) {
+                // Fetch products that belong to the "Premium" category using the category "_id"
+                const premiumProducts = await products.find({ category: premiumCategory._id });
+                const flashsalesProducts = await products.find({category:flashsales.id})
+                const categorywise = await products.find()
+                console.log('<<<<<<<<<<<<<<<',categorywise);
+
+                const brand = await brands.find();
+                
+                res.render('./user/userhome', { title: 'Home', err: false, data: premiumProducts, brand, Category: premiumCategory, flashSales: flashsalesProducts});
+            } else {
+                // Handle if Premium category is not found
+                res.status(404).send('Premium category not found');
+            }
         } else {
             res.redirect('/');
         }
@@ -186,7 +204,6 @@ const userlog = async (req, res) => {
         res.status(500).redirect('/admin/tosignup');
     }
 };
-  
 
 // Signup to Login
 const signupToLogin = (req,res,next)=>{
@@ -266,10 +283,32 @@ async function filterByBrand(req,res){
     const brandName=req.query.brand
     console.log(brandName)
     const filteredData=await products.find({brand:brandName})
-    console.log(filteredData)
+    
     res.json({brand:filteredData})
 }
 
+
+
+
+const toViewAll = async (req, res) => {
+    const categoryId = req.params.categoryId;
+    console.log(".......................",categoryId)
+
+    try {
+            const productData = await products.find({category:categoryId});
+        console.log('Category:', productData);
+
+        if (productData) {
+            res.render('./user/viewall', {productData });
+        } else {
+            res.redirect('/user/home');
+        }
+    } catch (error) {
+        // Handle potential errors such as database errors or other issues
+        console.error('Error fetching category:', error);
+        res.status(500).send('Internal Server Error');
+    }
+};
 
 
 
@@ -289,5 +328,6 @@ module.exports = {
     toverifyotp,
     verifyOtp,
     toBrandwise,
-    filterByBrand
+    filterByBrand,
+    toViewAll
 }
