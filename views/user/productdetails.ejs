@@ -8,12 +8,12 @@
 <div class="container-fluid my-5">
     <div class="row">
         <!-- Sub Images Column -->
-        <div class="col-lg-2" id="sub-images-container">
+        <div class="col-lg-2 " id="sub-images-container" style="z-index: 99;">
             <% data.forEach(function(subImages) { %>
                 <div class="sub-images-group">
-                    <% for (let i = 0; i < 4 && i < subImages.image.length; i++) { %>
-                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 180px;">
-                            <img style="width: 100%;" src="/uploads/<%= subImages.image[i] %>" alt="Sub Image" class="img-fluid">
+                    <% for (let i = 1; i < 4 && i < subImages.image.length; i++) { %>
+                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 180px;" onclick="showpreview('showimage<%=i%>','displayImage')">
+                            <img style="width: 100%;" src="/uploads/<%= subImages.image[i] %>" alt="Sub Image" class="img-fluid" id="showimage<%=i%>">
                         </div>
                     <% } %>
                 </div>
@@ -22,8 +22,8 @@
     
     
         <% data.forEach(function(product) { %>
-            <div class="col-lg-4" id="img-container">
-                <img width="100%" src="/uploads/<%= product.image[0] %>" alt="<%= product.productName %>" class="">
+            <div class="col-lg-4" id="img-container" style="z-index: 99;">
+                <img width="100%" src="/uploads/<%= product.image[0] %>" alt="<%= product.productName %>" id="displayImage">
 
                 <div class="col-lg-12 mt-5" style="display: flex;justify-content: center;margin: 50px; flex-direction: column; align-items: flex-start;"  ">
                     <h3 class="text-start">Specifications</h3>
@@ -68,4 +68,18 @@
         offset: { vertical: 10, horizontal: 10 }
     };
     new ImageZoom(document.getElementById("img-container"), options);
+    function showpreview(subimage,displayImage){
+        const displayImg=document.getElementById(displayImage)
+        const sub=document.getElementById(subimage)
+        const mainsrc=displayImg.src;
+        displayImg.src=sub.src
+        sub.src=mainsrc
+        
+        var options = {
+            width: 300,
+            zoomWidth: 200,
+            offset: { vertical: 10, horizontal: 10 }
+        };      
+        new ImageZoom(document.getElementById("img-container"), options);
+    }
 </script>

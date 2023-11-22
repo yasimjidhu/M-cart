@@ -43,13 +43,14 @@ router.get('/send-otp',(req,res)=>{
 router.get('/verify-otp',user.toverifyotp)
 router.post('/send-otp',otpcontroller.sendOtp)
 router.post('/verify-otp',user.verifyOtp)
+router.post('/resendOtp',user.resendSignupOTP)
 
 
 router.get('/brand-wise/:brandId',userauth.verifyUser,user.toBrandwise)
 router.get('/brands/filterbybrand',user.filterByBrand)
 
-
 router.get('/allproductview/:categoryId',user.toViewAll)
+router.post('/products-search',userauth.verifyUser,user.productSearch)
 
-
+router.get('/cart',user.toCart)
 module.exports = router

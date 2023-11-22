@@ -29,11 +29,25 @@ body{
     color: #FF7D00;
 }
 .search{
-    width: 250px;
+    display: flex;
+
 }
+.search-box{
+    padding: 2px;
+    border-radius: 28px;
+    border: 0px;
+}
+
 ::placeholder{
     font-size: 12px;
     padding: 5px;
+}
+.search-btn{
+    padding: 2px;
+    border-radius: 28px;
+    border: 0px;
+    color: black;
+    background-color:#FF7D00 ;
 }
 
 .category{
@@ -613,25 +627,27 @@ body{
 /* ---------------------------------------User Login ----------------------------------------*/
 
 .login-btn{
-    background-color: #DA4167;
+    background-color: #FF7D00;
     width: 10vw;
     height: 40px;
     border: 1px solid rgba(0, 0, 0, 0.144);
-    color: white;
+    color: rgb(12, 1, 63);
+    border-radius: 5px;
 }
 .forgot{
     text-decoration: none;
-    color:#DA4167;
+    color:#001524;
 }
+
 
 /* ---------------------------------------Admin Login ----------------------------------------*/
 
 .adlogin-btn{
-    background-color: #DA4167;
+    background-color:#FF7D00 ;
     width: 10vw;
     height: 39px;
-    border: 1px solid rgba(0, 0, 0, 0.144);
-    color: white;
+    border: 3px solid rgba(0, 0, 0, 0.144);
+    color: black;
     border-radius: 5px;
 }
 /*-----------------------------------userhome sidebar---------------------------------*/
@@ -673,6 +689,15 @@ body{
 .sidebar-list a:hover {
     border-bottom: 2px solid #DA4167 ;
     transition: 50ms; 
+}
+.search-img{
+    height: auto;
+    width: 220px;
+}
+.card{
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 
@@ -746,9 +771,9 @@ body{
     height: 28em;
     margin: 15px 0px;
 }
-.form-control{
+/* .form-control{
     width: 80%;
-}
+} */
 .form-control::placeholder{
     color: black;
     font-size: 13px;
@@ -825,7 +850,47 @@ body{
 }
 
 .product-images {
-    width: 70%; /* To ensure the image fills its container */
-    height: auto; /* Maintain the image's aspect ratio */
-    max-height: 270px; /* Set maximum height as needed */
+    width: auto;
+    height: 255px;
+}
+
+.button-div{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+
+.smallbtn-div{
+    width: 50%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+}
+.user-btn{
+    background-color: #FF7D00;
+    color: #001524;
+    padding: 2px;
+    border-radius: 5px;
+}
+.forgot-password{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+.cart-btn{
+    padding: 5px;
+    background-color: #FF7D00;
+    border-radius: 5px;
+    border: 0px; ; 
+}
+.coupon-div{
+    background-color: green;
+    display: flex;
+    justify-content: space-around;
+}
+.coupon-btn{
+    background-color: #FF7D00;
+}
+.coupon-btn-div{
+    text-align: end;
 }

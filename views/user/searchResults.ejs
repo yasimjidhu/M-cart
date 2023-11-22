@@ -1,0 +1,29 @@
+
+<%- include('partials/header') %> 
+
+<!--Navbar-->
+
+<%-include('partials/navbar') %>
+
+
+
+
+<h2 class="text-center mt-3">Search Results for <span class="text-danger"> "<%= searchItem %>"</span></h2>
+
+<% if (Products.length > 0) { %>
+  <div class="row mt-5">
+    <% Products.forEach(function(product) { %>
+      <div class="col-lg-3 col-md-6 mb-4">
+        <div class="card">
+          <img  class="card-img-top search-img" src="/uploads/<%=product.image[0] %>" alt="">
+          <div class="card-body">
+            <h5 class="card-title" style="font-size: 20px;"><%= product.productName %></h5>
+            <p class="card-text" style="font-size: 23px;color: rgb(182, 2, 2);">$<%= product.price %></p>
+          </div>
+        </div>
+      </div>
+    <% }); %>
+  </div>
+<% } else { %>
+  <p>No Products found</p>
+<% } %>

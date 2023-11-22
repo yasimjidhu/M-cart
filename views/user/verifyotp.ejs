@@ -53,14 +53,15 @@
 
 </style>
 
-<body class="container-fluid bg-body-tertiary d-block">
+<body class="container-fluid bg-body-tertiary d-block p-0">
     <div class="row justify-content-center">
       <div class="col-12 col-md-6 col-lg-4" style="min-width: 500px;">
         <div class="card bg-white mb-5 mt-5 border-0" style="box-shadow: 0 12px 15px rgba(0, 0, 0, 0.02);">
           <div class="card-body p-5 text-center">
+            <h6 id="verifymsg1" style="color: red;"><%=locals.msg%></h6>
+            <h6 id="verifymsg2" style="color: rgb(0, 143, 0);"><%=locals.message%></h6>
             <h4>Verify</h4>
             <p>Your code was sent to you via email</p>
-  
             <form action="/verify-otp" method="post">
               <div class="otp-field mb-4">
                 <input type="number" name="otp1" required/>
@@ -68,8 +69,15 @@
                 <input type="number" name="otp3" required/>
                 <input type="number" name="otp4" required/>
               </div>
-              <button type="submit" class="btn btn-primary mb-3">Verify</button>
+              <div class="button-div">
+                <div class="smallbtn-div">
+              <button type="submit" style="background-color:#FF7D00 ;"  class="btn  mb-3">Verify</button>
             </form>
+            <form action="/resendOtp" method="post">
+              <button type="submit" style="background-color: #001524; color: #ddd;" class="btn mb-3">Resend</button>
+            </form>
+          </div>
+          </div>
           </div>
         </div>
       </div>
@@ -146,5 +154,12 @@ inputs.forEach((input, index1) => {
     }
   });
 });
+
+setTimeout(() => {
+  var errmsg1 = document.getElementById('verifymsg1')
+  var errmsg2 = document.getElementById('verifymsg2')
+  errmsg1.innerHTML = ""
+  errmsg2.innerHTML = ""
+}, 2000);
 
   </script>
