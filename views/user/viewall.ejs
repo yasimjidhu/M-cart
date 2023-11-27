@@ -11,7 +11,7 @@
                 <% productData.forEach((brand) => { %>
                     <div class="contain d-flex flex-column">
                         <div class="col">
-                            <img class="product-images" src="/uploads/<%= brand.image[0] %>" alt="<%= brand.productName %>">
+                            <a href="/productview/<%=brand._id %>"><img class="product-images" src="/uploads/<%= brand.image[4] %>" alt="<%= brand.productName %>"></a>
                         </div>
                         <div class="col">
                             <div class="card">

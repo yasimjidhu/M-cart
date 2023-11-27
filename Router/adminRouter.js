@@ -35,6 +35,7 @@ admin.get('/dts',(req,res)=>{
     res.render('./user/productdetails')
 })
 
+admin.get('/dashboard',adminauth.verifyAdmin,adminController.todashboard)
 admin.get('/customers',adminauth.verifyAdmin,adminController.toCustomers)
 
 // Products
@@ -55,15 +56,20 @@ admin.post('/add-product', upload.fields([
     { name: 'productImage4', maxCount: 1 },
     { name: 'mainImage', maxCount: 1 }
 ]),(req, res) => {
-    console.log('post',req.body); // Log form fields
-    console.log('post',req.files); // Log uploaded files
-
     // Your existing code
     adminController.addproducts(req, res);
 });
 
 admin.get('/edit-product/:productid',adminauth.verifyAdmin,adminController.toEditProduct)
-admin.post('/edit-product/:productId', upload.array('productImage', 4), adminController.updateProduct);
+
+admin.post('/edit-product/:productId', upload.fields([
+    { name: 'newProductImage1', maxCount: 1 },
+    { name: 'newProductImage2', maxCount: 1 },
+    { name: 'newProductImage3', maxCount: 1 },
+    { name: 'newProductImage4', maxCount: 1 },
+    { name: 'mainImage', maxCount: 1 }
+]), adminController.updateProduct);
+
 admin.post('/delete-product/:productid',adminauth.verifyAdmin,adminController.deleteProduct)
 
 

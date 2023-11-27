@@ -8,14 +8,6 @@ const brandschema = mongoose.Schema({
         required:true,
         unique:true
     },
-    sales:{
-        type:Number,
-        default:0
-    },
-    stock:{
-        type:Number,
-        default:0
-    },
     addedDate:{
         type:Date,
         

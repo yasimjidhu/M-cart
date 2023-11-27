@@ -41,7 +41,7 @@
                                         <td><%= index + 1 %></td>
                                         <td><%= user.name %></td>
                                         <td><%= user.email %></td>
-                                        <td><%= user.status ? 'Blocked' : 'Active' %></td>
+                                        <td><%= user.status ? 'Active' : 'Blocked' %></td>
                                         <td>
                                             <% if (user.status) { %>
                                                 <a href="/admin/block/<%- user._id %>">Block</a>

@@ -5,12 +5,12 @@
 <%-include('../user/partials/navbar') %>
 
 <div class="container mt-4">
-    <h1>All <%=Brand.brandName%></h1>
         <div class="row">
             <% brandProducts.forEach((brand) => { %>
                 <div class="col-3 ">
                     <div class="card mb-4 ">
-                        <img style="width: 200px;" src="/uploads/<%=brand.image[0] %>" class="card-img-top product-image" alt="<%= brand.productName %>">
+                        <a href="/productview/<%= brand._id %>">
+                        <img style="width: 300px; height: 300px;" src="/uploads/<%=brand.image[0] %>" class="card-img-top product-image" alt="<%= brand.productName %>"></a>
                         <div class="card-body">
                             <h5 class="card-title"><%= brand.productName %></h5>
                             <p class="card-text" style="color: red;">Price: $<%= brand.price %></p>

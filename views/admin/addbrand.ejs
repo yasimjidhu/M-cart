@@ -9,46 +9,93 @@
         <div class="col-lg-5 addcategory-img">
             <img src="/images/theme/brand-bg.jpg" alt="" style="width:100%;">
         </div>
-        <div class="col-lg-4 add-brand ">
-            <form class="signup-form1 " action="/admin/add-brand" method="post" enctype="multipart/form-data">
+        <div class="col-lg-4 add-brand">
+            <form class="signup-form1" action="/admin/add-brand" method="post" enctype="multipart/form-data" id="form">
                 <div class="mb-3">
                     <label for="brandName" class="form-label text-center">Enter the Brand Name</label>
                     <input type="text" class="form-control1" id="brand" name="brandName" placeholder="Samsung">
-                    <label for="sales" class="form-label text-center">Enter the sales</label>
-                    <input type="number" class="form-control1" id="brand" name="sales" placeholder="10000">
-                    <label for="stock" class="form-label text-center">Enter the Stock</label>
-                    <input type="number" class="form-control1" id="brand" name="stock" placeholder="120">
+                    <p id="brandError"></p>
                     <label for="image" class="form-label text-center">Upload Image</label>
-                    <input type="file" class="form-control1" id="logo" name="logo" onchange="displaySelectedImage(event)">
-                    <!-- Include the onchange event to trigger the displaySelectedImage function -->
+                    <input type="file" class="form-control1" id="logo" name="logo" onchange="validateImage(event)">
+                    <p id="fileError"></p>
+                    <%if(locals.err){%>
+                        <p style="color: red;"><%=err %></p>
+                    <%}%>
+                    <!-- Include the onchange event to trigger the validateImage function -->
                 </div>
                 <!-- Add more form elements if needed -->
                 <button type="submit" class="btn category-btn">Submit</button>
             </form>
         </div>
-        <div class="col-lg-3"  id="selected-image-container" style="background-color:#a198988a ;">
+        <div class="col-lg-3" id="selected-image-container" style="background-color:#a198988a;">
             <!-- Selected image will be displayed here -->
             <h6 class="text-center">Brand Logo</h6>
         </div>
-        
     </div>
 </div>
 <script>
-    function displaySelectedImage(event) {
-        const selectedImage = event.target.files[0];
+    function validateImage(event) {
+        const fileError = document.querySelector('#fileError');
+        const selectedFile = event.target.files[0];
         const reader = new FileReader();
+        const allowedTypes = ['image/jpeg', 'image/png']; // Allowed image types
 
-        reader.onload = function(event) {
+        reader.onload = function (event) {
             const selectedImageContainer = document.getElementById('selected-image-container');
             const img = document.createElement('img');
-            img.src = event.target.result;
-            img.style.width = '100%'; // Set image width to 100%
-            selectedImageContainer.innerHTML = ''; // Clear previous content
-            selectedImageContainer.appendChild(img); // Append the image to the container
+
+            if (selectedFile && allowedTypes.includes(selectedFile.type)) {
+                img.src = event.target.result;
+                img.style.width = '100%'; // Set image width to 100%
+                selectedImageContainer.innerHTML = ''; // Clear previous content
+                selectedImageContainer.appendChild(img); // Append the image to the container
+            } else {
+                // Display an error message for invalid file types
+                selectedImageContainer.innerHTML = ''; // Clear previous content
+                const errorMessage = document.createElement('p');
+                // errorMessage.textContent = 'Please select a valid image file (JPEG, PNG).';
+                errorMessage.style.color = 'red';
+                fileError.innerHTML = ''; // Clear previous error messages
+                fileError.appendChild(errorMessage);
+                event.target.value = null; // Clear the file input
+            }
         };
 
-        if (selectedImage) {
-            reader.readAsDataURL(selectedImage); // Read the selected image as Data URL
+        if (selectedFile) {
+            reader.readAsDataURL(selectedFile); // Read the selected file as Data URL
         }
     }
+
+    function isEmpty(value) {
+        const trimmed = value.trim();
+        return trimmed === "";
+    }
+
+    function isValid(value) {
+        const regex = /^[a-zA-Z]+$/;
+        return regex.test(value);
+    }
+
+    // Form validation and submission handling
+    document.querySelector('#form').addEventListener('submit', function (event) {
+        const brandInput = document.querySelector('#brand');
+        const brandValue = brandInput.value;
+        const brandError = document.querySelector('#brandError');
+
+        brandError.textContent = "";
+
+        if (isEmpty(brandValue)) {
+            brandError.textContent = "Brand Name is required";
+            brandError.style.color = "red";
+            event.preventDefault();
+        }
+
+        if (!isValid(brandValue)) {
+            brandError.textContent = "Please enter a valid brand name";
+            brandError.style.color = "red";
+            event.preventDefault();
+        }
+
+        
+    });
 </script>

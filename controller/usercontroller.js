@@ -7,21 +7,67 @@ const router = require("../Router/userRouter");
 const { transporter, sendOtp, generateOTP } = require("./otpcontroller");
 const brands = require("../model/brands");
 const category = require("../model/category");
-
 require("dotenv").config();
 
-// To userHome
+// Function to get the unblocked products from brands
+async function getProductsFromActiveBrands() {
+  try {
+    const activeBrands = await brands.find({ brandStatus: true }).select("_id");
+    const activeBrandIds = activeBrands.map((brand) => brand._id);
+    const productsFromActiveBrands = await products.find({
+      brand: { $in: activeBrandIds },
+    });
+    return productsFromActiveBrands;
+  } catch (error) {
+    console.error(error);
+    throw new Error("Cannot retrieve unblocked products");
+  }
+}
+
+
 const toHome = async (req, res) => {
   try {
-    // Retrueve products from the database
-    const data = await products.find();
+    const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
+    const premiumCategory = await category.findOne({ CategoryName: "Premium" });
 
-    res.render("./user/guesthome", { title: "Home", data });
+    if (premiumCategory && flashsales) {
+      const unblockProducts = await getProductsFromActiveBrands(); // Fetch unblocked products from the database
+
+      // Filter unblocked products based on category and brand status
+      const unblockedPremiumProducts = unblockProducts.filter(
+        (product) => product.category === premiumCategory._id.toString()
+      );
+      const unblockedFlashSalesProducts = unblockProducts.filter(
+        (product) => product.category === flashsales._id.toString()
+      );
+
+      const brand = await brands.find();
+
+      res.render("./user/guesthome", {
+        title: "Home",
+        err: false,
+        data: unblockedPremiumProducts,
+        brand,
+        Category: premiumCategory,
+        flashSales: unblockedFlashSalesProducts,
+        unblockProducts, // Include unblocked products in the rendered data if needed
+      });
+    } else {
+      if (!premiumCategory) {
+        console.log("Premium category not found in the database");
+        res.status(404).send("Premium category not found");
+      }
+      if (!flashsales) {
+        console.log("Flash Sales category not found in the database");
+        res.status(404).send("Flash Sales category not found");
+      }
+    }
   } catch (err) {
-    // Handle errors
-    res.status(500).send("an error occured");
+    console.log("An error occurred while fetching categories:", err);
+    res.status(500).send("An error occurred");
   }
 };
+
 
 //User signup
 const userSignup = async (req, res) => {
@@ -31,11 +77,10 @@ const userSignup = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      res.render(".user/usersignup", { msg: "Fill out the fields" });
+      return res.render("./user/usersignup", { msg: "Fill out the fields" });
     }
     const check = await User.findOne({ email: req.body.email });
 
-    console.log(typeof check);
     if (check === null) {
       const pass = await bcrypt.hash(req.body.password, 10);
 
@@ -51,7 +96,7 @@ const userSignup = async (req, res) => {
 
       transporter.sendMail(mailOptions, async (error, info) => {
         if (error) {
-          res.render("./user/usersignup", {
+          return res.render("./user/usersignup", {
             msg: "Failed to send otp via email",
           });
         } else {
@@ -61,19 +106,18 @@ const userSignup = async (req, res) => {
           req.session.pass = pass;
           req.session.name = req.body.name;
           req.session.otp = otp;
-          res.redirect("/verify-otp");
+          return res.redirect("/verify-otp");
         }
       });
     } else {
       req.session.err = "User already exists";
-      res.render("./user/usersignup", { msg: "User Already exist" });
+      return res.render("./user/usersignup", { msg: "User Already exist" });
       console.log("User already exists");
     }
   } catch (e) {
     console.log(e);
     req.session.err = "something went wrong";
-    res.render("./user/usersignup");
-    console.log("user already exist");
+    return res.render("./user/usersignup");
   }
 };
 
@@ -137,7 +181,7 @@ const verifyOtp = async (req, res) => {
       }
     } else {
       console.log("Invalid OTP");
-      res.render("./user/verifyotp", { msg: "Invalid OTP" });
+      res.render("./user/verifyotp", { msg: "Invalid OTP", err: "errorfound" });
     }
   } catch (error) {
     console.error("Error in verifyOtp:", error);
@@ -166,11 +210,9 @@ const resendSignupOTP = async (req, res) => {
     // Update the session with the new OTP
     req.session.otp = newSignupOTP;
 
-    return res
-      .status(200)
-      .render("./user/verifyotp", {
-        message: "New OTP for signup sent successfully",
-      });
+    return res.status(200).render("./user/verifyotp", {
+      message: "New OTP for signup sent successfully",
+    });
   } catch (error) {
     console.error("Error while resending signup OTP:", error);
     return res
@@ -205,7 +247,7 @@ const userLogin = async (req, res) => {
         return res.json({ err: "invalid password" });
       }
     } else {
-      return res.json({ success: false, err: "User not found" });
+      return res.json({ success: false });
     }
   } catch (error) {
     return res.json({ success: false, err: "invalid username or password" });
@@ -216,6 +258,7 @@ const userlog = async (req, res) => {
   try {
     if (req.session.userlogged || req.user) {
       const user = req.session.userlogged;
+      const isAuthenticated = req.session.user ? true : false;
 
       // Fetch the IDs of blocked brands
       const blockedBrands = await brands.find(
@@ -255,6 +298,7 @@ const userlog = async (req, res) => {
           brand,
           Category: premiumCategory,
           flashSales: flashsalesProducts,
+          isAuthenticated,
         });
       } else {
         // Handle if Premium category is not found
@@ -380,11 +424,12 @@ const productSearch = async (req, res) => {
   }
 };
 
-
 // To cart
-const toCart = (req,res)=>{{
-    res.render('./user/cart')
-}}
+const toCart = (req, res) => {
+  {
+    res.render("./user/cart");
+  }
+};
 
 module.exports = {
   toHome,
@@ -404,5 +449,5 @@ module.exports = {
   filterByBrand,
   toViewAll,
   productSearch,
-  toCart
+  toCart,
 };

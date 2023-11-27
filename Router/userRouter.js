@@ -5,6 +5,7 @@ const otpcontroller = require('../controller/otpcontroller')
 require('dotenv').config()
 const userauth = require('../middleware/userAuth')
 const auth =  require('../controller/authcontroller')
+const userBlock = require('../middleware/userblock')
 
 // user login
 router.get('/user/indextologin',userauth.userExist,user.indextologin) 
@@ -20,7 +21,7 @@ router.get('/user/tologin',userauth.userExist,user.signupToLogin)
 
 
 // User logged Home page
-router.get('/user/home',userauth.verifyUser, user.userlog)
+router.get('/user/home',userauth.verifyUser,userBlock,user.userlog)
 router.get('/productview/:id',user.productview)
 router.get('/user/toproduct-list',userauth.verifyUser,user.productlist)
 
@@ -46,11 +47,14 @@ router.post('/verify-otp',user.verifyOtp)
 router.post('/resendOtp',user.resendSignupOTP)
 
 
-router.get('/brand-wise/:brandId',userauth.verifyUser,user.toBrandwise)
+router.get('/brand-wise/:brandId',user.toBrandwise)
 router.get('/brands/filterbybrand',user.filterByBrand)
 
 router.get('/allproductview/:categoryId',user.toViewAll)
-router.post('/products-search',userauth.verifyUser,user.productSearch)
+router.post('/products-search',user.productSearch)
 
 router.get('/cart',user.toCart)
+
+
+
 module.exports = router

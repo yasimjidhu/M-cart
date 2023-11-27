@@ -12,7 +12,11 @@ const productschema = mongoose.Schema({
     },
     price:{
         type:Number,
-
+        min:0
+    },
+    stock:{
+        type:Number,
+        default:0
     },
     image:{
         type:Array,

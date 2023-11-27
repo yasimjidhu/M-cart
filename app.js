@@ -13,6 +13,7 @@ const nodemailer = require('nodemailer')
 const zoom = require('js-image-zoom')
 const dotenv =require('dotenv')
 const passport = require('passport')
+const passwordvalidator = require('password-validator')
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { log } = require('console')
 dotenv.config()

@@ -20,11 +20,11 @@
           <div class="row">
             <div class="col-sm-3 col-md-4 col-lg-2">
               <ul class="category">
-                <li><a href="#">Best seller</a></li>
-                <li><a href="#">Latest Model</a></li>
-                <li><a href="#">Flagship</a></li>
-                <li><a href="#">Gaming</a></li>
-                <li><a href="#">Premium</a></li>
+                <li><a href="/best-seller">Best seller</a></li>
+                <li><a href="/latest-model">Latest Model</a></li>
+                <li><a href="/flagship">Flagship</a></li>
+                <li><a href="/gaming">Gaming</a></li>
+                <li><a href="/premium">Premium</a></li>
               </ul>
             </div>
             <div
@@ -78,9 +78,11 @@
         <div class="iphone" style="position: relative;">
           <!-- Create a link around the image with the product ID as a query parameter -->
           <a href="/productview/<%= x._id %>">
-            <img class="product-image" src="/uploads/<%= x.image[0] %>" alt="<%= x.productName %>" />
+            <img class="product-image" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>" />
+            
           </a>
-          <i class="fas fa-heart" style="position: absolute; right: 5px; top: 5px;font-size: 35px;color:#001524;"></i>
+          <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 35px;color:#001524;"></i>
+          
         </div>
         <div class="details">
           <!-- Display product information dynamically -->
@@ -95,8 +97,13 @@
 
 
 <div class="view-all">
-  <a href="/productview"><button type="submit">View All Products</button></a>
+  <form action="/allproductview/<%= Category._id %>" method="get">
+    <button type="submit">View All Products</button>
+  </form>
 </div>
+
+
+
 
 <section>
   <div class="container">
@@ -114,72 +121,19 @@
   </div>
 </section>
 
-          <div class="container">
-            <div class="row">
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/apple.svg" alt="">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/Samsung_Logo.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/vivo.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/oneplus.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/redmi.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/oppo.svg" alt="" class="sam">
-                    </div>
-                </div>
-            
-
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/nokia.svg" class="nokia" alt="">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/poco.svg" alt="" class="nokia">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/infinix.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/realme.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/huawei.svg" alt="" class="sam">
-                    </div>
-                </div>
-                <div class="col-sm-6 col-md-3 col-lg-2">
-                    <div class="rectangle">
-                        <img src="/svg/moto.svg" alt="" class="sam">
-                    </div>
-                </div>
-            </div>
+<div class="container">
+  <div class="row">
+      <% brand.forEach((brands) => { %>
+          <div class="col-sm-6 col-md-3 col-lg-2">
+              <div class="rectangle">
+                  <a id="brand-logo" href="/brand-wise/<%=brands._id%>">
+                      <img  src="/uploads/<%= brands.image %>" alt="<%= brands.productName %>" class="brand-logo ">
+                  </a>
+              </div>
           </div>
+      <% }); %>
+  </div>
+</div>
 
           <section>
             <div class="container">
@@ -191,68 +145,40 @@
                   </div>
                   <div class="flash">
                     <h3>Flash sales</h3>
-                    <!-- <section class="wrapper">
-                        <section id="countdown-container" class="countdown-container">
-                          <article id="js-countdown" class="countdown">
-                            <section id="js-days" class="number"></section>
-                            <section id="js-separator" class="separator">:</section>
-                            <section id="js-hours" class="number"></section>
-                            <section id="js-separator" class="separator">:</section>
-                            <section id="js-minutes" class="number"></section>
-                            <section id="js-separator" class="separator">:</section>
-                            <section id="js-seconds" class="number"></section>
-                          </article>
-                        </section>
-                      </section> -->
+                    
                       </div>
                 </div>
               </div>
             </div>
           </section>
 
-            <div class="container">
-                <div class="row">
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="iphone">
-                      <img src="/svg/iphone 14.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Apple iphone 14</h6>
-                      <p>64,999</p>
-                    </div>
+          <div class="container mt-4">
+            <div class="row">
+              <% flashSales.forEach(product => { %>
+                <div class="col-sm-12 col-md-4 col-lg-3">
+                  <div class="<%= product.productName %>">
+                    
+                    <a href="/productview/<%= product._id %>"><img class="product-images" src="/uploads/<%= product.image[0] %>" alt="<%= product.name %>" /></a>
                   </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="s23">
-                      <img src="/svg/s23.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Sasmsun Galaxy s23</h6>
-                      <p>1,14,999</p>
-                    </div>
+                  <div class="details">
+                    <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
+                    <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
                   </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="iphone">
-                      <img src="/svg/flip.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Samsung Galaxy Z Flip</h6>
-                      <p>85,999</p>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="iphone">
-                      <img src="/svg/fold.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Samsung Galaxy Fold</h6>
-                      <p>164,999</p>
-                    </div>
-                  </div>
+                  <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
                 </div>
-              </div>
-              
+              <% }); %>
+            </div>
+          </div>
+          
+          <div class="view-all">
+            <form action="/allproductview/<%= flashSales._id %>" method="get">
+              <button type="submit">View All Products</button>
+            </form>
+          </div>
+  
+
               <section>
-                <div class="container">
+                <div class=" mt-5">
                     <div class="row" style="background-color: black;">
                         <div class="col-md-6 d-flex justify-content-center align-items-center">
                             <div class="inner-div">
@@ -420,6 +346,7 @@
         <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
 
         <script src="/js/timer.js"></script>
+        <!-- <script src="/js/brand.js"></script> -->
       </body>
     </html>
   </body>

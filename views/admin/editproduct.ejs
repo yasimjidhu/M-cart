@@ -22,23 +22,24 @@
                         <%- include('../admin/partials/sidebar') %>
                     </div>
                     <div class="col-10 p-0 m-0">
-                        <form action="/admin/edit-product/<%= Products._id %>" method="post" enctype="multipart/form-data">
+                        <form action="/admin/edit-product/<%= Products._id %>" method="post" enctype="multipart/form-data" id="form">
                             <div class="row p-0">
                                 <div class="col-lg-3 p-0">
-                                    <% Products.image.forEach((image, index) => { %>
-                                        <div class="col-lg-12 small-img">
-                                            <input type="file" name="productImage<%= index + 1 %>" id="productImage<%= index + 1 %>"
-                                                accept="image/*" onchange="previewImage(event, 'preview<%= index + 1 %>')">
+                                    <% for (let index = 0; index < Products.image.length-1; index++) { %>
+                                        <div class="col-lg-12 small-img d-flex flex-column ">
+                                            
                                             <div class="preview" id="preview<%= index + 1 %>">
-                                                <img src="/uploads/<%= image %>" alt="Product Image" class="preview-image" id="img<%= index + 1 %>">
+                                                <img src="/uploads/<%= Products.image[index] %>" alt="Product Image" class="preview-image" id="img<%= index + 1 %>">
                                             </div>
+                                            <input class="w-100" type="file" name="newProductImage<%= index + 1 %>" id="productImage<%= index + 1 %>"
+                                                accept="image/*" onchange="previewImage(event, 'preview<%= index + 1 %>')">
                                         </div>
-                                    <% }); %>
+                                    <% } %>
                                 </div>
                                 <div class="col-5">
-                                    <input type="file" name="productImage" id="productImage" accept="image/*"
+                                    <input type="file" name="mainImage" id="productImage" accept="image/*"
                                         onchange="previewImage(event, 'preview5')">
-                                    <div class="preview" style="width: 100%; height: 50%; background-color: #9da4aa;"
+                                    <div class="preview"
                                         id="preview5">
                                         <% if (Products.image[4]) { %>
                                             <img src="/uploads/<%= Products.image[4] %>" alt="Main Product Image" class="preview-image" id="mainImg">
@@ -49,7 +50,7 @@
                                     <!-- Your form fields here -->
                                     <div class="form-group">
                                         <label for="category">Category</label>
-                                        <select class="form-control" id="category" name="category">
+                                        <select class="form-control" id="category" name="Category" >
                                             <% categories.forEach(category=> { %>
                                                 <option value="<%= category._id %>">
                                                     <%= category.CategoryName %>
@@ -59,46 +60,68 @@
                                     </div>
                                     <div class="form-group">
                                         <label for="productName">Product Name</label>
-                                        <input type="text" class="form-control" id="productName" name="productName"
+                                        <input type="text" class="form-control" id="productName" name="productName" 
                                             value="<%=Products.productName %>">
+                                            <p id="productNameError"></p>
                                     </div>
                                     <div class="form-group">
                                         <label for="price">Price</label>
-                                        <input type="number" class="form-control" id="price" name="price"
+                                        <input type="number" class="form-control" id="price" name="price" 
                                             value="<%=Products.price%>">
+                                            <%if(priceErr){%>
+                                                <p style="color: red;"><%=priceErr%></p>
+                                            <%}%>
+                                            
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="stock">stock</label>
+                                        <input type="number" class="form-control" id="stock" name="stock" 
+                                            value="<%=Products.stock%>">
+                                            <%if(stockErr){%>
+                                                <p style="color: red;"><%=stockErr%></p>
+                                            <%}%>
                                     </div>
                                     <div class="form-group">
                                         <label for="brand">Brand</label>
-                                        <input type="text" class="form-control" id="brand" name="brand"
-                                            value="<%=Products.brand %>">
+                                        <select class="form-control" id="brand" name="brand" >
+                                            <% Brand.forEach(brand => { %>
+                                                <option value="<%= brand._id %>"><%= brand.brandName %></option>
+                                                <!-- Replace 'brandName' with the actual field name containing brand names -->
+                                            <% }); %>
+                                        </select>
                                     </div>
                                     <div class="form-group">
                                         <label for="description">Description</label>
-                                        <textarea class="form-control" id="description"
+                                        <textarea class="form-control" id="description" 
                                             name="description"><%=Products.description %></textarea>
+                                            <p id="descriptionError"></p>
                                     </div>
                                     <div class="form-group">
                                         <label for="specification1">Specification 1</label>
-                                        <textarea class="form-control" id="specification1"
+                                        <textarea class="form-control" id="specification1" 
                                             name="specifications[]"><%=Products.specifications[0]%></textarea>
+                                            <p id="specification1Error"></p>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="specification2">Specification 2</label>
-                                        <textarea class="form-control" id="specification2"
+                                        <textarea class="form-control" id="specification2" 
                                             name="specifications[]"><%=Products.specifications[1]%></textarea>
+                                            <p id="specification2Error"></p>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="specification3">Specification 3</label>
-                                        <textarea class="form-control" id="specification3"
+                                        <textarea class="form-control" id="specification3" 
                                             name="specifications[]"><%=Products.specifications[2]%></textarea>
+                                            <p id="specification3Error"></p>
                                     </div>
 
                                     <div class="form-group">
                                         <label for="specification4">Specification 4</label>
-                                        <textarea class="form-control" id="specification4"
+                                        <textarea class="form-control" id="specification4" 
                                             name="specifications[]"><%=Products.specifications[3]%></textarea>
+                                            <p id="specification4Error"></p>
                                     </div>
                                     <div class="cancel-sub">
                                         <button class="btn-cancel">Cancel</button>
@@ -115,6 +138,8 @@
 
 
         <script>
+            
+            //preview image
             function previewImage(event, previewId) {
                 const file = event.target.files[0];
                 const reader = new FileReader();
@@ -134,4 +159,102 @@
                     reader.readAsDataURL(file);
                 }
             }
+
+/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>|Form Validation|<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<*/
+            
+            // field empty function
+            function isEmpty(value){
+                const trimmedValue = value.trim()
+                return trimmedValue ===""
+            }
+            function isValid(value){
+                const regex = /^[a-zA-Z]+$/
+                return regex.test(value)
+            }
+
+            document.querySelector('#form').addEventListener('submit', function(event){
+
+            // Product Name 
+            const productNameInput = document.querySelector('#productName')
+            const productNameValue = productNameInput.value
+            const productNameError = document.querySelector('#productNameError')
+
+            // Description
+            const descriptionInput = document.querySelector('#description')
+            const descriptionValue = descriptionInput.value
+            const descriptionError = document.querySelector('#descriptionError')
+
+            // Specifications1
+            const specification1Input = document.querySelector('#specification1')
+            const specification1Value = specification1Input.value
+            const specification1Error = document.querySelector('#specification1Error')
+
+            // Specification 2
+            const specification2Input = document.querySelector('#specification2')
+            const specification2Value = specification1Input.value
+            const specification2Error = document.querySelector('#specification2Error')
+
+            // Specifiaction 3
+            const specification3Input = document.querySelector('#specification3')
+            const specification3Value = specification3Input.value
+            const specification3Error = document.querySelector('#specification3Error') 
+
+            // Specification 4
+            const specification4Input = document.querySelector('#specification4')
+            const specification4Value = specification4Input.value
+            const specification4Error = document.querySelector('#specification4Error')
+
+            productNameError.textContent=""
+            descriptionError.textContent=""
+            specification1Error.textContent=""
+            specification2Error.textContent=""
+            specification3Error.textContent=""
+            specification4Error.textContent=""
+
+            if(isEmpty(productNameInput)){
+                productNameError.textContent="Product Name cannot be empty"
+                productNameError.style.color="red"
+                event.preventDefault()
+            }
+            if(isEmpty(descriptionValue)){
+                descriptionError.textContent="description cannot be empty"
+                descriptionError.style.color="red"
+                event.preventDefault()
+            }
+            if(isEmpty(specification1Value)){
+                specification1Error.textContent="specification cannot be empty"
+                specification1Error.style.color="red"
+                event.preventDefault()
+            }
+            if(isEmpty(specification2Value)){
+                specification2Error.textContent="specification cannot be empty"
+                specification1Error.style.color="red"
+                event.preventDefault()
+            }
+            if(isEmpty(specification3Value)){
+                specification3Error.textContent="specification cannot be empty"
+                specification3Error.style.color="red"
+                event.preventDefault()
+            }
+            if(isEmpty(specification4Value)){
+                specification4Error.textContent="specification cannot be empty"
+                specification4Error.style.color="red"
+                event.preventDefault()
+            }
+
+            // input validation
+            if(!isValid(productNameValue)){
+                productNameError.textContent="only use alphabets"
+                productNameError.style.color="red"
+                event.preventDefault()
+            }
+            if(!isValid(descriptionValue)){
+                descriptionError.textContent="only use alphabets"
+                descriptionError.style.color="red"
+                event.preventDefault()
+            }
+        })
+
+        
+
         </script>

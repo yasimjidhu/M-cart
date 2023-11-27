@@ -44,7 +44,13 @@
                     </button>
                   </form>
                 </td>
-                <td><%= category.createdAt %></td>
+                <td><%if(category.createdAt instanceof Date){%>
+                  <%=category.createdAt.toLocaleDateString('en-GB') %>
+
+                  <% } else { %>
+                    N/A
+                  <% } %>
+                </td>
               </tr>
             <% }); %>
           </tbody>

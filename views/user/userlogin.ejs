@@ -8,18 +8,16 @@
 
 
 <section>
-    <div class="main w-100">
-      <div class="sign-image vw-50">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-6 sign-image ">
           <img src="/svg/signup.svg" alt="">
       </div>
-  
-      <div class="sign-form vw-50 ">
+      <div class=" col-lg-6  form-main">
+        <div class="login-form ">
           <form class="signup-form" id="login-form">
-            
-            
-            
-            <h3>Login to M-CART</h3>
-            <p>Enter your details below </p>
+            <h3 style="color:#FF7D00 ;">Login to M-CART</h3>
+            <!-- <p>Enter your details below </p> -->
               <div class="mb-3 ">
                 <div id="errorMessage" style="color: rgb(207, 0, 0); ">
                   <% if (locals.err) { %>
@@ -29,12 +27,14 @@
                     <p id="msg" style="color: green; "><%= locals.msg %></p>
                   <% } %>
                 </div>
-                <label for="exampleInputPassword1" class="form-label"></label>
-                <input type= "email" name="email"  class="form-control" placeholder="Email or Phone Number" id="exampleInputEmail1">
+                <div class="emailerror" id="emailError"></div>
+                <label for="exampleInputPassword1" class="form-label">Email</label>
+                <input type= "email" name="email"  class="form-control" placeholder="Enter your email address" id="email">
               </div>
               <div class="mb-3">
-                <label for="exampleInputPassword1" class="form-label"></label>
-                <input type="password" name="password" class="form-control" placeholder="Password"  id="exampleInputPassword1">
+                <div class="passwordError" id="passwordError"></div>
+                <label for="exampleInputPassword1" class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="Password"  id="password">
               </div>
               <div class="login-items">
                 <form action="/user/login" method="post">
@@ -45,11 +45,53 @@
             </form>
       </div>
     </div>
+    </div>
+  </div>
+  </div>
     </section>
     <script>
     document.getElementById('login-form').addEventListener('submit', function (e) {
-      e.preventDefault(); // Prevent the default form submission
-  
+      e.preventDefault();
+
+      /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Form validation<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<*/
+      
+      // Email input empty or not
+      function isEmpty(email){
+        const trimmedValue = email.trim()
+        return trimmedValue ==="";
+      }
+
+      // Email validation
+      function validateEmail(email){
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        return emailRegex.test(email)
+      }
+
+      const emailInput = document.querySelector('#email')
+      const emailValue = emailInput.value;
+      const emailError = document.querySelector('#emailError')
+      
+      const passwordInput = document.querySelector('#password')
+      const passwordValue = passwordInput.value;
+      const passwordError = document.querySelector('#passwordError')
+
+      if(isEmpty(emailValue)){
+        emailError.textContent="please enter email address"
+        emailError.style.color="red"
+      }
+      
+      if(isEmpty(passwordValue)){
+        passwordError.textContent="please enter your password"
+        passwordError.style.color="red"
+      }
+
+      if(!validateEmail(emailValue)){
+        emailError.textContent="please enter valid email"
+        emailError.style.color="red"
+      }
+
+
+
       // Get form data
       const email = document.querySelector("input[name='email']").value;
       const password = document.querySelector("input[name='password']").value;
@@ -78,23 +120,29 @@
               console.log('Login successful');
           } else {
               document.getElementById("errorMessage").textContent = data.err; // Display the error message 
-              console.log('Login failed');
+              console.log('Login failed',data.err);
           }
       })
       .catch(error => {
           // Handle network or server errors
           console.error('Error:', error);
       });
+
+      
   });
 
   // hide error message
 
   setTimeout(function() {
-    var errmsg = document.getElementById('errorMessage');
+    var errmsg = document.querySelector('#errorMessage')
     var msg = document.getElementById('msg')
-    errmsg.textContent = ""
-    msg.textContent = ""
-    },2000);
+    var emailError = document.querySelector('#emailError')
+    var passwordError= document.querySelector('#passwordError')
+    errmsg.innerHTML = ""
+    msg.innerHTML= ""
+    emailError.textContent=""
+    passwordError.textContent=""
+    },3000);
 
 </script>
   

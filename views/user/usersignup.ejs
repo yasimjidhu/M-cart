@@ -1,165 +1,238 @@
 <!--header-->
-<%- include('partials/header') %> 
+<%- include('partials/header') %>
 
-<!--Navbar-->
-<%-include('partials/navbar') %>
+  <!--Navbar-->
+  <%-include('partials/navbar') %>
 
-<style>
-  .requires{
+    <style>
+      .requires {
 
-    margin-left: 10px;
+        margin-left: 10px;
 
-  }
-</style>
+      }
+    </style>
 
-<section>
-    <div class="main w-100">
-        <div class="sign-image vw-50">
-            <img src="/svg/login.svg" alt="">
-        </div>
-        <div class="sign-form vw-50">
-            <form class="signup-form" method="post" action="/user/signup" onsubmit="return validatePassword() && validateForm()">
-                
-                
-
-                <h3>Create an account</h3>
-                <p>Enter your details below </p>
-                <p id="errorMessage" style="color: red;"></p> <!-- Error message -->
-                    <p style="color: rgb(196, 0, 0); font-size: 14px; ;" id="existmsg"><%= (locals.msg) %></p>
-                <div class="mb-3 user-signup" >
-                    <label for="name" class="form-label" style="font-size: 13px;">Full Name</label>
-                    <input type="text" class="form-control" name="name" placeholder="Full Name" id="name" required>
-                </div>
-                
-                <div class="mb-3">
-                    
-                    <label for="email" class="form-label" style="font-size: 13px;">Email</label>
-                    <input type="email" class="form-control" name="email" placeholder="Email or Phone Number" id="email" required>
-                    
+    <section>
+      <div class="container mt-5">
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="sign-image vw-50">
+              <img src="/svg/login.svg" alt="">
+            </div>
+          </div>
+          <div class="col-lg-6 ">
+            <div class="signup-form-div  ">
+              <form class="signup-form" method="post" action="/user/signup" id="form" >
+                <h3 style="color:#FF7D00;">Create an account</h3>
+                <!-- <p>Enter your details below </p> -->
+                <p id="errorMessage" style="color: red; text-align: center;"></p> <!-- Error message -->
+                <p style="color: rgb(196, 0, 0); font-size: 14px; ;" id="existmsg">
+                  <%= (locals.msg) %>
+                </p>
+                <div class="mb-3 user-signup">
+                  <div class="name-error" id="nameError"></div>
+                  <label for="name" class="form-label" style="font-size: 13px;">Full Name</label>
+                  <input type="text" class="form-control" name="name" placeholder="Full Name" id="name" >
                 </div>
                 <div class="mb-3">
-                    <p class="msg" style="color: rgb(184, 0, 0);" id="passwordError"></p>
-                    <label for="password" class="form-label" style="font-size: 13px;">Provide strong password</label>
-                    <input type="password" class="form-control" name="password" placeholder="Password" id="password" required oninput="validatePassword()">
+                  <div class="email-error" id="emailError"></div>
+                  <label for="email" class="form-label" style="font-size: 13px;">Email</label>
+                  <input type="email" class="form-control" name="email" placeholder="Email or Phone Number" id="email"
+                    >
                 </div>
-                <button class="sign-btn" type="submit" value="signup"  id="signup-Button">Create Account</button>
-                <div class="sign-up" style="display: flex; justify-content: start; align-items: center;">
+                <div class="mb-3">
+                  <div class="password" id="passwordError"></div>
+                  <label for="password" class="form-label" style="font-size: 13px;">Provide strong password</label>
+                  <input type="password" class="form-control" name="password" placeholder="Password" id="password"
+                    >
+                </div>
+                <div class="mb-3">
+                  <div class="password" id="confirmPasswordError"></div>
+                  <label for="confirmPassword" class="form-label" style="font-size: 13px;">Confirm password</label>
+                  <input type="password" class="form-control" name="confirmPassword" placeholder="confirmPassword" id="confirmPassword"
+                    >
+                </div>
+                <div class="sign-up" style="display: flex; justify-content: center; align-items: center;">
+                  <button class="sign-btn " type="submit" value="signup" id="signup-Button">Create Account</button>
+                </div>
+                <div class="sign-up" style="display: flex; justify-content: center; align-items: center;">
                   <a href="/auth/google">
-                      <img src="/svg/google.svg" alt="Google G Logo" style="width: 24px; height: 24px; margin-right: 10px;">
-                      Sign up with Google
+                    <img src="/svg/google.svg" alt="Google G Logo"
+                      style="width: 24px; height: 24px; margin-right: 10px;">
+                    Sign up with Google
                   </a>
-              </div>
-              
-                    <div class="a-link">
-                        <span id="sp">Already have an account ? </span><a class="login-link" href="/user/tologin"> Login</a>
-                    </div>
-                
-            </form>
+                </div>
+
+                <div class="a-link">
+                  <span id="sp">Already have an account ? </span><a class="login-link" href="/user/tologin"> Login</a>
+                </div>
+
+              </form>
+              <div id="passwordStrength"></div>
+            </div>
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+      </div>
+    </section>
 
 
 
-<script src="https://unpkg.com/password-validator@5.1.1/dist/password-validator.min.js"></script>
+    <script src="https://unpkg.com/password-validator@5.1.1/dist/password-validator.min.js"></script>
 
 
-<script>
-    function validatePassword() {
-      var password = document.getElementById('password').value;
-      var msg = document.getElementById('passwordError');
-      var signupbutton = document.getElementById('signup-Button');
-      var errors = [];
-  
-      var schema = new passwordValidator();
-  
-      schema
-        .is().min(8)
-        .has().uppercase()
-        .has().lowercase()
-        .has().digits()
-        .has().symbols()
-        .is().not().spaces();
-  
-      if (!schema.has().uppercase(password)) {
-        errors.push("At least one uppercase letter");
-      }
-      if (!schema.has().lowercase(password)) {
-        errors.push("At least one lowercase letter");
-      }
-      if (!schema.has().digits(password)) {
-        errors.push("At least one digit");
-      }
-      if (!schema.has().symbols(password)) {
-        errors.push("At least one symbol");
-      }
-      if (!schema.is().min(8, password)) {
-        errors.push("Minimum length should be 8 characters");
-      }
-  
-      if (errors.length === 0) {
-        msg.innerHTML = "";
-        signupbutton.disabled = false;
-      } else {
-        msg.innerHTML = errors.join(", ");
-        signupbutton.disabled = true;
-        return false;
-      }
-  
-      return true;
-    }
-  
-    document.getElementById('password').addEventListener('input', validatePassword);
-    
+    <script>
 
-    function onSignIn(googleUser) {
-        var profile = googleUser.getBasicProfile();
-        console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-        console.log('Name: ' + profile.getName());
-        console.log('Image URL: ' + profile.getImageUrl());
-        console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
-    }
-
-    function signOut() {
-        var auth2 = gapi.auth2.getAuthInstance();
-        auth2.signOut().then(function () {
-            console.log('User signed out.');
-        });
-    }
-
-    function validateForm() {
-        // Get the values of the form fields
-        var name = document.getElementById('name').value;
-        var email = document.getElementById('email').value;
-        var password = document.getElementById('password').value;
-
-        // Check if any of the fields is empty
-        if (name === '' || email === '' || password === '') {
-            // Display an error message
-            var errorMessage = document.getElementById('errorMessage');
-            errorMessage.innerHTML = 'Please fill out all fields';
-
-            // set a timeout function to remove the error message after 3 seconds
-            setTimeout(function () {
-                errorMessage.innerHTML = '';
-            }, 3000);
-
-            return false; // Prevent the form from submitting
-        }
-
-        // If all fields are filled, allow the form to submit
-        return true;
-    }
-
-  setTimeout(function() {
-    var errmsg = document.getElementById('existmsg');
-    errmsg.innerHTML = ""
-  },3000);
+/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Form validation<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<*/
 
 
-</script>
+          
+          function isEmpty(value) {
+            const trimmedValue = value.trim()
+            return trimmedValue === "";
+          }
+
+          function isValidName(userName) {
+            // It checks the username contains only alphabets
+            const regex = /^[a-zA-Z]+$/
+
+            // Test the userName is matches the regular expression
+            return regex.test(userName)
+          }
+
+
+          function validateEmail(email) {
+            const emailRegex =  /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            return emailRegex.test(email)
+          }
+
+          function validatePassword(password) {
+            // Define the strong password pattern
+
+            const strongPasswordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,])(?=.*[a-zA-Z]).{8,}$/;
+
+            //test the password against the pattern
+            return strongPasswordPattern.test(password)
+          }
+
+          function confirmPasswordOk(password,confirmpassword){
+            return password ===confirmpassword;
+            
+          }
+
+          document.querySelector('#form').addEventListener('submit', function (event) {
+            const nameInput = document.querySelector('#name')
+            const namevalue = nameInput.value;
+            const nameError = document.querySelector('#nameError')
+            const emailInput = document.querySelector('#email')
+            const emailValue = emailInput.value;
+            const emailError = document.querySelector('#emailError')
+            const passwordInput = document.querySelector('#password')
+            const passwordValue = passwordInput.value;
+            const passwordError = document.querySelector('#passwordError')
+            const confirmPasswordInput = document.querySelector('#confirmPassword')
+            const confirmPasswordValue = confirmPasswordInput.value;
+            const confirmPasswordError = document.querySelector('#confirmPasswordError')
+            
+            
+            
+
+
+            nameError.textContent = "";
+            emailError.textContent = "";
+            passwordError.textContent = "";
+            confirmPasswordError.textContent=""
+
+            if (isEmpty(namevalue)) {
+              nameError.textContent = "name can't be empty";
+              nameError.style.color = 'red';
+              event.preventDefault()
+            }
+
+            if (isEmpty(emailValue)) {
+              emailError.textContent = "Email can't be empty...!";
+              emailError.style.color = "red"
+              event.preventDefault()
+            }
+            if (isEmpty(passwordValue)) {
+              passwordError.textContent = "Password cannot be empty";
+              passwordError.style.color = "red"
+              event.preventDefault()
+            }
+
+            if(isEmpty(confirmPasswordValue)){
+              confirmPasswordError.textContent="Confirm password is required";
+              confirmPasswordError.style.color="red"
+              event.preventDefault()
+            }
+
+            // Validate Name
+            if (!isValidName(namevalue)) {
+              nameError.textContent = "Only Use Alphabets";
+              nameError.style.color = "red"
+              event.preventDefault()
+            }
+
+            // Validate email
+            if (!validateEmail(emailValue)) {
+              emailError.textContent = "Enter a valid email....!"
+              emailError.style.color = "red"
+              event.preventDefault()
+            }
+
+            // validate password
+            if (!validatePassword(passwordValue)) {
+              passwordError.textContent = "password must be atleast 8 characters long,one digit,one lower case letter,one uppercase letter and atleast one special character ";
+              passwordError.style.color = "red"
+              passwordError.style.fontSize = "14px"
+              event.preventDefault()
+            }
+
+            // Confirm password 
+            if(!confirmPasswordOk(passwordValue,confirmPasswordValue)){
+              confirmPasswordError.textContent="passwords do not match "
+              confirmPasswordError.style.color="red"
+              event.preventDefault()
+            }
+          });
+
+          var nameErrorHide = document.querySelector('#nameError')
+          var emailErrorHide = document.querySelector('#emailError')
+          var passwordErrorHide = document.querySelector('#passwordError')
+
+          setTimeout(function () {
+            var errmsg = document.getElementById('existmsg');
+            errmsg.innerHTML = ""
+            nameErrorHide.textContent = ""
+            emailErrorHide.textContent = ""
+            passwordErrorHide.textContent = ""
+          }, 3000);
+
+          //GOOGLE AUTHENTICATION
+          function onSignIn(googleUser) {
+            var profile = googleUser.getBasicProfile();
+            console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
+            console.log('Name: ' + profile.getName());
+            console.log('Image URL: ' + profile.getImageUrl());
+            console.log('Email: ' + profile.getEmail()); // This is null if the 'email' scope is not present.
+          }
+
+          // sIGNOUT FUNCTION
+          function signOut() {
+            var auth2 = gapi.auth2.getAuthInstance();
+            auth2.signOut().then(function () {
+              console.log('User signed out.');
+            });
+          }
+
+
+
+
+
+        </script>
     </body>
+
     </html>
 
     <!--footer-->
-<%-include('partials/footer') %>
+    <%-include('partials/footer') %>

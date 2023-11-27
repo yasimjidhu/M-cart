@@ -17,15 +17,7 @@ const transporter = nodemailer.createTransport({
 async function sendOtp(email,otp) {
     console.log('called');
     try { 
-    // console.log("to email is .......",JSON.stringify(req.body));
-    // const {email1} = req.body;
-
-    // Generate a 4-digit OTP
-
-        // // Save the user and OTP to the database
-        // const newUser = new User({ email: otp });
-        // await newUser.save();
-
+    
         // Create an email with the OTP
         const mailOptions = {
             from: 'jidhuyasim@gmail.com',

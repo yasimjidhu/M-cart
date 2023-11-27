@@ -6,12 +6,18 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-6 addcategory-img">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        <div class="col-lg-5 addcategory-img">
             <img src="/images/theme/category.png" alt="" style="width:100%;">
         </div>
-        <div class="col-lg-6 addcategory-form ">
+        <div class="col-lg-5 addcategory-form ">
             <form class="signup-form1 " action="/admin/add-category" method="post">
                 <div class="mb-3">
+                    <%if(locals.err){%>
+                        <p style="color: red;"><%=err%></p>
+                    <%}%>
                     <label for="category" class="form-label text-center">Enter the category</label>
                     <input type="text" class="form-control1" id="category" name="CategoryName" placeholder="Best seller">
                 </div>

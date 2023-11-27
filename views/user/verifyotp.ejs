@@ -62,6 +62,10 @@
             <h6 id="verifymsg2" style="color: rgb(0, 143, 0);"><%=locals.message%></h6>
             <h4>Verify</h4>
             <p>Your code was sent to you via email</p>
+            <%if(!locals.err){%>
+              <p id="timer"></p>
+            <%}%>
+            
             <form action="/verify-otp" method="post">
               <div class="otp-field mb-4">
                 <input type="number" name="otp1" required/>
@@ -74,7 +78,7 @@
               <button type="submit" style="background-color:#FF7D00 ;"  class="btn  mb-3">Verify</button>
             </form>
             <form action="/resendOtp" method="post">
-              <button type="submit" style="background-color: #001524; color: #ddd;" class="btn mb-3">Resend</button>
+              <button id="resend-btn" onclick="startResendTimer()" type="submit" style="background-color: #001524; color: #ddd;" class="btn mb-3">Resend</button>   
             </form>
           </div>
           </div>
@@ -86,7 +90,62 @@
   
 
   <script>
-    const inputs = document.querySelectorAll(".otp-field > input");
+
+const resendButton = document.getElementById('resend-btn');
+const timerElement = document.getElementById('timer');
+let countdown = 60 * 4;
+
+function startTimer() {
+  // resendButton.disabled = true;
+
+  let timer = setInterval(() => {
+    const minutes = Math.floor(countdown / 60);
+    const seconds = countdown % 60;
+
+    const formattedMinutes = String(minutes).padStart(2, '0'); // Ensure 2-digit format for minutes
+    const formattedSeconds = String(seconds).padStart(2, '0'); // Ensure 2-digit format for seconds
+
+    timerElement.textContent = `otp will expire within ${formattedMinutes}:${formattedSeconds} minutes`;
+    timerElement.style.color = 'red';
+
+    if (countdown <= 0) {
+      clearInterval(timer);
+      timerElement.textContent = '';
+      // resendButton.disabled = false;
+    } else {
+      countdown -= 1;
+    }
+  }, 1000);
+}
+
+function startResendTimer() {
+  const countdown = 60 * 4; // Resend countdown time (4 minutes in this case)
+  startTimer(countdown);
+}
+
+
+// Call startTimer function when the page initially reloads
+
+window.onload = function () {
+  const countdown = 60 * 4; // Initial countdown time (4 minutes in this case)
+  startTimer(countdown);
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+const inputs = document.querySelectorAll(".otp-field > input");
 const button = document.querySelector(".btn");
 
 window.addEventListener("load", () => inputs[0].focus());

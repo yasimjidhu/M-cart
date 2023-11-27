@@ -2,19 +2,26 @@
 
     <div class="container-fluid p-0">
         <div class="admin-sidebar">
-            <a href="/admin/dashboard" onclick="updateTitle('Dashboard')">Dashboard</a>
-            <a href="/admin/customers">Customers</a>
-            <a href="/admin/products">Products</a>
-            <a href="/admin/category">Category</a>
-            <a href="/admin/brands">Brands</a>
-            <a href="/admin/orders">Orders</a>
-            <a href="/admin/banner">Banner</a>
+            <a href="/admin/dashboard" onclick="updateTitle('Dashboard')" class="active">Dashboard</a>
+            <a href="/admin/customers" onclick="updateTitle('customers')" class="active">Customers</a>
+            <a href="/admin/products" onclick="updateTitle('Products')" class="active">Products</a>
+            <a href="/admin/category" onclick="updateTitle('Category')" class="active">Category</a>
+            <a href="/admin/brands" onclick="updateTitle('Brands')" class="active">Brands</a>
+            <a href="/admin/orders" onclick="updateTitle('Orders')" class="inactive">Orders</a>
+            <a href="/admin/banner" onclick="updateTitle('Banner')" class="inactive">Banner</a>
+            <a href="/admin/Coupon" onclick="updateTitle('Coupon')" class="inactive">Coupon</a>
         </div>
     </div>
 
     <script>
-        function updateTitle(page){
-            document.getElementById('current-page').textContent = page;
-        }
+        function updateTitle(page) {
+        const links = document.querySelectorAll('.admin-sidebar a');
+        links.forEach(link => {
+            link.classList.remove('active');
+        });
+
+        document.getElementById('current-page').textContent = page;
+        event.target.classList.add('active');
+    }
     </script>
 

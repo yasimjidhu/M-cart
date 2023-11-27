@@ -39,11 +39,10 @@
                 <tr>
                   <th>No</th>
                   <th>Brand</th>
-                  <th>Sales</th>
-                  <th>Stock</th>
                   <th>Added Date</th>
                   <th>Status</th>
                   <th>Logo</th>
+                  <th>Edit</th>
                   <th>Action</th>
                 </tr>
               </thead>
@@ -52,8 +51,6 @@
                 <tr>
                   <td><%= index + 1 %></td>
                   <td><%= brand.brandName%></td>
-                  <td>$<%= brand.sales %></td>
-                  <td><%= brand.stock %></td>
                   <td><% if (brand.addedDate instanceof Date) { %>
                     <%= brand.addedDate.toLocaleDateString('en-GB') %>
                   <% } else { %>

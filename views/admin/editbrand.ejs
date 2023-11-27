@@ -10,16 +10,19 @@
             <img src="/images/theme/brand-bg.jpg" alt="" style="width:100%;">
         </div>
         <div class="col-lg-4 add-brand ">
-            <form class="signup-form1 " action="/admin/edit-brand/<%=brand._id %>" method="post" enctype="multipart/form-data">
+            <form class="signup-form1 " action="/admin/edit-brand/<%=brand._id %>" method="post" enctype="multipart/form-data" id="form">
                 <div class="mb-3">
                     <label for="brandName" class="form-label text-center">Enter the Brand Name</label>
                     <input type="text" class="form-control1" id="brand" name="brandName" value="<%=brand.brandName %>">
-                    <label for="sales" class="form-label text-center">Enter the sales</label>
-                    <input type="number" class="form-control1" id="brand" name="sales" value="<%=brand.sales %>">
-                    <label for="stock" class="form-label text-center">Enter the Stock</label>
-                    <input type="number" class="form-control1" id="brand" name="stock" value="<%=brand.stock %>">
+                    <%if(locals.existingErr){%>
+                        <p style="color: red;"><%=existingErr%></p>
+                    <%}%>
+                    <p id="brandError"></p>
                     <label for="image" class="form-label text-center">Upload Image</label>
                     <input type="file" class="form-control1" id="logo" name="logo" onchange="displaySelectedImage(event)" accept="image/*">
+                    <%if(locals.imageErr){%>
+                        <p style="color: red;"><%=imageErr%></p>
+                    <%}%>
                     <div id="selected-image-container">
                         <% if (brand.image) { %>
                             <img src="/uploads/<%= brand.image %>" alt="Brand Logo" style="width: 100%;">
@@ -28,6 +31,7 @@
                         <% } %>
                     </div>
                 </div>
+                
                 
                 <button type="submit" class="btn category-btn">Update</button>
             </form>
@@ -57,4 +61,32 @@
             reader.readAsDataURL(selectedImage); // Read the selected image as Data URL
         }
     }
+
+    function isEmpty(value){
+        const trimmed = value.trim()
+        return trimmed===""
+    }
+    function isValid(value){
+        const regex = /^[a-zA-Z]+$/
+        return regex.test(value)
+    }
+
+    document.querySelector('#form').addEventListener('submit',function(event){
+        const brandName = document.querySelector('#brand')
+        const brandValue = brandName.value
+        const brandError = document.querySelector('#brandError')
+
+        brandError.textContent=""
+
+        if(isEmpty(brandValue)){
+            brandError.textContent="Brand Name is required"
+            brandError.style.color="red"
+            event.preventDefault()
+        }
+        if(!isValid(brandValue)){
+            brandError.textContent="please enter valid Brand Name"
+            brandError.style.color="red"
+            event.preventDefault()
+        }
+    })
 </script>
