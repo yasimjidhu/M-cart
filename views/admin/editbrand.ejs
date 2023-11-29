@@ -6,12 +6,19 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-5 addcategory-img">
-            <img src="/images/theme/brand-bg.jpg" alt="" style="width:100%;">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
         </div>
-        <div class="col-lg-4 add-brand ">
-            <form class="signup-form1 " action="/admin/edit-brand/<%=brand._id %>" method="post" enctype="multipart/form-data" id="form">
+        <div class="col-lg-6 addcategory-img  d-flex justify-content-center">
+            <img src="/svg/update.svg" alt="" style="width:85%;">
+        </div>
+        <div class="col-lg-4 add-brand  d-flex align-items-center">
+            <form class="signup-form1 " action="/admin/edit-brand/<%=brand._id %>" method="post" enctype="multipart/form-data" id="form" onsubmit="validateFrm(event)">
                 <div class="mb-3">
+                    <%if(locals.nullError){%>
+                        <p style="color: red;"><%=nullError%></p>
+                    <%}%>
+                    <p id="nullbody"></p>
                     <label for="brandName" class="form-label text-center">Enter the Brand Name</label>
                     <input type="text" class="form-control1" id="brand" name="brandName" value="<%=brand.brandName %>">
                     <%if(locals.existingErr){%>
@@ -20,39 +27,55 @@
                     <p id="brandError"></p>
                     <label for="image" class="form-label text-center">Upload Image</label>
                     <input type="file" class="form-control1" id="logo" name="logo" onchange="displaySelectedImage(event)" accept="image/*">
-                    <%if(locals.imageErr){%>
-                        <p style="color: red;"><%=imageErr%></p>
+                    <%if(locals.imageErr||locals.imgError){%>
+                        <p style="color: red;"><%=imageErr||imgError%></p>
                     <%}%>
                     <div id="selected-image-container">
                         <% if (brand.image) { %>
-                            <img src="/uploads/<%= brand.image %>" alt="Brand Logo" style="width: 100%;">
+                            <img src="/uploads/<%= brand.image %>" alt="Brand Logo" style="width: 50%;" id="imgBrand">
                         <% } else { %>
                             <h6 class="text-center">No Image Selected</h6>
                         <% } %>
                     </div>
                 </div>
-                
-                
                 <button type="submit" class="btn category-btn">Update</button>
             </form>
         </div>
-        <div class="col-lg-3"  id="selected-image-container" style="background-color:#a198988a ;">
-            <!-- Selected image will be displayed here -->
-            <h6 class="text-center">Brand Logo</h6>
-        </div>
-        
     </div>
 </div>
 <script>
+
+    // check the admin has changed anything
+    window.addEventListener('load',()=>{
+        let splited=document.getElementById("imgBrand").src.split('/');
+        localStorage.setItem("brandName",document.getElementById("brand").value)
+        localStorage.setItem("image",splited[splited.length-1])
+    })
+    function validateFrm(e){
+        let splited=document.getElementById("imgBrand").src.split('/');
+        let inputval=document.getElementById("brand").value.trim();
+        if(inputval==localStorage.getItem("brandName") && splited[splited.length-1].trim()==localStorage.getItem("image").trim()){
+        e.preventDefault()
+        var nullmsg = document.querySelector('#nullbody')
+        nullmsg.innerHTML="please make any changes"
+        nullmsg.style.color="red"
+        nullmsg.style.textAlign="center"
+
+            
+        }
+
+    }
+
+    // display selected image
     function displaySelectedImage(event) {
-        const selectedImage = event.target.files[0];
+        const selectedImage = event.target.files[0];    
         const reader = new FileReader();
 
         reader.onload = function(event) {
             const selectedImageContainer = document.getElementById('selected-image-container');
             const img = document.createElement('img');
             img.src = event.target.result;
-            img.style.width = '100%'; // Set image width to 100%
+            img.style.width = '40%'; // Set image width to 100%
             selectedImageContainer.innerHTML = ''; // Clear previous content
             selectedImageContainer.appendChild(img); // Append the image to the container
         };

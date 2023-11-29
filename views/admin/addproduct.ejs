@@ -1,3 +1,4 @@
+
 <!--header-->
 <%- include('../user/partials/header') %> 
 
@@ -23,11 +24,15 @@
                 <%- include('../admin/partials/sidebar') %>
             </div>
             <div class="col-10 p-0 m-0">
+                <%if(locals.error){%>
+                    <p style="color: red; text-align: center;"><%=error%></p>
+                   <%}%>
                 <form action="/admin/add-product" method="post" enctype="multipart/form-data" id="form">
                     <div class="row p-0 " style="justify-content: space-evenly;">
                         <div class="col-10 p-0 m-0">
                     <form action="/admin/add-product" method="post" enctype="multipart/form-data">
                         <div class="row p-0">
+
                             <div class="col-lg-3 p-0">
                                 <div class="col-lg-12 small-img">
                                     <input type="file" name="productImage1" id="productImage1" accept="image/*" onchange="previewImage(event, 'preview1')">
@@ -134,6 +139,8 @@
     </div>
 </section>
 
+<script src="/node_modules/cropperjs/dist/cropper.min.js"></script>
+<script src="index.js"></script>
 
 <script>
     function previewImage(event, previewId) {
@@ -270,16 +277,16 @@
 
 
             // input validation
-            if(!isValid(productNameValue)){
-                productNameError.textContent="only use alphabets"
-                productNameError.style.color="red"
-                event.preventDefault()
-            }
-            if(!isValid(descriptionValue)){
-                descriptionError.textContent="only use alphabets"
-                descriptionError.style.color="red"
-                event.preventDefault()
-            }
+            // if(!isValid(productNameValue)){
+            //     productNameError.textContent="only use alphabets"
+            //     productNameError.style.color="red"
+            //     event.preventDefault()
+            // }
+            // if(!isValid(descriptionValue)){
+            //     descriptionError.textContent="only use alphabets"
+            //     descriptionError.style.color="red"
+            //     event.preventDefault()
+            // }
 
             if(!numberValid(priceValue)){
                 priceError.textContent="please enter valid price"

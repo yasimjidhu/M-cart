@@ -1,10 +1,11 @@
 const mongoose = require('mongoose')
 const schema = mongoose.Schema
-const connection = require('../config/database')
+const connection = require('../config/database');
+const { ObjectId } = require('mongodb');
 
 const productschema = mongoose.Schema({
     category:{
-        type: String,
+        type: ObjectId,
     },
     productName:{
         type:String,
@@ -29,7 +30,7 @@ const productschema = mongoose.Schema({
         type: String,
     }],
     brand:{
-        type:String,
+        type:ObjectId
     },
     status:{
         type:Boolean,

@@ -8,6 +8,7 @@ const { transporter, sendOtp, generateOTP } = require("./otpcontroller");
 const brands = require("../model/brands");
 const category = require("../model/category");
 require("dotenv").config();
+const { VERIFYotp } = require('../controller/otpcontroller');
 
 // Function to get the unblocked products from brands
 async function getProductsFromActiveBrands() {
@@ -24,49 +25,34 @@ async function getProductsFromActiveBrands() {
   }
 }
 
-
 const toHome = async (req, res) => {
   try {
-    const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
-    const premiumCategory = await category.findOne({ CategoryName: "Premium" });
 
-    if (premiumCategory && flashsales) {
-      const unblockProducts = await getProductsFromActiveBrands(); // Fetch unblocked products from the database
+      const blockedBrands = await brands.find({ brandStatus: false }, { _id: 1 });
+      const blockedBrandIds = blockedBrands.map((brand) => brand._id);
 
-      // Filter unblocked products based on category and brand status
-      const unblockedPremiumProducts = unblockProducts.filter(
-        (product) => product.category === premiumCategory._id.toString()
-      );
-      const unblockedFlashSalesProducts = unblockProducts.filter(
-        (product) => product.category === flashsales._id.toString()
-      );
+      const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
+      const premiumCategory = await category.findOne({ CategoryName: "Premium" });
 
-      const brand = await brands.find();
+      const premiumProducts = premiumCategory ? await products.find({ category: premiumCategory._id , brand:{$nin:blockedBrandIds} }) : [];
+      const flashsalesProducts = flashsales ? await products.find({ category: flashsales._id, brand:{$nin:blockedBrandIds} }) : [];
+      const brandData = await brands.find();
 
-      res.render("./user/guesthome", {
+      res.render("./user/userhome", {
         title: "Home",
         err: false,
-        data: unblockedPremiumProducts,
-        brand,
+        data: premiumProducts,
+        brand: brandData,
         Category: premiumCategory,
-        flashSales: unblockedFlashSalesProducts,
-        unblockProducts, // Include unblocked products in the rendered data if needed
+        flashSales: flashsalesProducts,
       });
-    } else {
-      if (!premiumCategory) {
-        console.log("Premium category not found in the database");
-        res.status(404).send("Premium category not found");
-      }
-      if (!flashsales) {
-        console.log("Flash Sales category not found in the database");
-        res.status(404).send("Flash Sales category not found");
-      }
-    }
-  } catch (err) {
-    console.log("An error occurred while fetching categories:", err);
-    res.status(500).send("An error occurred");
+    
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).redirect("/admin/tosignup");
   }
 };
+
 
 
 //User signup
@@ -256,62 +242,43 @@ const userLogin = async (req, res) => {
 
 const userlog = async (req, res) => {
   try {
-    if (req.session.userlogged || req.user) {
-      const user = req.session.userlogged;
-      const isAuthenticated = req.session.user ? true : false;
+    const isLoggedIn = req.session.userlogged || req.user;
+    const isAuthenticated = req.session.user ? true : false;
 
-      // Fetch the IDs of blocked brands
-      const blockedBrands = await brands.find(
-        { brandStatus: true },
-        { _id: 1 }
-      );
-
-      // Extract the IDs of blocked brands
+    if (isLoggedIn) {
+      const blockedBrands = await brands.find({ brandStatus: false });
       const blockedBrandIds = blockedBrands.map((brand) => brand._id);
 
-      // Find the "_id" of the premium category
-      const flashsales = await category.findOne({
-        CategoryName: "Flash Sales",
+      const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
+      const premiumCategory = await category.findOne({ CategoryName: "Premium" });
+
+      const flashsalesProducts = flashsales ? await products.find({ category: flashsales._id, brand: { $nin: blockedBrandIds } }): [];
+
+      const premiumProducts = premiumCategory ? await products.find({ category: premiumCategory._id, brand: { $nin: blockedBrandIds } }): [];
+
+      const brandData = await brands.find();
+
+      res.render("./user/userhome", {
+        title: "Home",
+        err: false,
+        data: premiumProducts,
+        brand: brandData,
+        Category: premiumCategory,
+        flashSales: flashsalesProducts,
+        isAuthenticated,
       });
-      console.log(flashsales);
-      // Find the "_id" of the "Premium" category
-      const premiumCategory = await category.findOne({
-        CategoryName: "Premium",
-      });
-
-      if (premiumCategory || flashsales) {
-        // Fetch products that belong to the "Premium" category using the category "_id"
-        const premiumProducts = await products.find({
-          category: premiumCategory._id,
-        });
-        const flashsalesProducts = await products.find({
-          category: flashsales.id,
-        });
-        const categorywise = await products.find();
-
-        const brand = await brands.find();
-
-        res.render("./user/userhome", {
-          title: "Home",
-          err: false,
-          data: premiumProducts,
-          brand,
-          Category: premiumCategory,
-          flashSales: flashsalesProducts,
-          isAuthenticated,
-        });
-      } else {
-        // Handle if Premium category is not found
-        res.status(404).send("Premium category not found");
-      }
     } else {
       res.redirect("/");
     }
   } catch (error) {
-    console.error(error);
+    console.error('Error:', error);
     res.status(500).redirect("/admin/tosignup");
   }
 };
+
+
+
+
 
 // Signup to Login
 const signupToLogin = (req, res, next) => {

@@ -33,6 +33,13 @@
                 </button>
             </div>
             
+            <%if(locals.err ||locals.nullError){%>
+              <p id="err" style="color: red; text-align: center;"><%=err||nullError%></p>
+            <%}%>
+            <%if(locals.msg){%>
+              <p id="msg" style="color: green; text-align: center;"><%=msg%></p>
+            <%}%>
+            
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -59,7 +66,7 @@
                   <td><%= brand.brandStatus %></td>
                   <td>
                     <!-- Display the main brand image if available -->
-                        <img width="75px"
+                        <img width="75px" 
                             src="/uploads/<%= brand.image%>"
                             alt="Main brand Image"
                             class="brand-image"
@@ -114,6 +121,22 @@
         return false;
       }
     }
+
+    var error = document.querySelector('#err');
+    var message = document.querySelector('#msg');
+    // HIDE ERROR MESSAGE AFTER 3 SECONDS
+    setTimeout(() => {
+ 
+    if (error) {
+      error.textContent = '';
+    }
+
+    if (message) {
+      message.textContent = '';
+    }
+  }, 3000);
+    
+
   </script>
  
   <!---footer-->

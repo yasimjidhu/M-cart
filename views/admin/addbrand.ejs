@@ -6,10 +6,13 @@
 
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-5 addcategory-img">
-            <img src="/images/theme/brand-bg.jpg" alt="" style="width:100%;">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
         </div>
-        <div class="col-lg-4 add-brand">
+        <div class="col-lg-6 addcategory-img -flex justify-content-center">
+            <img src="/svg/data.svg"  alt="" style="width:70%;">
+        </div>
+        <div class="col-lg-4 add-brand" style="display: flex;align-items: center;">
             <form class="signup-form1" action="/admin/add-brand" method="post" enctype="multipart/form-data" id="form">
                 <div class="mb-3">
                     <label for="brandName" class="form-label text-center">Enter the Brand Name</label>
@@ -23,14 +26,14 @@
                     <%}%>
                     <!-- Include the onchange event to trigger the validateImage function -->
                 </div>
-                <!-- Add more form elements if needed -->
+                
                 <button type="submit" class="btn category-btn">Submit</button>
             </form>
         </div>
-        <div class="col-lg-3" id="selected-image-container" style="background-color:#a198988a;">
+        <!-- <div class="col-lg-3" id="selected-image-container" style="background-color:#a198988a;"> -->
             <!-- Selected image will be displayed here -->
-            <h6 class="text-center">Brand Logo</h6>
-        </div>
+            <!-- <h6 class="text-center">Brand Logo</h6> -->
+        <!-- </div> -->
     </div>
 </div>
 <script>

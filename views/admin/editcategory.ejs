@@ -9,17 +9,18 @@
         <div class="col-lg-2 p-0">
             <%-include('../admin/partials/sidebar') %>
         </div>
-        <div class="col-lg-5 addcategory-img ml-3 ">
+        <div class="col-lg-5 addcategory-img ml-3 d-flex justify-content-center ">
             <img  src="/svg/category.svg" alt="" style="width:80%;">
         </div>
         <div class="col-lg-4 addcategory-form ">
-            <form class="signup-form1 " action="/admin/edit-category/<%=Category._id %>" method="post">
+            <form class="signup-form1 " action="/admin/edit-category/<%=Category._id %>" method="post" id="form">
                 <div class="mb-3">
                     <%if(locals.err){%>
                         <p style="color: red;"><%=err%></p>
                     <%}%>
                     <label for="CategoryName" class="form-label text-center">Enter new category</label>
-                    <input type="text" class="form-control1" id="category" name="CategoryName" value="<%=Category.CategoryName %>" placeholder="Best seller" required>
+                    <input type="text" class="form-control1" id="category" name="CategoryName" value="<%=Category.CategoryName %>" placeholder="Best seller">
+                    <p id="catErr"></p>
                 </div>
                 <!-- Add more form elements if needed -->
                 <button type="submit" class="btn category-btn">Update</button>
@@ -27,3 +28,28 @@
         </div>
     </div>
 </div>
+
+<script>
+
+    //form validation
+    document.querySelector('#form').addEventListener('submit', function(event) {
+
+    var catInput = document.querySelector('#category');
+    var catValue = catInput.value;
+    var catErr = document.querySelector('#catErr');
+    // alert(catValue)
+
+    if (!isValidInput(catValue)) {
+        catErr.textContent = "Please enter a valid category name containing only alphabets";
+        catErr.style.color = "red";
+        event.preventDefault();
+    }
+});
+
+    function isValidInput(value) {
+        const trimmed = value.trim();
+        const regex = /^[A-Za-z\s]+$/
+        return trimmed !== "" && regex.test(trimmed);
+    }
+
+</script>

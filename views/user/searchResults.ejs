@@ -15,7 +15,7 @@
     <% Products.forEach(function(product) { %>
       <div class="col-lg-3 col-md-6 mb-4">
         <div class="card">
-          <a href="/productview/<%= product._id %>"><img  class="card-img-top search-img" src="/uploads/<%=product.image[0] %>" alt=""></a>
+          <a href="/productview/<%= product._id %>"><img  class="card-img-top search-img" src="/uploads/<%=product.image[4] %>" alt=""></a>
           <div class="card-body">
             <h5 class="card-title" style="font-size: 20px;"><%= product.productName %></h5>
             <p class="card-text" style="font-size: 23px;color: rgb(182, 2, 2);">$<%= product.price %></p>

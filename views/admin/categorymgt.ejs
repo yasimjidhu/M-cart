@@ -17,6 +17,10 @@
           <a href="/admin/add-category" style="color: rgb(255, 255, 255); text-decoration: none;">Add category</a>
         </button>
       </div>
+      <%if(locals.msg){%>
+        <p style="color: green;text-align: center;"><%msg%></p>
+      <%}%>
+      <p></p>
       <div class="table-responsive">
         <table class="table table-striped">
           <thead>

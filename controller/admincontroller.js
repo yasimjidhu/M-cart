@@ -1,4 +1,5 @@
 const Users = require("../model/userSchema");
+const mongoose = require('mongoose')
 const products = require("../model/productschema");
 const { ObjectId } = require("mongodb");
 const admin = require("../Router/adminRouter");
@@ -7,6 +8,7 @@ const brands = require("../model/brands");
 const { reset } = require("nodemon");
 const fs = require('fs');
 const path = require('path');
+
 
 // Admin creadentials
 const credentials = {
@@ -76,9 +78,11 @@ const toaddProduct = async (req, res) => {
   try {
     const categories = await category.find();
     const Brand = await brands.find();
+    const error = req.query.error
     res.render("./admin/addproduct", {
       categories: Array.isArray(categories) ? categories : [],
       Brand,
+      error
     });
   } catch (error) {
     console.error(error);
@@ -90,7 +94,7 @@ const toaddProduct = async (req, res) => {
 const addproducts = async (req, res) => {
   try {
     const productname = req.body.productName;
-    const existing = await products.findOne({ productname });
+    const existing = await products.findOne({ productName: productname });
 
     if (existing) {
       const categories = await category.find();
@@ -99,22 +103,7 @@ const addproducts = async (req, res) => {
         categories,
       });
     }
-    const Price = req.body.price 
-    if(Price <=0 ){
-      const categories = await category.find();
-      const Brand = await brands.find()
-      return res.render("./admin/addproduct", {
-        priceErr: "please enter a valid price",
-        categories,
-        Brand
-      });
-    }
-    const Stock = req.body.stock
-    if(Stock<=0){
-      const categories = await category.find()
-      const Brand = await brands.find()
-      return res.render('./admin/addproduct',{stockErr:'please enter a valid stock',categories,Brand})
-    }
+    
 
     const specifications = req.body.specifications;
     const allimages = [];
@@ -123,18 +112,39 @@ const addproducts = async (req, res) => {
     for (const key in req.files) {
       allimages.push(req.files[key][0].filename);
     }
-    
+    // check the provided images are img format
+    const validFormat = ['.jpg','.jpeg','.png','.bmp','.svg']
+    let hasInvalidImage = false
 
+    for(const imageName of allimages){
+      var isValidImage = validFormat.some(ext=>imageName.toLowerCase().endsWith(ext))
+      console.log(`${imageName} is a valid image format: ${isValidImage}`);
+
+      if(!isValidImage){
+        hasInvalidImage=true
+        break;
+      }
+    }
+    if(hasInvalidImage){
+      const err = 'only image files are accepted'
+      console.log('false got')
+      return res.redirect(`/admin/add-product?error=${encodeURIComponent(err)}`)
+    }
+
+    const categoryId = new mongoose.Types.ObjectId(req.body.category);
+    const brandId = new mongoose.Types.ObjectId(req.body.brand);
+  
+    
     // Extract product data from the request
     const productData = {
-      category: req.body.category,
+      category: categoryId,
       productName: req.body.productName,
       price: parseFloat(req.body.price),
       stock:req.body.stock,
       image: allimages,
       description: req.body.description,
       specifications: specifications,
-      brand: req.body.brand,
+      brand: brandId,
 
       // specification: req.body.specification,
     };
@@ -148,7 +158,7 @@ const addproducts = async (req, res) => {
     res.render("./admin/products", { productsData, categories, brand });
   } catch (err) {
     // Handle errors
-    console.log(err)
+    console.log('error occured during add product',err)
     const productsData = await products.find();
     const categories = await category.find();
     const brand= await brands.find();
@@ -389,7 +399,10 @@ const unblockUser = async (req, res) => {
 // Get Category management
 const toCategory = async (req, res) => {
   const categories = await category.find();
-  res.render("./admin/categorymgt", { title: "Category", categories });
+  res.render("./admin/categorymgt", { title: "Category",
+   categories,
+   msg:req.query.msg
+   });
 };
 
 // to add category
@@ -470,30 +483,14 @@ const editCategory = async (req, res) => {
   const categoryID = req.params.categoryId;
 
   try {
-    if (!req.body.CategoryName || req.body.CategoryName.trim() == "") {
-      const Category = await category.find();
-      return res.render("./admin/editcategory", {
-        err: "Please enter valid Category Name",
-        Category,
-      });
-    }
-    // Regex to check the categoryName contains only alphabets
-    const lettersOnlyRegex = /^[A-Za-z/s]+$/;
+   
     const categoryname = req.body.CategoryName;
-
-    if (!lettersOnlyRegex.test(categoryname)) {
-      const Category = await category.find();
-      return res.render("./admin/editcategory", {
-        err: "category must contain alphabets",
-        Category,
-      });
-    }
 
     // check if the category is already exist
     const existingCategory = await category.find({
       CategoryName: categoryname,
     });
-    if (existingCategory) {
+    if (existingCategory && existingCategory.length>0) {
       const Category = await category.find();
       return res.render("./admin/editcategory", {
         err: "category already exist",
@@ -516,10 +513,7 @@ const editCategory = async (req, res) => {
       const categories = await category.find();
       console.log("updated");
 
-      res.render("./admin/categorymgt", {
-        msg: "Category Name updated successfully",
-        categories,
-      });
+      res.redirect(`/admin/category?msg=category updated successfully`);
     } else {
       res.render("./admin/editcategory", { err: "Category not found" });
     }
@@ -583,7 +577,11 @@ const toProducts = async (req, res) => {
 // To brands
 const tobrands = async (req, res) => {
   const brand = await brands.find();
-  res.render("./admin/brands", { title: "Brands", brand });
+  res.render("./admin/brands", { title: "Brands",
+   brand,err:req.query.error,
+   msg:req.query.msg,
+   nullError:req.query.nullbody
+  });
 };
 
 // To add brand
@@ -642,12 +640,15 @@ const toEditBrand = async (req, res) => {
       res.render("./admin/brands", { err: "Brand doesnt exist " });
       res.status(404);
     } else {
-      
+      console.log(JSON.stringify(req.query),' -----------------')
       res.render("./admin/editbrand", 
       { title: "Edit Brand",
        brand,
        imageErr:req.query.imgErr ,
-       existingErr:req.query.existErr, });
+       imgError:req.query.imgerror,
+       existingErr:req.query.existErr,
+       nullError:req.query.nullbody
+       });
        console.log("admin entered to editbrand");
     }
   } catch (error) {
@@ -660,57 +661,56 @@ const toEditBrand = async (req, res) => {
 // Update Brand
 const updateBrand = async (req, res) => {
   const brandId = req.params.brandId;
-  const existingLogo = await brands.findById(brandId)
-  const logo = existingLogo.image
-
-  const { brandName } = req.body;
 
   try {
     const brand = await brands.findById(brandId);
     if (!brand) {
-      return res.status(404).render("./admin/brands", { err: "Brand not found" });
+      return res.status(404).redirect(`/admin/brands?imgerror=brand not found`);
     }
-    const existing = await brands.find({brandName:brandName})
-    
-    if(!req.file|| !req.file.filename){
-      await brands.updateOne({_id:brandId},{$set:{brandName:brandName}})
-      res.redirect(`/admin/brands`)
-      return;
-    }
-    const files = req.file
-    const filename = files.filename
-
-    // Filter image files based on their extensions
-    const imageExtensions = ['.jpg', '.jpeg', '.png', '.bmp','.svg'];
-    const imageFiles = imageExtensions.some(imageName => filename.includes(imageName))
-
-    let redirectURL = `/admin/edit-brand/${brandId}?`;
-
-    if(imageFiles==false){
-      redirectURL += 'imgErr=only image files are accepted&';
+    if(!req.body&& !req.file){
+      return res.redirect(`/edit-brand/${brandId}?nullbody=updation will not work until you make some changes`)
     }
 
-    
-    if (redirectURL !== `/admin/edit-brand/${brandId}?`) {
-        return res.status(500).redirect(redirectURL.slice(0, -1)); // Remove the trailing "&"
+    const { brandName } = req.body;
+    const existingLogo = await brands.findById(brandId);
+    const existingImage = existingLogo.image;
+
+    let updatedBrand = {};
+
+    if (brandName && brandName !== brand.brandName) {
+      updatedBrand.brandName = brandName;
     }
     
-    // Update brand fields
-    const newBrand = new brands({
-      brandName :brandName,
-      addedDate : new Date(),
-      image : req.file.filename
-    })
-    // Save the updated brand
-    await newBrand.save();
 
-    res.redirect("/admin/brands");
-    console.log('brand updation success')
+    if (req.file) {
+      const files = req.file;
+      const filename = files.filename;
+
+      // Filter image files based on their extensions
+      const imageExtensions = ['.jpg', '.jpeg', '.png', '.bmp', '.svg'];
+      const imageFiles = imageExtensions.some(imageName => filename.includes(imageName));
+
+      if (!imageFiles) {
+        return res.status(400).redirect(`/edit-brand/${brandId}?error=only image files are accepted`);
+      }
+
+      if (filename !== existingImage) {
+        updatedBrand.image = req.file.filename;
+      }
+    }
+
+    if (Object.keys(updatedBrand).length > 0) {
+      await brands.findByIdAndUpdate(brandId, { $set: updatedBrand });
+    }
+
+    res.redirect(`/admin/brands?msg=brand updated successfully`);
   } catch (error) {
     console.error(error);
-    res.status(500).render("./admin/brands", { err: "Internal server error" });
+    res.status(500).redirect(`/admin/brands?error=internal server error`);
   }
 };
+
+
 
 // Soft deletion of brand
 const blockBrand = async (req, res) => {

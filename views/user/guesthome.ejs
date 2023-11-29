@@ -73,6 +73,7 @@
 </section>
 <div class="container">
   <div class="row">
+    <%if(locals.data){%>
     <% data.forEach(function(x) { %>
       <div class="col-sm-12 col-md-4 col-lg-3">
         <div class="iphone" style="position: relative;">
@@ -92,6 +93,7 @@
         </div>
       </div>
     <% }); %>
+    <%}%>
   </div>
 </div>
 
@@ -123,6 +125,7 @@
 
 <div class="container">
   <div class="row">
+    <%if(locals.brand){%>
       <% brand.forEach((brands) => { %>
           <div class="col-sm-6 col-md-3 col-lg-2">
               <div class="rectangle">
@@ -132,6 +135,7 @@
               </div>
           </div>
       <% }); %>
+      <%}%>
   </div>
 </div>
 
@@ -152,30 +156,36 @@
             </div>
           </section>
 
-          <div class="container mt-4">
-            <div class="row">
-              <% flashSales.forEach(product => { %>
-                <div class="col-sm-12 col-md-4 col-lg-3">
-                  <div class="<%= product.productName %>">
-                    
-                    <a href="/productview/<%= product._id %>"><img class="product-images" src="/uploads/<%= product.image[0] %>" alt="<%= product.name %>" /></a>
+          <% if (flashSales && flashSales.length > 0) { %>
+            <div class="container mt-4">
+              <div class="row">
+                <% flashSales.forEach(product => { %>
+                  <div class="col-sm-12 col-md-4 col-lg-3">
+                    <div class="<%= product.productName %>">
+                      <a href="/productview/<%= product._id %>">
+                        <img class="product-images" src="/uploads/<%= product.image[0] %>" alt="<%= product.name %>" />
+                      </a>
+                    </div>
+                    <div class="details">
+                      <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
+                      <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
+                    </div>
+                    <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
                   </div>
-                  <div class="details">
-                    <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
-                    <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
-                  </div>
-                  <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
-                </div>
-              <% }); %>
+                <% }); %>
+              </div>
             </div>
-          </div>
           
-          <div class="view-all">
-            <form action="/allproductview/<%= flashSales._id %>" method="get">
-              <button type="submit">View All Products</button>
-            </form>
-          </div>
-  
+            <div class="view-all">
+              <form action="/allproductview/<%= Category._id %>" method="get">
+                <button type="submit">View All Products</button>
+              </form>
+            </div>
+          <% } else { %>
+            <div class="container mt-4">
+              <p>No Flash Sales products available currently.</p>
+            </div>
+          <% } %>
 
               <section>
                 <div class=" mt-5">

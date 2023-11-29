@@ -64,7 +64,7 @@
                   <td><%= product.stock %></td>
                   <td>
                     <% brand.forEach(brand => { %>
-                      <% if (brand._id == product.brand) { %>
+                      <% if (brand._id === product.brand) { %>
                         <%= brand.brandName%>
                       <% } %>
                     <% }); %>
