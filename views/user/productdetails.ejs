@@ -11,8 +11,8 @@
         <div class="col-lg-2 " id="sub-images-container" style="z-index: 99;">
             <% data.forEach(function(subImages) { %>
                 <div class="sub-images-group">
-                    <% for (let i = 1; i <=4 && i < subImages.image.length; i++) { %>
-                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 180px;" onclick="showpreview('showimage<%=i%>','displayImage')">
+                    <% for (let i = 0; i <5-1; i++) { %>
+                        <div class="sub-image mb-3" style="background-color: #a198988a;width: 180px; height: auto;" onclick="showpreview('showimage<%=i%>','displayImage')">
                             <img style="width: 100%;" src="/uploads/<%= subImages.image[i] %>" alt="Sub Image" class="img-fluid" id="showimage<%=i%>">
                         </div>
                     <% } %>

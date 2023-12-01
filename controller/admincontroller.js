@@ -13,7 +13,7 @@ const path = require('path');
 // Admin creadentials
 const credentials = {
   email: "admin@gmail.com",
-  password: "123",
+  password: "Admin@123",
 };
 
 // Admin Login
@@ -28,12 +28,7 @@ const loginAdmin = async (req, res) => {
     //Retrieve the User data from the db
     const usersData = await Users.find();
     res.render("./admin/dashboard", { title: "Admin Home", err: false });
-  } else if (!email || !password) {
-    res.render("./admin/adminlogin", { err: "fill out this fields" });
-  } else {
-    console.log("admin login failed");
-    res.render("./admin/adminlogin", { err: "Invalid email or password" });
-  }
+  } 
 };
 
 const tologin = (req, res) => {
@@ -97,11 +92,7 @@ const addproducts = async (req, res) => {
     const existing = await products.findOne({ productName: productname });
 
     if (existing) {
-      const categories = await category.find();
-      return res.render("./admin/addproduct", {
-        err: "This product already exists",
-        categories,
-      });
+      return res.redirect(`/admin/add-product?error=this product already exist`)
     }
     
 
@@ -224,27 +215,13 @@ const toEditProduct = async (req, res) => {
 const updateProduct = async (req, res) => {
   try {
     const productId = req.params.productId;
+    console.log(productId)
     const { Category, productName,description, brand, specifications } = req.body;
 
     const existingProduct = await getProductById(productId);
 
     if (!existingProduct) {
       return res.status(404).send("Product not found");
-    }
-    //product validation
-    const existingProductName = await products.findOne({ productName });
-    if (existingProductName && existingProductName._id.toString() !== productId) {
-      const categories = await category.find();
-      const Brand = await brands.find();
-      const productsData = await products.find();
-      const existingProduct = await getProductById(productId);
-      return res.render("./admin/editproduct", {
-        err: "This product name already exists",
-        categories,
-        Brand,
-        Products:productsData,
-
-      });
     }
 
     // price validation
@@ -268,10 +245,11 @@ const updateProduct = async (req, res) => {
     }
 
     const existingImages = existingProduct.image;
+    console.log('existing images',existingImages)
     const updatedImages = [];
 
     // Loop through the existing images to check if a new image is provided
-    for (let i = 0; i < 5; i++) {
+    for (let i = 0; i <=4; i++) {
       let newImage;
 
       if (i === 4) {
@@ -289,6 +267,7 @@ const updateProduct = async (req, res) => {
 
       updatedImages.push(image);
     }
+    console.log('updated images ',updatedImages)
 
     // Update the product with the new images and other details
     const results = await products.updateOne(
@@ -553,15 +532,11 @@ const getProductDetails = async () => {
 
 const toProducts = async (req, res) => {
   try {
-    // const idInBrand = await brands.find({}, "_id");
-    // Extracting only the _id values from idInBrand array
-    // const brandIds = idInBrand.map((brand) => brand._id);
 
-    // Fetching products where brand field matches brandIds
-    // const brandId = await products.find({ brand: { $in: brandIds } });
-    // const brandNames = brandId.map((brand) => brand.brandName);
+    const productsData = await products.find().populate('brand')
+    console.log("populated ",productsData)
 
-    const productsData = await getProductDetails();
+    console.log('lookuped data',productsData)
     const categories = await category.find();
     const brand = await brands.find();
 

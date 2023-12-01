@@ -156,9 +156,9 @@
             <div class="row">
               <% flashSales.forEach(product => { %>
                 <div class="col-sm-12 col-md-4 col-lg-3">
-                  <div class="<%= product.productName %>">
-                    
+                  <div class="iphone">
                     <a href="/productview/<%= product._id %>"><img class="product-images" src="/uploads/<%= product.image[4] %>" alt="<%= product.name %>" /></a>
+                    <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i>
                   </div>
                   <div class="details">
                     <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
@@ -171,7 +171,7 @@
           </div>
           
           <div class="view-all">
-            <form action="/allproductview/<%= flashSales._id %>" method="get">
+            <form action="/allproductview/<%= locals.flashSalesId %>" method="get">
               <button type="submit">View All Products</button>
             </form>
           </div>
@@ -231,43 +231,26 @@
       
               <div class="container">
                 <div class="row">
+                 <% bestSellerData.forEach(product=>{%>
                   <div class="col-sm-12 col-md-4 col-lg-3">
                     <div class="iphone">
-                      <img src="/svg/iphone 14.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Apple iphone 14</h6>
-                      <p>64,999</p>
-                    </div>
+                    <a href="/productview/<%=product._id %>"><img class="product-images" src="/uploads/<%=product.image[4]%>" alt=""></a>
+                    <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i>
                   </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="s23">
-                      <img src="/svg/s23.svg" alt="" />
-                    </div>
                     <div class="details">
-                      <h6>Sasmsun Galaxy s23</h6>
-                      <p>1,14,999</p>
+                      <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
+                      <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
                     </div>
+                    <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
                   </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="flip">
-                      <img src="/svg/flip.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Galaxy Z Flip 3 5G</h6>
-                      <p>79,999</p>
-                    </div>
-                  </div>
-                  <div class="col-sm-12 col-md-4 col-lg-3">
-                    <div class="fold">
-                      <img src="/svg/fold.svg" alt="" />
-                    </div>
-                    <div class="details">
-                      <h6>Samsung Galaxy Z Fold 5</h6>
-                      <p>164,999</p>
-                    </div>
-                  </div>
+                  <%})%>
                 </div>
+              </div>
+
+              <div class="view-all">
+                <form action="/allproductview/<%= locals.bestSellerId %>" method="get">
+                  <button type="submit">View All Products</button>
+                </form>
               </div>
 
               <div class="container">

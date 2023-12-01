@@ -93,10 +93,10 @@
 
 const resendButton = document.getElementById('resend-btn');
 const timerElement = document.getElementById('timer');
-let countdown = 60 * 4;
+let countdown = 60 * 1;
 
 function startTimer() {
-  // resendButton.disabled = true;
+  resendButton.disabled = true;
 
   let timer = setInterval(() => {
     const minutes = Math.floor(countdown / 60);
@@ -111,7 +111,7 @@ function startTimer() {
     if (countdown <= 0) {
       clearInterval(timer);
       timerElement.textContent = '';
-      // resendButton.disabled = false;
+      resendButton.disabled = false;
     } else {
       countdown -= 1;
     }
@@ -119,7 +119,7 @@ function startTimer() {
 }
 
 function startResendTimer() {
-  const countdown = 60 * 4; // Resend countdown time (4 minutes in this case)
+  const countdown = 60 * 1; // Resend countdown time (4 minutes in this case)
   startTimer(countdown);
 }
 
@@ -127,7 +127,7 @@ function startResendTimer() {
 // Call startTimer function when the page initially reloads
 
 window.onload = function () {
-  const countdown = 60 * 4; // Initial countdown time (4 minutes in this case)
+  const countdown = 60 * 1; // Initial countdown time (4 minutes in this case)
   startTimer(countdown);
 };
 

@@ -68,8 +68,8 @@
                             <div class="form-group">
                                 <label for="productName">Product Name</label>
                                 <input type="text" class="form-control" id="productName" name="productName" placeholder="eg:Samsung S23 Ultra">
-                                <% if (locals.nameErr) { %>
-                                    <p style="color: rgb(207, 0, 0); font-size: 13px;" id="productError"><%= locals.nameErr %></p>
+                                <% if (locals.nameErr||locals.error) { %>
+                                    <p style="color: rgb(207, 0, 0); font-size: 13px;" id="productError"><%= locals.nameErr || locals.error %></p>
                                   <% } %>
                                   <p id="productNameError"></p>
                             </div>

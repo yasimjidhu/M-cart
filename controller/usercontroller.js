@@ -33,9 +33,11 @@ const toHome = async (req, res) => {
 
       const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
       const premiumCategory = await category.findOne({ CategoryName: "Premium" });
+      const bestSeller = await category.findOne({CategoryName:'Best seller'})
 
       const premiumProducts = premiumCategory ? await products.find({ category: premiumCategory._id , brand:{$nin:blockedBrandIds} }) : [];
       const flashsalesProducts = flashsales ? await products.find({ category: flashsales._id, brand:{$nin:blockedBrandIds} }) : [];
+      const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
       const brandData = await brands.find();
 
       res.render("./user/userhome", {
@@ -45,6 +47,8 @@ const toHome = async (req, res) => {
         brand: brandData,
         Category: premiumCategory,
         flashSales: flashsalesProducts,
+        flashSalesId:flashsales?flashsales._id:null,
+        bestSellerData: bestSellerProducts
       });
     
   } catch (error) {
@@ -63,7 +67,7 @@ const userSignup = async (req, res) => {
     const { name, email, password } = req.body;
 
     if (!name || !email || !password) {
-      return res.render("./user/usersignup", { msg: "Fill out the fields" });
+      return res.render("./user/usersignup", { msg: "Fi ll out the fields" });
     }
     const check = await User.findOne({ email: req.body.email });
 
@@ -72,6 +76,7 @@ const userSignup = async (req, res) => {
 
       // Generate OTP
       const otp = generateOTP();
+      const otpTimestamp = Date.now(); // Store the timestamp
 
       const mailOptions = {
         from: "jidhuyasim@gmail.com",
@@ -92,13 +97,13 @@ const userSignup = async (req, res) => {
           req.session.pass = pass;
           req.session.name = req.body.name;
           req.session.otp = otp;
+          req.session.otpTimestamp = otpTimestamp;
           return res.redirect("/verify-otp");
         }
       });
     } else {
       req.session.err = "User already exists";
       return res.render("./user/usersignup", { msg: "User Already exist" });
-      console.log("User already exists");
     }
   } catch (e) {
     console.log(e);
@@ -114,15 +119,20 @@ const toverifyotp = (req, res) => {
 const verifyOtp = async (req, res) => {
   try {
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
+    const storedOtp = req.session.otp;
+    const storedTimestamp = req.session.otpTimestamp
     console.log("Received OTP:", otp);
     console.log("Stored OTP:", req.session.otp);
-
     const pass = req.session.pass;
+    const isAuthenticated = req.session.user ? true : false;
 
-    if (otp === req.session.otp) {
+    if(storedOtp && storedTimestamp){
+      const currentTime = Date.now();
+      const timeDifference = currentTime - storedTimestamp;
+    
+    if (otp ===  storedOtp && timeDifference <= 1 * 60 * 1000) {
       // OTP is correct, proceed to save the user
       console.log("OTP is correct, proceeding to save user");
-
       const newUser = new User({
         email: req.session.email,
         password: pass,
@@ -133,15 +143,23 @@ const verifyOtp = async (req, res) => {
       await newUser.save();
       console.log("User saved successfully");
 
+      const bestSeller = await category.findOne({CategoryName:'Best seller'})
+
       const flashsales = await category.findOne({
         CategoryName: "Flash Sales",
       });
       const premiumCategory = await category.findOne({
         CategoryName: "Premium",
       });
+      
 
       if (premiumCategory || flashsales) {
         // Fetch products that belong to the "Premium" category using the category "_id"
+        
+        const blockedBrands = await brands.find({ brandStatus: false });
+        const blockedBrandIds = blockedBrands.map((brand) => brand._id);
+
+        
         const premiumProducts = await products.find({
           category: premiumCategory._id,
         });
@@ -151,6 +169,7 @@ const verifyOtp = async (req, res) => {
         const categorywise = await products.find();
         console.log("<<<<<<<<<<<<<<<", categorywise);
 
+        const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
         const brand = await brands.find();
 
         res.render("./user/userhome", {
@@ -160,15 +179,20 @@ const verifyOtp = async (req, res) => {
           brand,
           Category: premiumCategory,
           flashSales: flashsalesProducts,
+          flashSalesId:flashsales?flashsales._id:null,
+          bestSellerId:bestSeller?bestSeller._id:null,
+          bestSellerData:bestSellerProducts,
+          isAuthenticated
         });
       } else {
         // Handle if Premium category is not found
         res.status(404).send("Premium category not found");
       }
     } else {
-      console.log("Invalid OTP");
-      res.render("./user/verifyotp", { msg: "Invalid OTP", err: "errorfound" });
+      console.log("Invalid or expired OTP");
+      res.render("./user/verifyotp", { msg: "Invalid or expired OTP", err: "errorfound" });
     }
+  }
   } catch (error) {
     console.error("Error in verifyOtp:", error);
     res.render("./user/usersignup", { msg: "Error during OTP verification" });
@@ -251,11 +275,11 @@ const userlog = async (req, res) => {
 
       const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
       const premiumCategory = await category.findOne({ CategoryName: "Premium" });
+      const bestSeller = await category.findOne({CategoryName:'Best seller'})
 
       const flashsalesProducts = flashsales ? await products.find({ category: flashsales._id, brand: { $nin: blockedBrandIds } }): [];
-
       const premiumProducts = premiumCategory ? await products.find({ category: premiumCategory._id, brand: { $nin: blockedBrandIds } }): [];
-
+      const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
       const brandData = await brands.find();
 
       res.render("./user/userhome", {
@@ -265,7 +289,10 @@ const userlog = async (req, res) => {
         brand: brandData,
         Category: premiumCategory,
         flashSales: flashsalesProducts,
-        isAuthenticated,
+        flashSalesId:flashsales?flashsales._id:null,
+        bestSellerId:bestSeller?bestSeller._id:null,
+        bestSellerData:bestSellerProducts,
+        isAuthenticated
       });
     } else {
       res.redirect("/");
@@ -310,6 +337,7 @@ const logout = (req, res) => {
 const productview = async (req, res) => {
   try {
     const productId = req.params.id;
+    const isAuthenticated = req.session.user ? true : false;
     console.log(productId);
 
     const data = await products.find({ _id: productId });
@@ -318,7 +346,7 @@ const productview = async (req, res) => {
       return res.status(404).send("product not found");
     } else {
       console.log("product view reached");
-      res.render("./user/productdetails", { data });
+      res.render("./user/productdetails", { data,isAuthenticated });
     }
   } catch (err) {
     res.status(500).send("An error occured");
@@ -330,8 +358,9 @@ const productview = async (req, res) => {
 // Product list page
 const productlist = async (req, res) => {
   try {
+    const isAuthenticated = req.session.user ? true : false;
     let data = await products.find();
-    res.render("./user/productlist", { title: "Products", data });
+    res.render("./user/productlist", { title: "Products", data,isAuthenticated });
   } catch (e) {
     console.log(e);
     res.status(500).send("internet server error");
@@ -341,11 +370,11 @@ const productlist = async (req, res) => {
 // To brandwise productions
 const toBrandwise = async (req, res) => {
   const brandid = req.params.brandId;
+  const isAuthenticated = req.session.user ? true : false;
 
   const brandProducts = await products.find({ brand: brandid });
   const Brand = await brands.find();
-  console.log("brandproducts iam ", brandProducts);
-  res.render("./user/brandwise", { brandProducts, Brand });
+  res.render("./user/brandwise", { brandProducts, Brand,isAuthenticated });
 };
 async function filterByBrand(req, res) {
   const brandName = req.query.brand;
@@ -360,11 +389,12 @@ const toViewAll = async (req, res) => {
   console.log(".......................", categoryId);
 
   try {
+    const isAuthenticated = req.session.user ? true : false;
     const productData = await products.find({ category: categoryId });
     console.log("Category:", productData);
 
     if (productData) {
-      res.render("./user/viewall", { productData });
+      res.render("./user/viewall", { productData ,isAuthenticated});
     } else {
       res.redirect("/user/home");
     }

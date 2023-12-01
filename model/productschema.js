@@ -30,7 +30,8 @@ const productschema = mongoose.Schema({
         type: String,
     }],
     brand:{
-        type:ObjectId
+        type:ObjectId,
+        ref:'brands'
     },
     status:{
         type:Boolean,

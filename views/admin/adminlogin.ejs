@@ -16,20 +16,20 @@
         </div>
       <div class="col-lg-6 " style="display: flex;align-items: center;">
         <div class="admin-login-div " style="width: 100%;">
-          <form class="signup-form" action="/admin/login" method="post">
+          <form class="signup-form" action="/admin/login" method="post" id="form">
             <h3>Admin Login</h3>
             <p>Enter your details below </p>
               <div class="mb-3 ">
                 
                 <label for="exampleInputPassword1" class="form-label">Email</label>
-                <input type="email"  class="form-control" name="email" placeholder="Email or Phone Number" id="exampleInputEmail1">
-                <p id="errmsg1" style="color: red; font-size: 13px;"><%=(locals.err) %></p>
+                <input type="email"  class="form-control" name="email" placeholder="Email address" id="email">
+                <p id="emailError"></p>
                 
               </div>
               <div class="mb-3">
                 <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" class="form-control" name="password" placeholder="Password"  id="exampleInputPassword1">
-                <p id="errmsg2" style="color: red; font-size: 13px;"><%=(locals.err) %></p>
+                <input type="password" class="form-control" name="password" placeholder="Password"  id="password">
+                <p id="passwordError"></p>
               </div>
               <div class="login-items">
                 <button class="adlogin-btn"  type="submit">Login</button>
@@ -48,6 +48,54 @@
   <%-include('../user/partials/footer') %>
 
   <script>
+
+    function isEmpty(value){
+      const trimmed = value.trim()
+      return trimmed===""
+    }
+    function isValidEmail(email){
+      const regex =   /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+      return regex.test(email)
+    }
+    function isValidPassword(value){
+      const regex =  /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,])(?=.*[a-zA-Z]).{8,}$/;
+      return regex.test(value)
+    }
+
+    document.querySelector('#form').addEventListener('submit',function(event){
+      var emailInput = document.querySelector('#email')
+      const emaiValue = emailInput.value
+      const emailError = document.querySelector('#emailError')
+      
+      var passwordInput = document.querySelector('#password')
+      var passwordValue = passwordInput.value
+      var passwordError = document.querySelector('#passwordError')
+
+      emailError.textContent=""
+      passwordError.textContent=""
+
+      if(isEmpty(emaiValue)){
+        emailError.textContent="please enter a valid email"
+        emailError.style.color="red"
+        event.preventDefault()
+      }
+      if(isEmpty(passwordValue)){
+        passwordError.textContent="please provide your password"
+        passwordError.style.color="red"
+        event.preventDefault()
+      }
+      if(!isValidEmail(emaiValue)){
+        emailError.textContent="enter a valid emali "
+        emailError.style.color="red"
+        event.preventDefault()
+      }
+      if(!isValidPassword(passwordValue)){
+        passwordError.textContent= "password must be atleast 8 characters long,one digit,one lower case letter,one uppercase letter and atleast one special character ";
+        passwordError.style.color="red"
+        event.preventDefault()
+      }
+
+    })
 
     setTimeout(() => {
 
