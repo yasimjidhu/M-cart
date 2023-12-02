@@ -369,12 +369,28 @@ const productlist = async (req, res) => {
 
 // To brandwise productions
 const toBrandwise = async (req, res) => {
-  const brandid = req.params.brandId;
-  const isAuthenticated = req.session.user ? true : false;
 
-  const brandProducts = await products.find({ brand: brandid });
-  const Brand = await brands.find();
-  res.render("./user/brandwise", { brandProducts, Brand,isAuthenticated });
+  try{
+
+    // Pagination
+    const page = parseInt(req.query.page) || 1
+    const perPage = 8
+    const productsCount = await products.countDocuments()
+    const totalPages = Math.ceil(productsCount / perPage)
+
+    const brandid = req.params.brandId;
+    const isAuthenticated = req.session.user ? true : false;
+  
+    const brandProducts = await products
+    .find({ brand: brandid })
+    .skip((page-1)*perPage)
+    .limit(perPage)
+    const Brand = await brands.find();
+    res.render("./user/brandwise", { brandProducts, Brand,isAuthenticated,totalPages,currentPage:page });
+  }catch(error){
+    console.log(error)
+  }
+
 };
 async function filterByBrand(req, res) {
   const brandName = req.query.brand;

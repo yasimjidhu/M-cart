@@ -6,7 +6,8 @@ const admin = require("../Router/adminRouter");
 const category = require("../model/category");
 const brands = require("../model/brands");
 const { reset } = require("nodemon");
-const fs = require('fs');
+const sharp = require('sharp')
+const fs = require('fs').promises;
 const path = require('path');
 
 
@@ -24,7 +25,6 @@ const loginAdmin = async (req, res) => {
   if (email === credentials.email && password === credentials.password) {
     console.log("adminlogged");
     req.session.adminlogged = true;
-
     //Retrieve the User data from the db
     const usersData = await Users.find();
     res.render("./admin/dashboard", { title: "Admin Home", err: false });
@@ -95,7 +95,6 @@ const addproducts = async (req, res) => {
       return res.redirect(`/admin/add-product?error=this product already exist`)
     }
     
-
     const specifications = req.body.specifications;
     const allimages = [];
 
@@ -122,6 +121,7 @@ const addproducts = async (req, res) => {
       return res.redirect(`/admin/add-product?error=${encodeURIComponent(err)}`)
     }
 
+
     const categoryId = new mongoose.Types.ObjectId(req.body.category);
     const brandId = new mongoose.Types.ObjectId(req.body.brand);
   
@@ -146,21 +146,10 @@ const addproducts = async (req, res) => {
     const categories = await category.find();
     const brand= await brands.find();
 
-    res.render("./admin/products", { productsData, categories, brand });
+    res.render("./admin/products", { productsData, categories, brand,msg:'product added succesfully' });
   } catch (err) {
-    // Handle errors
-    console.log('error occured during add product',err)
-    const productsData = await products.find();
-    const categories = await category.find();
-    const brand= await brands.find();
-    // const categories = await category.find();
-    res.render("./admin/products", {
-      title: "Products",
-      err: "Error Occurred",
-      productsData:productsData,
-      categories,
-      brand
-    });
+    res.status(500)
+    res.redirect(`/admin/products?error=error occured during add product`)
     
   }
 };
@@ -214,6 +203,7 @@ const toEditProduct = async (req, res) => {
 // Edit product post
 const updateProduct = async (req, res) => {
   try {
+    console.log('req.files',req.files)
     const productId = req.params.productId;
     console.log(productId)
     const { Category, productName,description, brand, specifications } = req.body;
@@ -268,6 +258,25 @@ const updateProduct = async (req, res) => {
       updatedImages.push(image);
     }
     console.log('updated images ',updatedImages)
+
+    // check the provided images are img format
+    const validFormat = ['.jpg','.jpeg','.png','.bmp','.svg']
+    let hasInvalidImage = false
+    
+    for(const imageName of updatedImages){
+    var isValidImage = validFormat.some(ext=>imageName.toLowerCase().endsWith(ext))
+    console.log(`${imageName} is a valid image format: ${isValidImage}`);
+    
+    if(!isValidImage){
+      hasInvalidImage=true
+      break;
+     }
+    }
+      if(hasInvalidImage){
+        const err = 'only image files are accepted'
+        console.log('false got')
+        return res.redirect(`/admin/add-product?error=${encodeURIComponent(err)}`)
+      }
 
     // Update the product with the new images and other details
     const results = await products.updateOne(
@@ -333,8 +342,17 @@ const deleteProduct = async (req, res) => {
 // Customers get
 const toCustomers = async (req, res) => {
   try {
-    const usersData = await Users.find();
-    res.render("./admin/customers", { title: "Customers", usersData });
+
+    // Pagination
+    const page = parseInt(req.query.page) || 1
+    const perPage = 10
+    const customersCount = await Users.countDocuments()
+    const totalPages = Math.ceil(customersCount / perPage)
+    const usersData = await Users
+    .find()
+    .skip((page-1)*perPage)
+    .limit(perPage)
+    res.render("./admin/customers", { title: "Customers", usersData,totalPages,currentPage:page });
   } catch (e) {
     console.error(e);
     res.status(500).send("An error occurred while fetching user data.");
@@ -377,11 +395,28 @@ const unblockUser = async (req, res) => {
 
 // Get Category management
 const toCategory = async (req, res) => {
-  const categories = await category.find();
-  res.render("./admin/categorymgt", { title: "Category",
-   categories,
-   msg:req.query.msg
-   });
+
+  // pagination
+  try{
+    const page = parseInt(req.query.page)|| 1
+    const perPage = 10
+    const categoryCount =await category.countDocuments()
+    const totalPages = Math.ceil(categoryCount / perPage)
+    const categories = await category
+    .find()
+    .skip((page-1)*perPage)
+    .limit(perPage)
+
+    res.render("./admin/categorymgt", {title: "Category",
+    categories,
+    msg: req.query.msg,
+    page,
+    totalPages,
+    currentPage:page
+});
+}catch(error){
+  console.log(error)
+}
 };
 
 // to add category
@@ -429,7 +464,7 @@ const addCategory = async (req, res) => {
 
     const newCategory = new category({
       CategoryName: categoryname,
-      createdAt: new Date(),
+      createdAt: new Date(),  
     });
 
     await newCategory.save();
@@ -530,17 +565,33 @@ const getProductDetails = async () => {
   }
 };
 
+// pagination used
 const toProducts = async (req, res) => {
   try {
+    const page = parseInt(req.query.page) || 1; // Get the requested page from query parameter or default to 1
+    const perPage = 10; // Number of products per page
 
-    const productsData = await products.find().populate('brand')
-    console.log("populated ",productsData)
+    const productsCount = await products.countDocuments(); // Get total count of products
 
-    console.log('lookuped data',productsData)
+    const totalPages = Math.ceil(productsCount / perPage); // Calculate total pages
+
+    const productsData = await products
+      .find()
+      .populate('brand')
+      .skip((page - 1) * perPage) // Skip the required number of documents based on page number
+      .limit(perPage); // Limit the number of products per page
+
     const categories = await category.find();
     const brand = await brands.find();
 
-    res.render("./admin/products", { productsData, categories, brand });
+    res.render("./admin/products", {
+      productsData,
+      categories,
+      brand,
+      error: req.query.error,
+      totalPages,
+      currentPage: page,
+    });
   } catch (error) {
     console.error(error);
     res.status(500).send("Internal Server Error");
@@ -551,12 +602,30 @@ const toProducts = async (req, res) => {
 
 // To brands
 const tobrands = async (req, res) => {
-  const brand = await brands.find();
-  res.render("./admin/brands", { title: "Brands",
-   brand,err:req.query.error,
-   msg:req.query.msg,
-   nullError:req.query.nullbody
-  });
+
+  try{
+
+    // Pagination
+    const page = req.query.page||1
+    const perPage = 10
+    const brandsCount = await brands.countDocuments()
+    const totalPages = Math.ceil(brandsCount / perPage)
+
+    const brand = await brands
+    .find()
+    .skip((page-1)*perPage)
+    .limit(perPage)
+    res.render("./admin/brands", { title: "Brands",
+     brand,err:req.query.error,
+     msg:req.query.msg,
+     nullError:req.query.nullbody,
+     totalPages,
+     currentPage:page
+    });
+  }catch(error){
+    console.log(error)
+  }
+  
 };
 
 // To add brand

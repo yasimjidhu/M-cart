@@ -32,6 +32,13 @@
                     <a href="/admin/add-product" style="color: rgb(255, 255, 255); text-decoration: none;">Add Product</a>
                 </button>
             </div>
+            <%if(locals.error){%>
+              <p style="color: red; text-align: center;" id="error"><%=error%></p>
+            <%}%>
+            <%if(locals.msg){%>
+              <p style="color:green; text-align: center;" id="msg"><%=msg%></p>
+            <%}%>
+
             
           <div class="table-responsive">
             <table class="table table-striped">
@@ -101,6 +108,24 @@
       </div>
     </div>
   </div>
+  <!-- Pagination -->
+<div class="pagination">
+  <% if (currentPage > 1) { %>
+    <a class="next-btn text-white" href="/admin/products?page=<%= currentPage - 1 %>">Previous</a>
+  <% } %>
+
+  <% for (let i = 1; i <= totalPages; i++) { %>
+    <% if (i === currentPage) { %>
+      <span><%= i %></span>
+    <% } else { %>
+      <a class="second" href="/admin/products?page=<%= i %>"><%= i %></a>
+    <% } %>
+  <% } %>
+
+  <% if (currentPage < totalPages) { %>
+    <a class="next-btn text-white" href="/admin/products?page=<%= currentPage + 1 %>">Next</a>
+  <% } %>
+</div>
 
 
   <script>
@@ -115,6 +140,17 @@
         return false;
       }
     }
+
+    setTimeout(() => {
+      var error = document.querySelector('#error')
+      var msg = document.querySelector('#msg')
+      if(error){
+        error.innerHTML=""
+      }else if(msg){
+        msg.innerHTML=""
+      }
+      
+    }, 2000);
   </script>
  
   <!---footer-->

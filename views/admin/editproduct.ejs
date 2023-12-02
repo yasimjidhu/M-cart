@@ -30,8 +30,8 @@
                                             
                                             <div class="preview" id="preview<%= index + 1 %>">
                                                 <img src="/uploads/<%= Products.image[index] %>" alt="Product Image" class="preview-image" id="img<%= index + 1 %>">
-                                            </div>
-                                            <input class="w-100" type="file" name="newProductImage<%= index + 1 %>" id="productImage<%= index + 1 %>"
+                                            </div>                      
+                                            <input class="w-100" type="file" name="newProductImage<%= index  %>" id="productImage<%= index + 1 %>"
                                                 accept="image/*" onchange="previewImage(event, 'preview<%= index + 1 %>')">
                                         </div>
                                     <% } %>

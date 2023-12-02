@@ -82,17 +82,17 @@
                 <!-- Toggle Brand Status: Block or Unblock -->
                 <% if (brand.brandStatus) { %>
                   <!-- Brand is currently unblocked -->
-                  <form action="/admin/block-brand/<%=brand._id %>" method="post">
+                  <form action="/admin/block-brand/<%=brand._id %>" method="post" onsubmit="return confirmBlock('<%= brand._id %>')">
                     <input type="hidden" name="brandId" value="<%= brand._id %>">
-                    <button type="submit" style="border: none; background-color: red; color: white; cursor: pointer;">
+                    <button type="submit" style="border: none; background-color: red; color: white; cursor: pointer; padding: 3px; border-radius: 9px;">
                       Block <!-- Change button text based on brand status -->
                     </button>
                   </form>
                 <% } else { %>
                   <!-- Brand is currently blocked -->
-                  <form action="/admin/unblock-brand/<%=brand._id %>" method="post">
+                  <form action="/admin/unblock-brand/<%=brand._id %>" method="post" onsubmit="return confirmUnblock('<%=brand._id %>')">
                     <input type="hidden" name="brandId" value="<%= brand._id %>">
-                    <button type="submit" style="border: none; background-color: green; color: white; cursor: pointer;">
+                    <button type="submit" style="border: none; background-color: green; color: white; cursor: pointer;padding: 3px; border-radius: 9px;">
                       Unblock <!-- Change button text based on brand status -->
                     </button>
                   </form>
@@ -108,17 +108,45 @@
     </div>
   </div>
 
+  <div class="pagination">
+    <% if(currentPage > 1) { %>
+      <a class=" next-btn text-white" href="/admin/brands?page=<%=currentPage - 1 %>">Previous</a>
+    <% } %>
+
+    <% for(let i=1; i<=totalPages; i++) { %>
+      <% if(i===currentPage) { %>
+        <span><%=i %></span>
+      <% }else { %>
+        <a class="second" href="/admin/brands?page=<%=i %>"><%= i %></a>
+      <% } %>
+      <% } %>
+
+      <%if(currentPage < totalPages) { %>
+        <a class="next-btn text-white" href="/admin/brands?page=<%=currentPage +1 %>">Next</a>
+      <% } %>
+    
+  </div>
+
 
   <script>
-    function confirmDelete(productId) {
+    function confirmBlock(brandId) {
       // Show a confirmation dialog
-      const confirmation = confirm("Are you sure you want to delete this product?");
+      const confirmation = confirm("Are you sure you want to Block this brand");
   
       // If user confirms, proceed with the deletion
       if (confirmation) {
         return true;
       } else {
         return false;
+      }
+    }
+    function confirmUnblock(brandid){
+      const confirmation = confirm('are you sure you want to unblock the brand')
+
+      if(confirmation){
+        return true
+      }else{
+        return false
       }
     }
 

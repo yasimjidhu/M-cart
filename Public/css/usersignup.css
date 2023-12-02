@@ -926,3 +926,35 @@ body{
     border-radius: 5px;
 
 }
+/*----------------------------------------------------products page pagination---------------------------------------------------------*/
+.pagination {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .pagination a, .pagination span {
+    margin: 0 5px;
+    padding: 5px 10px;
+    border: 1px solid #ccc;
+    text-decoration: none;
+  }
+  
+.next-btn{
+    background-color: #FF7D00;
+}
+
+.next-btn:hover{
+    background-color: #001524;
+}
+.next-btn a{
+    color: white;
+}
+.second{
+    background-color:#001524;
+    color: white;
+}
+.second:hover{
+    color: white;
+}
