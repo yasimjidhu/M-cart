@@ -1,0 +1,143 @@
+<!--------header---------->
+<%- include('../user/partials/header') %> 
+
+<!--------navbar---------->
+<%- include('../user/partials/navbar') %>
+
+<body>
+    
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../user/partials/sidebar') %>
+        </div>
+        <% if (alladdress && alladdress.length > 0) { %>
+            <% alladdress.forEach((item) => { %>
+                <% if (Array.isArray(item.address)) { %>
+                    <% item.address.forEach((data) => { %>
+                        <div class="col-lg-3 col-md-3 mt-5 ml-4 col-sm-6 col-xs-12">
+                            <div class="card Address-card mt-3 mb-3" style="max-width: 18rem;">
+                                <div class="card-body">
+                                    <ul class="address-ul">
+                                        <h6>Name: <span class="key-value"><%- data.fullName %></span></h6>
+                                        <h6>Phone Number: <span class="key-value"><%- data.phoneNumber %></span></h6>
+                                        <h6>Email: <span class="key-value"><%- data.email %></span></h6>
+                                        <h6>Country:<span class="key-value"><%-data.country %></span></h6>
+                                        <h6>Pincode: <span class="key-value"><%-data.pinCode %></span></h6>
+                                        <h6>State: <span class="key-value"><%-data.state %></span></h6>
+                                        <h6>District: <span class="key-value"><%-data.district %></span></h6>
+                                        <h6>City: <span class="key-value"><%-data.city %></span></h6>
+                                        <h6>Area: <span class="key-value"><%-data.area %></span></h6>
+                                        <h6>Street: <span class="key-value"><%-data.street %></span></h6>
+                                        <h6>Building; <span class="key-value"><%-data.building %></span></h6>
+                                        <h6>House Number: <span class="key-value"><%-data.houseNumber %></span></h6>
+                                        <input type="checkbox" class="radio" onclick="return showActions()">
+                                    </ul>
+                                    <div class="action">
+                                        <div class="sub-action">
+                                        <a href="/account/editAddress/<%=data._id %>"><i class="fa-solid fa-pen-to-square edit-btn"  style="color: #04203e;font-size: 25px; display: none;"></i></a>
+                                        <a href="javascript:void(0);" class="delete-bt" onclick="deleteAlert() && deleteAddress('<%= data._id %>')">
+                                            <i class="fa-solid fa-trash" id="delete-btn" style="color: #071836; font-size: 25px; display: none;"></i>
+                                        </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+            <% }) %>
+        <% } else { %>
+            <p>No addresses found.</p>
+        <% } %>
+        <div class=" addAddress-btn">
+
+            <a href="/account/addAddress"><button class="save-btn">Add Address</button></a>
+        </div>
+    </div>
+
+</div>
+</body>
+
+<script>
+   
+   
+   // Function to delete address
+   const deleteAddress = async (addressId) => {
+        try {
+            const confirmed = await deleteAlert()
+            if(confirmed){
+
+            const response = await fetch(`/account/deleteAddress/${addressId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                window.location.reload()
+                console.log(data.message); // Optional - Log success message
+
+                // Optionally, you can remove the deleted address card from the UI
+                // ...
+            } else {
+                alert('failed')
+                console.error('Failed to delete address');
+            }
+        }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
+
+    //Alert for adddress deletion
+    function deleteAlert(){
+
+        return new Promise((resolve)=>{
+            swal.fire({
+            icon:'warning',
+            title:'warning',
+            text:'Are you sure you want to delete the address',
+            showConfirmButton:true,
+            showCancelButton:true,
+            cancelButtonText:'Cancel',
+            timer:4000
+
+        }).then((result)=>{
+            resolve(result.isConfirmed)
+        })
+        })
+        
+    }
+    
+    // Event listener to handle showing/hiding delete and edit buttons when the radio button is clicked
+    // const addressCards = document.querySelectorAll('.Address-card');
+
+    // addressCards.forEach(card => {
+    //     const radioInput = card.querySelector('.radio');
+    //     const editBtn = card.querySelector('.edit-btn');
+    //     const deleteBtn = card.querySelector('.delete-btn');
+
+    //     radioInput.addEventListener('click', (event) => {
+    //         event.stopPropagation();
+
+    //         if (editBtn.style.display === 'none' && deleteBtn.style.display === 'none') {
+    //             editBtn.style.display = 'block';
+    //             deleteBtn.style.display = 'block';
+    //         } else {
+    //             editBtn.style.display = 'none';
+    //             deleteBtn.style.display = 'none';
+    //         }
+    //     });
+    // });
+
+    function showActions(){
+        document.getElementById('delete-btn').style.display="block"
+    }
+    function hideActions(){
+        document.getElementById('delete-btn').style.display="none"
+    }
+</script>
+

@@ -35,9 +35,6 @@ router.get('/reset-pass',auth.renderResetPassword)
 router.post('/reset-pass',auth.resetpassword)
 
 
-
-
-
 router.get('/send-otp',(req,res)=>{
     res.render('./user/verifyotp')
 });
@@ -53,7 +50,11 @@ router.get('/brands/filterbybrand',user.filterByBrand)
 router.get('/allproductview/:categoryId',user.toViewAll)
 router.post('/products-search',user.productSearch)
 
-router.get('/cart',user.toCart)
+
+
+
+
+
 
 
 

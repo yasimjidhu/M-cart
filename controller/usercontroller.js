@@ -167,7 +167,6 @@ const verifyOtp = async (req, res) => {
           category: flashsales.id,
         });
         const categorywise = await products.find();
-        console.log("<<<<<<<<<<<<<<<", categorywise);
 
         const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
         const brand = await brands.find();
@@ -341,11 +340,11 @@ const productview = async (req, res) => {
     console.log(productId);
 
     const data = await products.find({ _id: productId });
+    
 
     if (!data) {
       return res.status(404).send("product not found");
     } else {
-      console.log("product view reached");
       res.render("./user/productdetails", { data,isAuthenticated });
     }
   } catch (err) {
@@ -369,28 +368,12 @@ const productlist = async (req, res) => {
 
 // To brandwise productions
 const toBrandwise = async (req, res) => {
+  const brandid = req.params.brandId;
+  const isAuthenticated = req.session.user ? true : false;
 
-  try{
-
-    // Pagination
-    const page = parseInt(req.query.page) || 1
-    const perPage = 8
-    const productsCount = await products.countDocuments()
-    const totalPages = Math.ceil(productsCount / perPage)
-
-    const brandid = req.params.brandId;
-    const isAuthenticated = req.session.user ? true : false;
-  
-    const brandProducts = await products
-    .find({ brand: brandid })
-    .skip((page-1)*perPage)
-    .limit(perPage)
-    const Brand = await brands.find();
-    res.render("./user/brandwise", { brandProducts, Brand,isAuthenticated,totalPages,currentPage:page });
-  }catch(error){
-    console.log(error)
-  }
-
+  const brandProducts = await products.find({ brand: brandid });
+  const Brand = await brands.find();
+  res.render("./user/brandwise", { brandProducts, Brand,isAuthenticated });
 };
 async function filterByBrand(req, res) {
   const brandName = req.query.brand;
@@ -437,13 +420,24 @@ const productSearch = async (req, res) => {
   }
 };
 
-// To cart
-const toCart = (req, res) => {
-  {
-    res.render("./user/cart");
-  }
-};
 
+// fetch sample
+
+const fetchingData =async (req,res)=>{
+
+  try{
+
+  const productData = await products.find()
+  res.json(productData)
+
+  }catch(error){
+    res.status(500).json({message:error.message})
+  }
+}
+
+const toProfile = (req,res)=>{
+  res.render('./user/profile')
+}
 module.exports = {
   toHome,
   userSignup,
@@ -462,5 +456,6 @@ module.exports = {
   filterByBrand,
   toViewAll,
   productSearch,
-  toCart,
+  fetchingData,
+  toProfile
 };

@@ -4,6 +4,9 @@
 <!--Navbar-->
 <%- include('../user/partials/navbar') %>
 
+<body>
+    
+
 <!-- Product Details Page -->
 <div class="container-fluid my-5">
     <div class="row">
@@ -32,6 +35,7 @@
                     <ul style="list-style: none;">
                         <li><%= product.specifications[0] %></li>
                         <li><%= product.specifications[1] %></li>
+                        <li><%= product.specifications[2] %></li>
                         <li><%= product.specifications[3] %></li>
                         <li><%= product.specifications[4] %></li>
                         <!-- Add more specifications as needed -->
@@ -43,7 +47,10 @@
                 <h1><%= product.productName %></h1>
                 <p class="phone-price">$<%= product.price %></p>
                 <p><%= product.description %></p>
-                <button class="btn btn-sub">Add to Cart</button>
+
+                <form action="/cart/add-cart/<%=data[0]._id %>" id="addToCartForm" method="post">
+                    <button type="submit" class="btn btn-sub">Add to Cart</button>
+                </form>
                 <button class="btn btn-cancel">Buy Now</button>
             </div>
         </div>
@@ -58,10 +65,82 @@
 
 <!--footer-->
 <%- include('../user/partials/footer') %>
-
-<!-- Include Bootstrap and any additional scripts or styles as needed -->
+</body>
 <script src="https://unpkg.com/js-image-zoom@0.4.1/js-image-zoom.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
 <script>
+
+    //addtocart post
+    document.addEventListener('DOMContentLoaded', function() {
+    document.querySelector('#addToCartForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+
+        const productId = this.getAttribute('action').split('/').pop();
+        const quantity = 1
+        
+
+        addToCart(productId,quantity);
+    });
+
+    function addToCart(productId,quantity) {
+        const data = { productId,quantity };
+
+        fetch('/cart/add-cart', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Response:', data);
+            if (data.success) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Product added to cart',
+                    showConfirmButton: false,
+                    timer: 1500
+                });
+            } else {
+                throw new Error(data.message || 'Failed to add product to cart');
+                
+            }
+        })
+        .catch(error => {
+            console.error(error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Oops',
+                text: error.message || 'Something went wrong'
+            });
+        });
+    }
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     var options = {
         width: 300,
         zoomWidth: 400,
@@ -82,4 +161,5 @@
         };      
         new ImageZoom(document.getElementById("img-container"), options);
     }
+
 </script>

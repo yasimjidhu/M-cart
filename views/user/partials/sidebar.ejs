@@ -1,0 +1,27 @@
+
+
+<div class="container-fluid p-0">
+    
+    <div class="admin-sidebar vh-100">
+        <a href="/account/profile" onclick="updateTitle('Dashboard')" class="active">Profile</a>
+        <a href="/account/addressBook" onclick="updateTitle('customers')" class="active">Address Book</a>
+        <a href="#" onclick="updateTitle('Products')" class="active">Payment options</a>
+        <a href="#" onclick="updateTitle('Category')" class="active">My orders</a>
+        <a href="#" onclick="updateTitle('Brands')" class="active">My returns</a>
+        <a href="#" onclick="updateTitle('Orders')" class="inactive">My cancellation</a>
+        <a href="#" onclick="updateTitle('Banner')" class="inactive">My wishlist</a>
+    </div>
+</div>
+
+<script>
+    function updateTitle(page) {
+    const links = document.querySelectorAll('.admin-sidebar a');
+    links.forEach(link => {
+        link.classList.remove('active');
+    });
+
+    document.getElementById('current-page').textContent = page;
+    event.target.classList.add('active');
+}
+</script>
+

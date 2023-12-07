@@ -4,55 +4,134 @@
 
 <%-include('../user/partials/navbar') %>
 
+
+
 <div class="container mt-5">
   <div class="row">
-    <div class="col-12">
-      <table class="table table-striped">
-        <thead>
-          <tr>
-            <th scope="col">Product</th>
-            <th scope="col">Price</th>
-            <th scope="col">quantity</th>
-            <th scope="col">Subtotal</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <th scope="row">1</th>
-            <td>Mark</td>
-            <td>Otto</td>
-            <td>@mdo</td>
-          </tr>
-          <tr>
-            <th scope="row">2</th>
-            <td>Jacob</td>
-            <td>Thornton</td>
-            <td>@fat</td>
-          </tr>
-          <tr>
-            <th scope="row">3</th>
-            <td>Larry</td>
-            <td>the Bird</td>
-            <td>@twitter</td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="col-12">
+          <table class="table table-striped" id="tableRow">
+              <thead>
+                  <tr>
+                      <th scope="col">Product</th>
+                      <th scope="col">Price</th>
+                      <th scope="col">Quantity</th>
+                      <th scope="col">Subtotal</th>
+                  </tr>
+              </thead>
+              <tbody>
+
+              </tbody>
+          </table>
+      </div>
+      <div class="col-12 d-flex mt-3">
+          <div class="col-lg-6 d-flex justify-content-start">
+              <button class="cart-btn btn ">Return to shop</button>
+          </div>
+          <div class="col-lg-6 d-flex justify-content-end">
+              <button class="cart-btn ">Update Cart</button>
+          </div>
+      </div>
+      <div class="row w-100 mt-5 ml-1  coupon-div d-flex justify-content-start align-items-center">
+        <div class="col-lg-3  d-flex justify-content-start align-items-center">
+            <input class="coupon-input form-cont" type="text" placeholder="Coupon code" name="coupon">
+        </div>
+        <div class="col-lg-5">
+            <button class="coupon-btn ">Apply Coupon</button>
+        </div>
+        <div class="col-lg-4">
+            <div class="row h-100">
+                <div class="col-12 cart-total ">
+                   <div class="col-lg-12 txt-div  mt-1">
+                    <h5 class="text-white">Cart Total</h5>
+                    <br>
+                    <p class="bordered text-white">Sub Total</p>
+                    <p class="bordered text-white">Shipping</p>
+                    <p class="text-white">Total</p>
+                    <div class="checkout-div ">
+                      <button class="checkout-btn">Process To Checkout</button>
+                    </div>
+                   </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="col-12  d-flex mt-3">
-        <div class="col-lg-6  " style="text-align: start;">
-            <button class="cart-btn">Return to shop</button>
-        </div>
-        <div class="col-lg-6 " style="text-align: end;">
-            <button class="cart-btn">Update Cart</button>
-        </div>
-    </div>
-    <div class="col-lg-5  mt-5 coupon-div">
-        <div class="col-lg-8  ">
-            <input class="coupon-input" type="text" placeholder="coupon code" name="coupon">
-        </div>
-        <div class="col-lg-5 coupon-btn-div">
-            <button class="coupon-btn">Apply coupon</button>
-        </div>
+    <div class="col-lg-12">
+      <ul id="productList">
+      </ul>
     </div>
   </div>
 </div>
+
+<!--fetch sample-->
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    console.log('dom content loaded')
+
+    fetch('/cart/cart-products')
+      .then(response => response.json())
+      .then(data => {
+        if(data.success){
+
+          console.log("fetch products",data.datas)
+        }
+        const productTable = document.getElementById('tableRow');
+
+        data.datas.forEach(product => {
+          const tr = document.createElement('tr');
+
+          // Image cell
+          const imgTd = document.createElement('td');
+          const img = document.createElement('img');
+          
+          img.src = `/uploads/${product.image[4]}`; 
+          img.style.width = '50px';
+          img.style.height = '50px';
+          imgTd.appendChild(img);
+          tr.appendChild(imgTd);
+
+          // Price cell
+          const priceTd = document.createElement('td');
+          priceTd.textContent = `$${product.price}`;
+          tr.appendChild(priceTd);
+
+          // Quantity cell
+          const quantityTd = document.createElement('td');
+          const quantityInput = document.createElement('input');
+          quantityInput.type = 'number';
+          quantityInput.min = '1';
+          quantityInput.value =product.quantity ;
+          quantityInput.classList.add('quantity-input');
+          quantityInput.addEventListener('change', function () {
+            updateSubtotal(this, priceTd);
+          });
+
+          quantityTd.appendChild(quantityInput);
+          tr.appendChild(quantityTd);
+
+          // Subtotal cell
+          const subtotalTd = document.createElement('td');
+          subtotalTd.textContent = `$${product.price}`;
+          tr.appendChild(subtotalTd);
+
+          // Append the whole row to the table
+          productTable.appendChild(tr);
+        });
+
+        function updateSubtotal(input, priceCell) {
+          const quantity = input.value;
+          const price = parseFloat(priceCell.textContent.replace('$', ''));
+          const subtotal = quantity * price;
+          const row = input.parentNode.parentNode;
+          const subtotalCell = row.getElementsByTagName('td')[3];
+
+          subtotalCell.textContent = `$${subtotal.toFixed(2)}`;
+        }
+      })
+      .catch(error => console.error('Error occurred:', error));
+  });
+</script>
+
+
+
+
+<%-include('./partials/footer.ejs')  %>

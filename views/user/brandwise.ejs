@@ -20,23 +20,5 @@
                 </div>
                 <% }); %>
         </div>
-</div>
 
-<!--pagination-->
-<div class="pagination">
-    <% if(currentPage > 1) {%>
-        <a class="next-btn text-white" href="/brand-wise?page=<%currentPage -1 %>">Previous</a>
-    <% } %>
-
-    <% for(let i=1; i<=totalPages; i++) {%>
-        <%if(i===currentPage) { %>
-            <span><%= i %></span>
-        <% }else {%>
-            <a class="second" href="/brand-wise?page=<%= i %>"><%= i %></a>
-        <% } %>
-    <% } %>
-
-    <%if(currentPage < totalPages) {%>
-        <a class="next-btn text-white" href="/brand-wise?page=<%=currentPage + 1 %>">Next</a>
-    <% } %>
 </div>

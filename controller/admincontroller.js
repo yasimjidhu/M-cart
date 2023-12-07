@@ -176,9 +176,7 @@ const toEditProduct = async (req, res) => {
       const productsData = await products.find();
       const categories = await category.find();
       const brand= await brands.find();
-      return res
-        .status(404)
-        .render("./admin/products", { err: "Product not found",productsData,categories, brand});
+      return res.status(404).render("./admin/products", { err: "Product not found",productsData,categories, brand});
     }
 
     res.render("./admin/editproduct", {
@@ -191,12 +189,7 @@ const toEditProduct = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-      const productsData = await products.find();
-      const categories = await category.find();
-      const brand= await brands.find();
-    res
-      .status(500)
-      .render("./admin/products", { err: "Internal server error",productsData,categories,brand });
+    res.status(500).redirect(`/admin/products?error=internal server error`)
   }
 };
 
@@ -207,7 +200,6 @@ const updateProduct = async (req, res) => {
     const productId = req.params.productId;
     console.log(productId)
     const { Category, productName,description, brand, specifications } = req.body;
-
     const existingProduct = await getProductById(productId);
 
     if (!existingProduct) {
@@ -590,7 +582,7 @@ const toProducts = async (req, res) => {
       brand,
       error: req.query.error,
       totalPages,
-      currentPage: page,
+      currentPage:page
     });
   } catch (error) {
     console.error(error);

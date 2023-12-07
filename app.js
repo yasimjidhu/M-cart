@@ -8,6 +8,9 @@ const cookie = require('cookie-session')
 const userRouter = require('./Router/userRouter')
 const admminRouter = require('./Router/adminRouter')
 const authRouter = require('./Router/authRouter')
+const cartRouter = require('./Router/cartRouter')
+const accountRouter = require('./Router/accountRouter')
+const {errorHandler} = require('./middleware/errorMiddleware')
 const crypto = require('crypto')
 const nodemailer = require('nodemailer')
 const zoom = require('js-image-zoom')
@@ -43,13 +46,14 @@ app.use((req,res,next)=>{
 app.use(passport.initialize());
 app.use(passport.session());
 
-
 app.use('/',userRouter)
 app.use('/admin',admminRouter)
-
-// using auth router
 app.use('/auth', authRouter);
+app.use('/cart',cartRouter)
+app.use('/account',accountRouter)
 
+// Error middleware
+// app.use(errorHandler)
 
 const port = process.env.PORT||4000
 

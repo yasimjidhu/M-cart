@@ -1,0 +1,306 @@
+<!--------header---------->
+<%- include('../user/partials/header') %> 
+
+<!--------navbar---------->
+<%- include('../user/partials/navbar') %>
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2 p-0 bg-danger">
+                <%-include('../user/partials/sidebar') %>
+            </div>
+            <div class="col-lg-10 p-0 ">
+               <div class="row m-0">
+                <div class="col-lg-12 p-0 address-heading">
+                    <h3 class="text-center" >Add Address</h3>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
+                    <form action="/account/addAddress" method="post" id="addAddress">
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" class="form-control" name="fullName" placeholder="John">
+                        <p id="name-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
+                    <div class="form-group">
+                        <label for="phoneNumber">Phone Number</label>
+                        <input type="number" id="phoneNumber" class="form-control" name="phoneNumber" placeholder="9876543210">
+                        <p id="number-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" class="form-control" name="email" placeholder="John@gmail.com">
+                        <p id="email-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="country">Country</label>
+                        <select id="country" class="form-control" name="country" placeholder="india">
+                            <option value="" disabled selected>Select Your country</option>
+                        </select> 
+                        <p id="country-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="Pin code">Pin Code</label>
+                        <input type="number" id="pinCode" class="form-control" name="pinCode" placeholder="687956" onchange="fetchLocation()">
+                        <p id="pinCode-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="state">State</label>
+                        <input type="text" id="state" class="form-control" name="state" placeholder="kerala">
+                        <p id="state-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="district">district</label>
+                        <input type="text" id="district" class="form-control" name="district" placeholder="calicut">
+                        <p id="district-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="city">City</label>
+                        <input type="text" id="city" class="form-control" name="city" placeholder="mankavu">
+                        <p id="city-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="area">Area</label>
+                        <input type="text" id="area" class="form-control" name="area" placeholder="nadakkavu">
+                        <p id="area-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="street">Street</label>
+                        <input type="text" id="street" class="form-control" name="street" placeholder="2nd street">
+                        <p id="street-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="building">Building</label>
+                        <input type="text" id="building" class="form-control" name="building" placeholder="skyline">
+                        <p id="building-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="form-group">
+                        <label for="houseNumber">House Number</label>
+                        <input type="number" id="houseNumber" class="form-control" name="houseNumber" placeholder="113">
+                        <p id="houseNumber-error"></p>
+                    </div>
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="cancelDiv">
+                        <button class="cancel-btn">Cancel</button>
+                    </div>  
+                   </div>
+                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                    <div class="saveDiv ">
+                        <button type="submit" class="save-btn ">Save</button>
+                    </div>
+                   </div>
+                </form>
+               </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+<script>
+    
+     // Fetch countries from the server and populate the dropdown
+     window.addEventListener('DOMContentLoaded',async ()=>{
+        try {
+            const response = await fetch('/account/countries')
+            if(!response.ok){
+                alert('failed')
+                throw new Error(`Fetch failed with status ${response.status}: ${response.statusText}`);
+            }
+
+            const countries = await response.json()
+            const countryDropDown = document.getElementById('country')
+
+            countries.forEach(country=>{
+                const option = document.createElement('option')
+                option.value = country.name;
+                option.textContent=country.name
+                countryDropDown.appendChild(option)
+            })
+
+            // Set default value to 'India' after populating the countries
+            const defaultCountry = 'India';
+            const defaultOption = countryDropDown.querySelector(`option[value="${defaultCountry}"]`);
+            if (defaultOption) {
+            defaultOption.selected = true;
+            } else {
+            // If 'India' is not available, set the first option as default
+            countryDropDown.selectedIndex = 0;
+    }
+        } catch (error) {
+            console.error('error fetching in countries',error)
+        }
+    })
+
+    // Function to fetch location details using the backend endpoint
+    async function fetchLocation(){
+        const pincode = document.getElementById('pinCode').value
+
+        try{
+            const response = await fetch(`/account/fetch-location?pincode=${pincode}`)
+            if(!response.ok){
+                throw new Error('failed to fetch location details')
+            }
+            
+            const data = await response.json()
+
+            //data assigning into input fields
+            //city
+            const state = data.stateName
+            const district = data.districtName
+            const citySplitted = data.officeName.split(' ')
+            const userCity = citySplitted[0]
+            const area = data.taluk
+
+            document.getElementById('state').value=state
+            document.getElementById('district').value=district
+            document.getElementById('city').value=userCity
+            document.getElementById('area').value=area
+            
+        }catch(err){
+            console.error('error occured',err.message)
+        }
+    }
+
+
+    // add Address post
+    document.getElementById('addAddress').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const formData = {
+        fullName: document.getElementById('fullName').value,
+        phoneNumber: document.getElementById('phoneNumber').value,
+        email: document.getElementById('email').value,
+        country: document.getElementById('country').value,
+        pinCode: parseInt(document.getElementById('pinCode').value),
+        state: document.getElementById('state').value,
+        district: document.getElementById('district').value,
+        city: document.getElementById('city').value,
+        area: document.getElementById('area').value,
+        street: document.getElementById('street').value,
+        building: document.getElementById('building').value,
+        houseNumber: document.getElementById('houseNumber').value,
+    };
+
+    try {
+        const response = await fetch('/account/addAddress', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to add address');
+        }
+
+        const data = await response.json();
+        if (data.success) {
+            // Show success message using SweetAlert
+            Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'Address added successfully',
+                showConfirmButton: true,
+                timer: 4000
+            }).then(() => {
+                window.location.href = '/account/addressBook';
+                console.log('Address added to db', data);
+            });
+        }
+    } catch (error) {
+        console.error(error);
+    }
+});
+
+
+    // form validation
+        function isEmpty(value){
+            const trimmed =  value.trim()
+            return trimmed ===""
+        }
+        function isValidName(name){
+            const regex= /^[a-zA-Z]+$/
+            return regex.test(name)
+        }
+        function isValidPhoneNumber(phoneNumber){
+            const regex =  /^\d{3}-\d{3}-\d{4}$/
+            return regex.test(phoneNumber)
+        }
+        function isValidPincode(pinCode){
+            const regex = /^\d{6}$/
+            return regex.test(pinCode)
+        }
+        function isValidStreet(street){
+            const regex =  /^[a-zA-Z0-9]+$/
+            return regex.test(street)
+        }
+        function isValidCity(city){
+            const regex = /^[a-zA-Z]+$/
+            return regex.test(city)
+        }
+        document.getElementById('addAddress').addEventListener('submit',function(event){
+        
+            var namevalue = document.querySelector('#name').value
+            var nameError = document.querySelector('#name-error')
+
+            var numberValue = document.querySelector('#phoneNumber').value
+            var numberError = document.querySelector('houseNumber-error')
+
+            var emailValue = document.querySelector('#email').value
+            var emailError = document.querySelector('#email-error')
+
+            var countryValue = document.querySelector('#country').value
+            var countryError = document.querySelector('#country-error')
+
+            var pincodeValue = document.querySelector('#pinCode').value
+            var pinCodeError = document.querySelector('#pinCode-error')
+
+            var stateValue = document.querySelector('#state').value
+            var stateError = document.querySelector('state-error')
+
+            var districtValue = document.querySelector('#district').value
+            var districtError = document.querySelector('#district-error')
+
+            var cityValue = document.querySelector('#city').value
+            var cityError = document.querySelector('#city-error')
+
+            var buildingValue = document.querySelector('#building').value
+            var buildingError = document.querySelector('#building-error')
+
+            var houseNumberValue = document.querySelector('#houseNumber').value
+            var houseNumberError = document.querySelector('#houseNumber-error')
+
+            var streetValue = document.querySelector('#street').value
+            var streetError = document.querySelector('street-error')
+
+            
+    
+    
+    })
+
+
+</script>

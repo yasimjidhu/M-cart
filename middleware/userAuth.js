@@ -14,8 +14,17 @@ const userExist = (req,res,next)=>{
     }
 };
 
+const profileAuth = (req,res,next)=>{
+    if(req.session.userlogged){
+        next()
+    }else{
+        res.redirect('/user/tosignup')
+    }
+}
+
 
 module.exports = {
     verifyUser,
-    userExist
+    userExist,
+    profileAuth
 }

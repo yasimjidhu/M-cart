@@ -1,0 +1,79 @@
+<!--------header---------->
+<%- include('../user/partials/header') %> 
+
+<!--------navbar---------->
+<%- include('../user/partials/navbar') %>
+
+
+<body>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-2 p-0">
+                <%-include('../user/partials/sidebar') %>
+            </div>
+            <div class="col-lg-4 ">
+                <div class="col-lg-12  userDpDiv">
+                    <div class="userDp"></div>
+                    <div class="dts">
+                        <p class="text-white">Name:  sssssssssssssssss</p>
+                        <p class="text-white" >Email:  sssssssssssssssss</p>
+                        <p class="text-white">Country:sssssssssssssssss</p>
+                    </div>    
+                </div>
+                <div class="col-lg-12 profilePic mt-3">
+                    <h1>Image</h1>
+                </div>
+            </div>
+            <div class="col-lg-6 user-details">
+                <div class="input-head">
+                    <h5>Edit Your profile</h5>
+                </div>
+                <div class="row">
+                <div class="col-lg-6 ">
+                  <div class="form-group">
+                    <label for="firstName">First Name</label>
+                    <input type="text" class="form-control" name="firstName" placeholder="John">
+                  </div>
+                  <div class="form-group">
+                    <label for="LastName">Last Name</label>
+                    <input type="text" class="form-control"  name="lastName" placeholder="Doe">
+                </div>
+            </div>
+                <div class="col-lg-6 ">
+                  <div class="form-group">
+                    <label for="Email">Email</label>
+                    <input type="email" class="form-control"  name="email" placeholder="Johndoe@gmail.com">
+                  </div>
+                  <div class="form-group">
+                    <label for="Address">Phone Number</label>
+                    <input type="number" class="form-control"  name="phoneNumber" placeholder="9876543210">
+                  </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="input-head1">
+                    <h5>Change password</h6>
+                </div>
+                <div class="col-lg-12">
+                    <div class="form-group">
+                        <label for="password">Current Password</label>
+                        <input type="password" class="form-control" name="currentPassword" placeholder="currentpassword">
+                    </div>
+                    <div class="form-group">
+                        <label for="new passsword">New Password</label>
+                        <input type="password" class="form-control" name="newPassword" placeholder="New Password">
+                    </div>
+                    <div class="form-group">
+                        <label for="Confirm passsword">Confirm  new Password</label>
+                        <input type="password" class="form-control" name="confirmNewPassword" placeholder=" Confirm New Password">
+                    </div>
+                    <div class="profile-button">
+                        <button class="cancel-button">Cancel</button>
+                        <button class="save-button">Save changes</button>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+</body>
