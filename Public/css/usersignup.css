@@ -41,7 +41,7 @@ body{
 
 }
 .search-box{
-    padding: 1px;
+    padding: 6px;
     border-radius: 7px;
     border: 0px;
 }
@@ -51,7 +51,7 @@ body{
     padding: 5px;
 }
 .search-btn{
-    padding: 2px;
+    padding: 6px 12px;
     border-radius: 7px;
     border: 0px;
     font-weight:500;
@@ -734,6 +734,7 @@ body{
     display: block;
     margin: 2rem 0rem;
     padding: 10px;
+    transition: all 0.3s ease-in-out;
 }
 .admin-sidebar a:hover{
     background-color:#001524;
@@ -813,9 +814,13 @@ body{
     padding: 4px 30px;
     border:0px;
     color: white;
+    /* margin-top: 10px; */
 }
 .btn-cancel:hover{
     color:white;
+}
+#addToCartForm{
+    margin-top: 20px;
 }
 .btn-sub{
     background-color: #FF7D00;
@@ -910,7 +915,7 @@ body{
 }
 .cart-btn {
     padding: 5px;
-    color:white;
+    color:black;
     background-color: #FF7D00;
     border: 1px solid black;
     border-radius: 5px;
@@ -924,7 +929,7 @@ body{
     padding: 4px;
     border-radius: 5px;
     border: 1px solid black;
-    color: white;
+    color: black;
 }
 .coupon-btn-div{
     text-align: end;
@@ -1000,39 +1005,55 @@ body{
     background-color: #FF7D00;
     border-radius: 5px;
     border: 1px solid black;
-    color: white;
-    padding: 5px;
+    color: black;
+    padding: 7px;
+    margin-top: 15px;
 }
 .quantity-input{
     width: 50px;
 }
+
+  .quantity {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    font-size: 18px;
+  }
+  
+
 /*------------------------------------------------user profile-------------------------------------------------------------------*/
-.userdpdiv{
-    /* background-color :#FF7D00; */
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 175px;
-}
+
 .sidebar-div{
     background-color: red;
 }
-.userDp{
-    height: 125px;
-    width: 125px;
+.userDp {
+    position: relative;
+    height: 165px;
+    width: 165px;
     background-color: #ffffff;
     border-radius: 50%;
     border: 1px solid black;
+    overflow: hidden; /* Ensure the image is contained within the div */
 }
+
+.selected-image {
+    width: 100%;
+    object-fit: cover; /* Maintain the aspect ratio and cover the div */
+}
+
 .userDpDiv{
-    background-color:#001524;
+    background-color: #001524;
     margin-top: 10px;
-    height: 190px;
+    /* height: 167px; */
     display: flex;
-    justify-content: space-around;
+    flex-direction: column;
+    justify-content: center;
     align-items: center;
     border-radius: 15px;
     border: 2px solid #001524;
+    padding: 10px 10px;
 }
 .user-details{
     background-color: white;
@@ -1052,7 +1073,7 @@ body{
     justify-content: end;
 }
 .profile-button button{
-    padding: 4px;
+    padding: 7px;
     margin: 0px 10px ;
 }
 .cancel-button{
@@ -1069,12 +1090,12 @@ body{
 .profilePic{
     /* background-color: #001524; */
     box-shadow: 1px 2px 30px -7px #001524;
-    height: 300px;
+    /* height: 220px; */
     border-radius: 21px;
     border: 1px solid #FF7D00;
-    display: flex;
+    /* display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: center; */
 }
 /*-----------------------------------------------------address book-------------------------------------------------------------*/
 .address-heading{
@@ -1151,4 +1172,80 @@ body{
     display: flex;
     width: 70px;
     justify-content: space-around;
+}
+.edit-dp{
+    position: absolute;
+    width: 50px;
+    height: 45px;
+    top: 85px;
+    right: 16px;
+    cursor: pointer;
+}
+#cropButton{
+    position: absolute;
+    top: 100px;
+    right: 100px;
+}
+.key-data{
+    padding: 10px;
+}
+.textwhite{
+    color: #d3d3d3;
+    font-size: 14px;
+    font-weight: 300;
+}
+.dts h3, p{
+    margin: 5px 0px;
+}
+.profile-options{
+    margin: 15px 0px;
+    padding: 8px 0px;
+    border-bottom: 1px solid #b5b5b5;
+}
+.profile-options img{
+    margin-right: 25px;
+}
+.profile-options a{
+    color: #000;
+}
+.edit-dp {
+    display: inline-block;
+    padding: 8px 15px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    text-align: center;
+}
+
+/* Styles for the file input - hide the button */
+#profileImageInput {
+    display: none;
+}
+.custom-file-upload {
+    display: inline-block;
+    padding: 5px 5px;
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    font-size: 13px;
+    text-align: center;
+}
+
+.custom-file-upload:hover {
+    background-color: #0056b3;
+}
+#cardBody{
+    padding: 15px 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+#address-logo{
+    width: 40px;
 }

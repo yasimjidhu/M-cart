@@ -16,7 +16,9 @@
                       <th scope="col">Price</th>
                       <th scope="col">Quantity</th>
                       <th scope="col">Subtotal</th>
+                      <th scope="col">Remove</th>
                   </tr>
+                  
               </thead>
               <tbody>
 
@@ -56,6 +58,7 @@
         </div>
     </div>
     <div class="col-lg-12">
+      
       <ul id="productList">
       </ul>
     </div>
@@ -78,14 +81,15 @@
 
         data.datas.forEach(product => {
           const tr = document.createElement('tr');
+          tr.id = `productRow_${product._id}`; // Assign unique ID to each row
 
           // Image cell
           const imgTd = document.createElement('td');
           const img = document.createElement('img');
           
           img.src = `/uploads/${product.image[4]}`; 
-          img.style.width = '50px';
-          img.style.height = '50px';
+          img.style.width = '110px';
+          img.style.height = '110px';
           imgTd.appendChild(img);
           tr.appendChild(imgTd);
 
@@ -113,6 +117,21 @@
           subtotalTd.textContent = `$${product.price}`;
           tr.appendChild(subtotalTd);
 
+          const deleteTd = document.createElement('td')
+          const remove = document.createElement('img')
+
+          remove.addEventListener('click',()=>{
+            removeItem(product._id)
+          })
+          remove.src = `/png/minus-button.png`;
+          remove.style.width = '30px';
+          remove.style.marginLeft='20px'
+          remove.style.cursor='pointer'
+
+          // remove.appendChild(remove)
+          deleteTd.appendChild(remove)
+          tr.appendChild(deleteTd)
+
           // Append the whole row to the table
           productTable.appendChild(tr);
         });
@@ -129,6 +148,51 @@
       })
       .catch(error => console.error('Error occurred:', error));
   });
+
+  // Remove item from cart
+  async function removeItem(productID){
+    const productId = productID
+
+    try {
+      const response = await fetch(`/cart/removeItem/${productId}`,{
+        method:'DELETE'
+      });
+
+      if(response.ok){
+        console.log('item deleted successfully')
+        Swal.fire({
+          icon:'success',
+          title:'Success',
+          text:'Product deleted successfully',
+          showConfirmButton:false,
+          timer:2000
+        }).then(()=>{
+          const rowToRemove = document.getElementById(`productRow_${productId}`);
+          if (rowToRemove) {
+            rowToRemove.style.display = 'none';
+          }
+        })
+      }else{
+        console.log('deletion failed')
+        Swal.fire({
+          icon:'error',
+          title:'failed',
+          text:'product not found',
+          showConfirmButton:false,
+          timer:2000
+        })
+      }
+    } catch (error) {
+      console.error(error)
+      Swal.fire({
+          icon:'error',
+          title:'failed',
+          text:'Internal server error',
+          showConfirmButton:false,
+          timer:2000
+        })
+    }
+  }
 </script>
 
 

@@ -19,7 +19,7 @@ const addressSchema = mongoose.Schema({
             type:String,
             required:true
         },
-        country:{
+        country:{   
             type:String,
             required:true
         },

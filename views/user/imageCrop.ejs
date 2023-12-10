@@ -1,0 +1,100 @@
+<!--header-->
+
+<%- include('../user/partials/header') %> 
+
+<!--Navbar-->
+
+<%-include('../user/partials/navbar') %>
+  <style>
+    .cropedImgDiv {
+        width: 250px;
+        height: 250px;
+        overflow: hidden;
+    }
+    #croppedImage {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+  </style>
+<body>
+  <input type="file" id="inputImage" accept="image/*">
+  <div class="cropedImgDiv">
+    <img id="croppedImage" src="" alt="">
+  </div>
+  <button id="cropButton">Crop Image</button>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function(){
+      const inputImage = document.getElementById('inputImage');
+      const croppedImage = document.getElementById('croppedImage');
+      const croppedImgDiv = document.querySelector('.cropedImgDiv');
+      let cropper;
+
+      inputImage.addEventListener('change', function(e){
+        const files = e.target.files;
+        let file;
+
+        if(files && files.length > 0){
+          file = files[0];
+
+          if(window.URL){
+            croppedImage.src = window.URL.createObjectURL(file);
+            croppedImage.style.display = 'block';
+            croppedImage.style.width = '100%';
+            croppedImage.style.height = '100%';
+            croppedImgDiv.appendChild(croppedImage);
+
+            if(cropper){
+              cropper.destroy();
+            }
+
+            cropper = new Cropper(croppedImage, {
+              aspectRatio: 1 / 1,
+              viewMode: 2,
+              zoomable: false
+            });
+            
+            
+          }
+        }
+      });
+
+      // On cropping button click, get cropped data and send to backend
+      document.getElementById('cropButton').addEventListener('click', function() {
+        if (cropper) {
+          const croppedData = cropper.getData(); // Get cropped data
+
+          // Example endpoint for sending cropped data to the backend
+          const endpoint = '/account/cropImage';
+
+          fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(croppedData) // Send cropped data as JSON
+          })
+          .then(response => {
+            // Handle response from the backend
+            if (response.ok) {
+                
+              console.log('Cropped image saved successfully.');
+              // You can perform further actions here upon successful saving
+            } else {
+              alert('Failed to save cropped image.');
+              console.error('Error saving cropped image.');
+            }
+          })
+          .catch(error => {
+            alert('Error occurred while saving.');
+            console.error('Error:', error);
+          });
+        } else {
+          alert('Please select an image to crop.');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

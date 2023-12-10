@@ -133,6 +133,7 @@ const verifyOtp = async (req, res) => {
     if (otp ===  storedOtp && timeDifference <= 1 * 60 * 1000) {
       // OTP is correct, proceed to save the user
       console.log("OTP is correct, proceeding to save user");
+      req.session.userlogged = true;
       const newUser = new User({
         email: req.session.email,
         password: pass,
@@ -313,10 +314,13 @@ const signupToLogin = (req, res, next) => {
 
 // To Signup page
 const toSignup = (req, res, next) => {
+
+  const error = req.query.msg
+
   if (req.session.userlogged) {
     res.redirect("/user/home");
   } else {
-    res.render("./user/usersignup", { title: "Signup", err: false });
+    res.render("./user/usersignup", { title: "Signup", err: false,error });
   }
 };
 

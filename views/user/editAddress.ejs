@@ -13,35 +13,36 @@
             <div class="col-lg-10 p-0 ">
                <div class="row m-0">
                 <div class="col-lg-12 p-0 address-heading">
-                    <h3 class="text-center" >Add Address</h3>
+                    <h3 class="text-center" >Edit Address</h3>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
-                    <form action="/account/addAddress" method="post" id="addAddress">
+                    <form id="editAddress">
+                    <%existingAddress.address.forEach((data)=>{%> 
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" class="form-control" name="fullName" placeholder="John">
+                        <input type="text" id="fullName" class="form-control" name="fullName" value="<%=data.fullName%>">
                         <p id="name-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
                     <div class="form-group">
                         <label for="phoneNumber">Phone Number</label>
-                        <input type="number" id="phoneNumber" class="form-control" name="phoneNumber" placeholder="9876543210">
+                        <input type="number" id="phoneNumber" class="form-control" name="phoneNumber" value="<%=data.phoneNumber%>" >
                         <p id="number-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" name="email" placeholder="John@gmail.com">
+                        <input type="email" id="email" class="form-control" name="email" value="<%=data.email%>" >
                         <p id="email-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="country">Country</label>
-                        <select id="country" class="form-control" name="country" placeholder="india">
-                            <option value="" disabled selected>Select Your country</option>
+                        <select id="country" class="form-control" name="country" >
+                            <option value="<%=data.country%>" disabled selected>Select Your country</option>
                         </select> 
                         <p id="country-error"></p>
                     </div>
@@ -49,56 +50,57 @@
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="Pin code">Pin Code</label>
-                        <input type="number" id="pinCode" class="form-control" name="pinCode" placeholder="687956" onchange="fetchLocation()">
+                        <input type="number" id="pinCode" class="form-control" name="pinCode" onchange="fetchLocation()" value="<%=data.pinCode%>">
                         <p id="pinCode-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="state">State</label>
-                        <input type="text" id="state" class="form-control" name="state" placeholder="kerala">
+                        <input type="text" id="state" class="form-control" name="state" value="<%=data.state%>" >
                         <p id="state-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="district">district</label>
-                        <input type="text" id="district" class="form-control" name="district" placeholder="calicut">
+                        <input type="text" id="district" class="form-control" name="district" value="<%=data.district%>">
                         <p id="district-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input type="text" id="city" class="form-control" name="city" placeholder="mankavu">
+                        <input type="text" id="city" class="form-control" name="city" value="<%=data.city%>" >
                         <p id="city-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="area">Area</label>
-                        <input type="text" id="area" class="form-control" name="area" placeholder="nadakkavu">
+                        <input type="text" id="area" class="form-control" name="area" value="<%=data.area%>">
                         <p id="area-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="street">Street</label>
-                        <input type="text" id="street" class="form-control" name="street" placeholder="2nd street">
+                        <input type="text" id="street" class="form-control" name="street" value="<%=data.street%>" >
+                        <input type="hidden" id="addressId" name="addressId" value="<%=data._id%>">
                         <p id="street-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="building">Building</label>
-                        <input type="text" id="building" class="form-control" name="building" placeholder="skyline">
+                        <input type="text" id="building" class="form-control" name="building" value="<%=data.building%>">
                         <p id="building-error"></p>
                     </div>
                    </div>
-                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                   <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="form-group">
                         <label for="houseNumber">House Number</label>
-                        <input type="number" id="houseNumber" class="form-control" name="houseNumber" placeholder="113">
+                        <input type="number" id="houseNumber" class="form-control" name="houseNumber" value="<%=data.houseNumber%>" >
                         <p id="houseNumber-error"></p>
                     </div>
                    </div>
@@ -109,9 +111,10 @@
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="saveDiv ">
-                        <button type="submit" class="save-btn ">Save</button>
+                        <button type="submit" class="save-btn">Update</button>
                     </div>
                    </div>
+                   <%})%>
                 </form>
                </div>
             </div>
@@ -126,7 +129,7 @@
         try {
             const response = await fetch('/account/countries')
             if(!response.ok){
-                alert('failed')
+                
                 throw new Error(`Fetch failed with status ${response.status}: ${response.statusText}`);
             }
 
@@ -186,8 +189,9 @@
 
 
     // add Address post
-    document.getElementById('addAddress').addEventListener('submit', async function (event) {
+    document.getElementById('editAddress').addEventListener('submit', async function (event) {
     event.preventDefault();
+    
 
     const formData = {
         fullName: document.getElementById('fullName').value,
@@ -203,9 +207,11 @@
         building: document.getElementById('building').value,
         houseNumber: document.getElementById('houseNumber').value,
     };
+    const addressId = document.querySelector('#addressId').value
+
 
     try {
-        const response = await fetch('/account/addAddress', {
+        const response = await fetch(`/account/edit-Address/${addressId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -218,45 +224,22 @@
         }
 
         const data = await response.json();
+        
         if (data.success) {
             // Show success message using SweetAlert
             Swal.fire({
                 icon: 'success',
                 title: 'Success',
-                text: 'Address added successfully',
+                text: 'Address edited successfully',
                 showConfirmButton: true,
                 timer: 4000
             }).then(() => {
                 window.location.href = '/account/addressBook';
                 console.log('Address added to db', data);
             });
-        }else{
-            Swal.fire({
-                icon: 'error',
-                title: 'Address Limit Reached',
-                text: 'You have reached the maximum limit for addresses.',
-                showConfirmButton: true,
-                timer: 4000
-            }).then(()=>{
-                window.location.href='/account/addressBook'
-            })
-
         }
     } catch (error) {
-        // Handle the error message for address limit reached
-    
-        if (error.message === 'Maximum address limit reached') {
-            alert('limit reached')
-            Swal.fire({
-                icon: 'error',
-                title: 'Address Limit Reached',
-                text: 'You have reached the maximum limit for addresses.',
-                showConfirmButton: true,
-                timer: 4000
-            });
-        } else {
-            console.error(error);
-        }
+        console.error(error);
     }
 });
 

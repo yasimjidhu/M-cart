@@ -34,7 +34,7 @@ app.use(express.urlencoded({extended:true}))
 app.use(express.json())
 app.set('view engine','ejs')
 app.use(express.static('public'))
-
+app.use('/uploads', express.static('uploads/profile_images'));
 
 
 app.use((req,res,next)=>{

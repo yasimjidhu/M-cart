@@ -27,7 +27,7 @@
                 <!-- <p>Enter your details below </p> -->
                 <p id="errorMessage" style="color: red; text-align: center;"></p> <!-- Error message -->
                 <p style="color: rgb(196, 0, 0); font-size: 14px; ;" id="existmsg">
-                  <%= (locals.msg) %>
+                  <%= (locals.msg)|| locals.error %>
                 </p>
                 <div class="mb-3 user-signup">
                   <div class="name-error" id="nameError"></div>

@@ -146,7 +146,7 @@ const addproducts = async (req, res) => {
     const categories = await category.find();
     const brand= await brands.find();
 
-    res.render("./admin/products", { productsData, categories, brand,msg:'product added succesfully' });
+    res.redirect(`/admin/products?msg=Product addedd successfully`);
   } catch (err) {
     res.status(500)
     res.redirect(`/admin/products?error=error occured during add product`)
@@ -560,6 +560,7 @@ const getProductDetails = async () => {
 // pagination used
 const toProducts = async (req, res) => {
   try {
+    const msg = req.query.msg
     const page = parseInt(req.query.page) || 1; // Get the requested page from query parameter or default to 1
     const perPage = 10; // Number of products per page
 
@@ -582,7 +583,8 @@ const toProducts = async (req, res) => {
       brand,
       error: req.query.error,
       totalPages,
-      currentPage:page
+      currentPage:page,
+      msg
     });
   } catch (error) {
     console.error(error);

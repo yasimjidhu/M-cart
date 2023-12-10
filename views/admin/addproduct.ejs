@@ -143,30 +143,49 @@
 <script src="index.js"></script>
 
 <script>
-    function previewImage(event, previewId) {
-        const file = event.target.files[0];
-        const reader = new FileReader();
+   
 
-        reader.onload = function(event) {
+
+    // PRODUCT IMAGE CROPPING
+    document.addEventListener('DOMContentLoaded', function () {
+        // Function to create Cropper instances for the given image input and preview
+        function setupImageCropping(imageInputId, previewId) {
+            const imageInput = document.getElementById(imageInputId);
             const preview = document.getElementById(previewId);
-            const img = document.createElement('img');
-            img.src = event.target.result;
-            img.className = 'preview-image';
-            preview.innerHTML = '';
-            preview.appendChild(img);
-        };
 
-        if (file) {
-            reader.readAsDataURL(file);
+            imageInput.addEventListener('change', function (event) {
+                const file = event.target.files[0];
+                const reader = new FileReader();
+
+                reader.onload = function (event) {
+                    const img = document.createElement('img');
+                    img.src = event.target.result;
+                    img.className = 'preview-image';
+                    preview.innerHTML = '';
+                    preview.appendChild(img);
+
+                    // Create Cropper instance for the uploaded image
+                    const cropper = new Cropper(img, {
+                        aspectRatio: 1 / 1, // Set your desired aspect ratio here
+                        viewMode: 2, // Set Cropper view mode as needed
+                        zoomable: false // Set zoomable property as needed
+                    });
+                };
+
+                if (file) {
+                    reader.readAsDataURL(file);
+                }
+            });
         }
-    }
 
-    var errmsg = document.getElementById('productError')
-    setTimeout(() => {
-        errmsg.innerHTML = ""
-    }, 3000);
-
-
+        // Setup image cropping for each product image input
+        setupImageCropping('productImage1', 'preview1');
+        setupImageCropping('productImage2', 'preview2');
+        setupImageCropping('productImage3', 'preview3');
+        setupImageCropping('productImage4', 'preview4');
+        setupImageCropping('mainImage', 'preview5');
+    });
+    
 /*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Form Validation>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/errmsg
 
             // field empty function
@@ -275,19 +294,6 @@
                 event.preventDefault()
             }
 
-
-            // input validation
-            // if(!isValid(productNameValue)){
-            //     productNameError.textContent="only use alphabets"
-            //     productNameError.style.color="red"
-            //     event.preventDefault()
-            // }
-            // if(!isValid(descriptionValue)){
-            //     descriptionError.textContent="only use alphabets"
-            //     descriptionError.style.color="red"
-            //     event.preventDefault()
-            // }
-
             if(!numberValid(priceValue)){
                 priceError.textContent="please enter valid price"
                 priceError.style.color="red"
@@ -300,4 +306,26 @@
             }
         });
 
+    //     function previewImage(event, previewId) {
+    //     const file = event.target.files[0];
+    //     const reader = new FileReader();
+
+    //     reader.onload = function(event) {
+    //         const preview = document.getElementById(previewId);
+    //         const img = document.createElement('img');
+    //         img.src = event.target.result;
+    //         img.className = 'preview-image';
+    //         preview.innerHTML = '';
+    //         preview.appendChild(img);
+    //     };
+
+    //     if (file) {
+    //         reader.readAsDataURL(file);
+    //     }
+    // }
+
+    // var errmsg = document.getElementById('productError')
+    // setTimeout(() => {
+    //     errmsg.innerHTML = ""
+    // }, 3000);
 </script>

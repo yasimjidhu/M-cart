@@ -4,76 +4,227 @@
 <!--------navbar---------->
 <%- include('../user/partials/navbar') %>
 
-
 <body>
     <div class="container-fluid">
         <div class="row">
             <div class="col-lg-2 p-0">
                 <%-include('../user/partials/sidebar') %>
             </div>
-            <div class="col-lg-4 ">
+            <div class="col-lg-3 ">
                 <div class="col-lg-12  userDpDiv">
-                    <div class="userDp"></div>
-                    <div class="dts">
-                        <p class="text-white">Name:  sssssssssssssssss</p>
-                        <p class="text-white" >Email:  sssssssssssssssss</p>
-                        <p class="text-white">Country:sssssssssssssssss</p>
+                    <div class="rounded-circle overflow-hidden" style="width: 45%; margin: 10px 0px;">
+                        <% if (userData.profileImage) { %>
+                            <img src="/uploads/profile_images/<%= userData.profileImage %>" class="selected-image" alt="">
+                        <% } else { %>
+                            <img src="/png/userNew.png" class="selected-image" alt="Default Image">
+                        <% } %>
+                    </div>
+                        <form  enctype="multipart/form-data">
+                            <input type="file" id="profileImageInput" name="profileImage" onchange="uploadprofilePic(event)">
+                            <label for="profileImageInput" class="custom-file-upload">
+                                <i class="fas fa-cloud-upload-alt"></i> Choose File
+                            </label>                        
+                        </form>
+                    <div class="dts" style="width: 55%; text-align: center;">
+                        <h3 class="" style="font-size: 18px; font-weight: 600; color: #fff;"><%=userData.name.toUpperCase() %></h3>
+                        <p class="textwhite"><%=userData.email %></p>
+                        <p class="textwhite"><%=firstAddress.address.district%></p>
+                        <!-- <button id="cropButton">Crop</button> -->
                     </div>    
                 </div>
                 <div class="col-lg-12 profilePic mt-3">
-                    <h1>Image</h1>
+                    <div class="d-flex justify-content-start align-items-center profile-options">
+                        <img src="/png/coupon.png" width="30px">
+                        <a href="/cart/cart">My coupons</a>
+                    </div>
+                    <div class="d-flex justify-content-start align-items-center profile-options">
+                        <img src="/png/shop.png" width="30px">
+                        <a href="/cart/cart">Cart collection</a>
+                    </div>
+                    <div class="d-flex justify-content-start align-items-center profile-options">
+                        <img src="/png/wishlist.png" width="30px">
+                        <a href="/cart">My wishlist</a>
+                    </div>
                 </div>
+                
             </div>
-            <div class="col-lg-6 user-details">
+            <div class="col-lg-7 user-details">
                 <div class="input-head">
                     <h5>Edit Your profile</h5>
                 </div>
                 <div class="row">
-                <div class="col-lg-6 ">
-                  <div class="form-group">
-                    <label for="firstName">First Name</label>
-                    <input type="text" class="form-control" name="firstName" placeholder="John">
-                  </div>
-                  <div class="form-group">
-                    <label for="LastName">Last Name</label>
-                    <input type="text" class="form-control"  name="lastName" placeholder="Doe">
-                </div>
-            </div>
+                    <div class="col-lg-6 ">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" class="form-control" name="fullName" value="<%=firstAddress.address.fullName%>" readonly>
+                        </div>
+                        <div class="form-group">
+                            <label for="state">State</label>
+                            <input type="text" class="form-control"  name="state" value="<%=firstAddress.address.state%>" readonly >
+                        </div>
+                    </div>
                 <div class="col-lg-6 ">
                   <div class="form-group">
                     <label for="Email">Email</label>
-                    <input type="email" class="form-control"  name="email" placeholder="Johndoe@gmail.com">
+                    <input type="email" class="form-control"  name="email" value="<%=firstAddress.address.email%>" readonly>
                   </div>
                   <div class="form-group">
                     <label for="Address">Phone Number</label>
-                    <input type="number" class="form-control"  name="phoneNumber" placeholder="9876543210">
+                    <input type="number" class="form-control"  name="phoneNumber" value="<%=firstAddress.address.phoneNumber%>" readonly >
                   </div>
                 </div>
             </div>
-            <div class="row">
-                <div class="input-head1">
-                    <h5>Change password</h6>
+            <form id="passwordChangeForm">
+                <div class="row">
+                    <div class="input-head1">
+                        <h5>Change password</h5>
+                    </div>
+                    <div class="col-lg-12">
+                        <div class="form-group">
+                            <h5 id="nullError"></h5>
+                            <label for="password">Current Password</label>
+                            <input type="password" class="form-control" name="currentPassword" placeholder="Current Password" id="currentPassword">
+                        </div>
+                        <div class="form-group">
+                            <label for="newPassword">New Password</label>
+                            <input type="password" class="form-control" name="newPassword" placeholder="New Password" id="newPassword">
+                        </div>
+                        <div class="form-group">
+                            <label for="confirmNewPassword">Confirm New Password</label>
+                            <input type="password" class="form-control" name="confirmNewPassword" placeholder="Confirm New Password" id="confirmNewPassword">
+                        </div>
+                        <div class="profile-button">
+                            <!-- <button type="button" class="cancel-button">Cancel</button> -->
+                            <button type="submit" class="save-button">Save changes</button>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-lg-12">
-                    <div class="form-group">
-                        <label for="password">Current Password</label>
-                        <input type="password" class="form-control" name="currentPassword" placeholder="currentpassword">
-                    </div>
-                    <div class="form-group">
-                        <label for="new passsword">New Password</label>
-                        <input type="password" class="form-control" name="newPassword" placeholder="New Password">
-                    </div>
-                    <div class="form-group">
-                        <label for="Confirm passsword">Confirm  new Password</label>
-                        <input type="password" class="form-control" name="confirmNewPassword" placeholder=" Confirm New Password">
-                    </div>
-                    <div class="profile-button">
-                        <button class="cancel-button">Cancel</button>
-                        <button class="save-button">Save changes</button>
-                    </div>
-                </div>
-            </div>
+            </form>
+            
             </div>
         </div>
     </div>
 </body>
+
+
+<script>
+    //  document.getElementById('editProfileImage').addEventListener('click', function() {
+    //     document.getElementById('profileImageInput').click();
+    // });
+    function uploadprofilePic(event) {
+        const fileInput = event.target;
+
+        if (fileInput.files && fileInput.files[0]) {
+            const formData = new FormData();
+            formData.append('profileImage', fileInput.files[0]);
+
+            // Display the selected image in the userDp div
+            const imageContainer = document.querySelector('.userDp');
+
+            const reader = new FileReader();
+            reader.onload = function (event) {
+                const imageUrl = event.target.result;
+
+                // Create an img element to display the selected image
+                const selectedImage = document.createElement('img');
+                selectedImage.src = imageUrl;
+                selectedImage.classList.add('selected-image');
+
+                // Clear previous content and append the selected image
+                imageContainer.innerHTML = '';
+                imageContainer.appendChild(selectedImage);
+            };
+
+            reader.readAsDataURL(fileInput.files[0]);
+
+            fetch('/account/uploadCroppedImage', {
+                method: 'POST',
+                body: formData
+            })
+            .then(res => {
+                if (res.ok) {
+                    console.log('file uploaded successfully');
+                    window.location.reload()
+                } else {
+                    alert('failed')
+                    console.error('upload failed');
+                }
+            })
+            .catch(err => console.error('Error uploading files', err));
+        }
+    }
+
+
+    // RESET PASSWORD
+    document.getElementById('passwordChangeForm').addEventListener('submit',async function(event){
+        event.preventDefault()
+
+        const formData = {
+            currentPassword:document.getElementById('currentPassword').value,
+            newPassword:document.getElementById('newPassword').value,
+            confirmNewPassword:document.getElementById('confirmNewPassword').value
+        }
+
+        try {
+            const response = await fetch('/account/reset-password',{
+                method:'POST',
+                headers:{
+                    'Content-Type':'application/json'
+                },
+                body:JSON.stringify(formData)
+            })
+            const data = await response.json()
+            if(data.nullBody){
+                const nullError = document.querySelector('#nullError')
+                nullError.innerHTML='Please fill the fields'
+                nullError.style.color="red"
+                nullError.style.textAlign = 'center'
+                setTimeout(() => {
+                    nullError.innerHTML=''
+                }, 3000);
+            }else if(data.success){
+                Swal.fire({
+                icon: 'success',
+                title: 'Success',
+                text: 'password reset successfully',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(()=>{
+                console.log('password reset successfully')
+            })
+            }else if(data.unMatchPass){
+                Swal.fire({
+                icon: 'error',
+                title: 'failed',
+                text: 'New Password and confirm new password is not matching',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(()=>{
+                console.log('New Password and confirm new password is not matching')
+            })
+            }else{
+                Swal.fire({
+                icon: 'error',
+                title: 'failed',
+                text: 'user not found or password not updated',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(()=>{
+                console.log('reset password failed')
+            })
+            }     
+        } catch (error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Failed to reset password',
+                showConfirmButton: false,
+                timer: 2000
+            }).then(()=>{
+                console.error(error)
+            })
+            
+        }
+    })
+
+</script>

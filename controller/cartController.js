@@ -5,22 +5,54 @@ const router = require('../Router/cartRouter')
 const session = require('express-session')
 const users = require('../model/userSchema')
 const { default: mongoose, set } = require('mongoose')
-const { ObjectId } = require('mongodb')
+const { ObjectId } = require('mongoose');
+
 
 
 // To cart
-const toCart = async (req,res)=>{
-    try {
-        res.render('./user/cart')
-    } catch (error) {
-        console.log(error)
+const toCart = async (req, res) => {
+    if(!req.session.email){
+        return res.redirect('/user/tosignup')
     }
-}
+    const userEmail = req.session.email;
+    try {
+        const userCart = await users.aggregate([
+            {
+                $match: {
+                    email: userEmail
+                }
+            },
+            {
+                $lookup: {
+                    from: 'carts',
+                    localField: '_id',
+                    foreignField: 'userId',
+                    as: 'userCartItems'
+                }
+            },
+            {
+                $project: {
+                    _id: 1,
+                    products: 1,
+                    userId: 1,
+                    userCartItems: 1 // Include the 'userCartItems' field in the projection
+                }
+            }
+        ]).exec();
+
+        // console.log('usercartitems', userCart);
+        const firstCartItem = userCart[0].userCartItems[0];
+        // console.log('First cart item:', firstCartItem);
+        res.render('./user/cart',firstCartItem);
+    } catch (error) {
+        console.log(error);
+    }
+};
 
 //cart products
 const cartProducts = async (req, res) => {
     try {
-        // Get the user's email from the session
+
         const userEmail = req.session.email;
 
         // Find the user by email to retrieve their ID
@@ -50,9 +82,8 @@ const cartProducts = async (req, res) => {
         const productIds = uniqueProductDetails.map(product => product.productId);
 
         // Fetch products based on the array of productIds
-        const productsInCart = await products.find({ _id: { $in: productIds } }, { image: 1, price: 1 });
-        console.log('products in cart',productsInCart)
-        console.log('qty in cart',uniqueProductDetails)
+        const productsInCart = await products.find({ _id: { $in: productIds } }, { image: 1, price: 1 ,_id:1});
+        // console.log('productsInCart',productsInCart)
         
 
         return res.json({ success: true, datas: productsInCart, cartData: uniqueProductDetails });
@@ -122,11 +153,40 @@ const addToCart = async (req, res) => {
 };
 
 
+// Remove Item from the cart
+
+
+const RemoveItem = async (req, res) => {
+    const productID = req.params.productID;
+    const userEmail = req.session.email;
+    
+    try {
+        const user = await users.findOne({ email: userEmail });
+        const userId = user._id;
+
+        const updatedCart = await cart.updateOne(
+            { userId: userId },
+            { $pull: { products: { productId: productID } } }
+        );
+
+        if (updatedCart) {
+            console.log('success')
+            res.status(200).json({ message: 'Item deleted successfully', success: true });
+        } else {
+            console.log('failed')
+            res.status(404).json({ message: 'Product not found in the cart', success: false });
+        }
+    } catch (err) {
+        console.log('Error occurred while removing product', err);
+        res.status(500).json({ message: 'Internal server error', success: false });
+    }
+};
 
 
 module.exports = {
     addToCart,
     toCart,
     cartProducts,
+    RemoveItem
     
 }
