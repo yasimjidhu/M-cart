@@ -102,11 +102,11 @@
                         <p id="houseNumber-error"></p>
                     </div>
                    </div>
-                   <div class="col-lg-6 col-md-6 col-sm-12 ">
+                   <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="cancelDiv">
-                        <button class="cancel-btn">Cancel</button>
-                    </div>  
-                   </div>
+                        <button class="cancel-btn" id="cancelButton">Cancel</button>
+                    </div>
+                </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="saveDiv ">
                         <button type="submit" class="save-btn ">Save</button>
@@ -230,7 +230,7 @@
                 window.location.href = '/account/addressBook';
                 console.log('Address added to db', data);
             });
-        }else{
+        }else if(data.limit){
             Swal.fire({
                 icon: 'error',
                 title: 'Address Limit Reached',
@@ -244,22 +244,29 @@
         }
     } catch (error) {
         // Handle the error message for address limit reached
-    
         if (error.message === 'Maximum address limit reached') {
             alert('limit reached')
             Swal.fire({
                 icon: 'error',
                 title: 'Address Limit Reached',
                 text: 'You have reached the maximum limit for addresses.',
-                showConfirmButton: true,
+                showConfirmButton: false,
                 timer: 4000
             });
         } else {
             console.error(error);
         }
     }
-});
+});             
 
+
+     // Handle cancel button click
+     document.getElementById('cancelButton').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        // Redirect to the address page
+        window.location.href = '/account/addressBook';
+    });
 
     // form validation
         function isEmpty(value){

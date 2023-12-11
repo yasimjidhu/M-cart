@@ -727,6 +727,7 @@ body{
     overflow: auto;
     text-align: center;
     padding: 20px;
+    box-shadow: 0px 0px 16px 0px black;
 }
 .admin-sidebar a{
     color: #001524;
@@ -917,7 +918,7 @@ body{
     padding: 5px;
     color:black;
     background-color: #FF7D00;
-    border: 1px solid black;
+    border: 0px;
     border-radius: 5px;
 }
 .coupon-div{
@@ -928,7 +929,7 @@ body{
     background-color: #FF7D00;
     padding: 4px;
     border-radius: 5px;
-    border: 1px solid black;
+    border: 0px;
     color: black;
 }
 .coupon-btn-div{
@@ -995,7 +996,8 @@ body{
     background-color: #001524;
 }
 .bordered{
-    border-bottom: 1px solid #000;
+    border-bottom:1px solid #998787;
+    padding:8px 0px;
 }
 .checkout-div{
     display: flex;
@@ -1007,21 +1009,34 @@ body{
     border: 1px solid black;
     color: black;
     padding: 7px;
-    margin-top: 15px;
-}
-.quantity-input{
-    width: 50px;
+    /* margin-top: 15px; */
 }
 
-  .quantity {
-    width: 40px;
-    height: 40px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    outline: none;
-    font-size: 18px;
-  }
-  
+.quantity-input {
+    width: 45px;
+    padding: 2px;
+    border: 0px solid black;
+    border-radius: 3px;
+    background-color: darkcyan;
+    text-align: center;
+    font-size: 17px;
+    color: white;
+    margin: 0px 7px;
+}
+.quantity-decrement{
+    background-color: #001524;
+    width: 30px;
+    padding: 1px 0px;
+    border-radius: 50px;
+    color: white;
+}
+.quantity-increment{
+    background-color: #001524;
+    width: 30px;
+    padding: 1px 0px;
+    border-radius: 50px;
+    color: white;
+}
 
 /*------------------------------------------------user profile-------------------------------------------------------------------*/
 
@@ -1248,4 +1263,38 @@ body{
 
 #address-logo{
     width: 40px;
+}
+.empty-square{
+    background-color: crimson;
+    display: flex;
+    flex-wrap:wrap;
+    justify-content: center;
+    align-items: center;
+    width: 250px;
+}
+.figure{
+    /* background-color: red; */
+    width: 320px;
+}
+.cart-text{
+    color: #001524;
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+.btn-text {
+    display: flex;
+    flex-direction: column;
+
+}
+.shop-btn{
+    width: 100%;
+}
+.product-img{
+    width:90px;
+}
+.razorpay{
+    width: 120px;
+}
+.form-div{
+    border:2px solid #c5bbbb;
+    /* box-shadow: 0px 0px 7px 0px #101029; */
 }

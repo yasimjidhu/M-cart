@@ -9,5 +9,8 @@ cart.post('/add-cart',cartController.addToCart)
 cart.delete('/removeItem/:productID',cartController.RemoveItem)
 
 
+// chekout 
+cart.get('/checkout',cartController.toCheckout)
+
 
 module.exports = cart;

@@ -29,9 +29,9 @@
           <div class="col-lg-6 d-flex justify-content-start">
               <button class="cart-btn btn ">Return to shop</button>
           </div>
-          <div class="col-lg-6 d-flex justify-content-end">
+          <!-- <div class="col-lg-6 d-flex justify-content-end">
               <button class="cart-btn ">Update Cart</button>
-          </div>
+          </div> -->
       </div>
       <div class="row w-100 mt-5 ml-1  coupon-div d-flex justify-content-start align-items-center">
         <div class="col-lg-3  d-flex justify-content-start align-items-center">
@@ -46,11 +46,11 @@
                    <div class="col-lg-12 txt-div  mt-1">
                     <h5 class="text-white">Cart Total</h5>
                     <br>
-                    <p class="bordered text-white">Sub Total</p>
+                    <p class="bordered text-white" id="fullTotal">Sub Total: <span class="float-right"> <%=locals.cartTotal%></span></p>
                     <p class="bordered text-white">Shipping</p>
                     <p class="text-white">Total</p>
                     <div class="checkout-div ">
-                      <button class="checkout-btn">Process To Checkout</button>
+                      <a href="/cart/checkout"><button class="checkout-btn">Process To Checkout</button></a>
                     </div>
                    </div>
                 </div>
@@ -75,10 +75,12 @@
       .then(data => {
         if(data.success){
 
-          console.log("fetch products",data.datas)
+          console.log("fetch products",data)
+          const cartTotal = data.total
+          console.log('cartTotal is')
         }
         const productTable = document.getElementById('tableRow');
-
+        console.log('data.datas',data.datas)
         data.datas.forEach(product => {
           const tr = document.createElement('tr');
           tr.id = `productRow_${product._id}`; // Assign unique ID to each row
@@ -95,7 +97,7 @@
 
           // Price cell
           const priceTd = document.createElement('td');
-          priceTd.textContent = `$${product.price}`;
+          priceTd.textContent = `${product.price}`;
           tr.appendChild(priceTd);
 
           // Quantity cell
@@ -103,18 +105,42 @@
           const quantityInput = document.createElement('input');
           quantityInput.type = 'number';
           quantityInput.min = '1';
-          quantityInput.value =product.quantity ;
+          quantityInput.value = product.quantity||1;
           quantityInput.classList.add('quantity-input');
           quantityInput.addEventListener('change', function () {
             updateSubtotal(this, priceTd);
           });
 
+          // Create decrement button
+          const decrementButton = document.createElement('button');
+          decrementButton.textContent = '-';
+          decrementButton.classList.add('quantity-decrement');
+          decrementButton.addEventListener('click', function () {
+            if (quantityInput.value > 1) {
+              quantityInput.value = parseInt(quantityInput.value) - 1;
+              updateSubtotal(quantityInput, priceTd);
+            }
+          });
+
+          // Create increment button
+          const incrementButton = document.createElement('button');
+          incrementButton.textContent = '+';
+          incrementButton.classList.add('quantity-increment');
+          incrementButton.addEventListener('click', function () {
+            quantityInput.value = parseInt(quantityInput.value) + 1;
+            updateSubtotal(quantityInput, priceTd);
+          });
+
+          quantityTd.appendChild(decrementButton);
           quantityTd.appendChild(quantityInput);
+          quantityTd.appendChild(incrementButton);
           tr.appendChild(quantityTd);
+
+        
 
           // Subtotal cell
           const subtotalTd = document.createElement('td');
-          subtotalTd.textContent = `$${product.price}`;
+          subtotalTd.textContent = `${product.price}`;
           tr.appendChild(subtotalTd);
 
           const deleteTd = document.createElement('td')
@@ -143,7 +169,7 @@
           const row = input.parentNode.parentNode;
           const subtotalCell = row.getElementsByTagName('td')[3];
 
-          subtotalCell.textContent = `$${subtotal.toFixed(2)}`;
+          subtotalCell.textContent = `${subtotal.toFixed(2)}`;
         }
       })
       .catch(error => console.error('Error occurred:', error));
@@ -161,16 +187,16 @@
       if(response.ok){
         console.log('item deleted successfully')
         Swal.fire({
-          icon:'success',
-          title:'Success',
-          text:'Product deleted successfully',
-          showConfirmButton:false,
-          timer:2000
+          icon:'warning',
+          title:'warning',
+          text:'Are you sure to delete this item from cart',
+          showConfirmButton:true,
         }).then(()=>{
-          const rowToRemove = document.getElementById(`productRow_${productId}`);
-          if (rowToRemove) {
-            rowToRemove.style.display = 'none';
-          }
+          // const rowToRemove = document.getElementById(`productRow_${productId}`);
+          // if (rowToRemove) {
+          //   rowToRemove.style.display = 'none';
+          // }
+          window.location.reload()
         })
       }else{
         console.log('deletion failed')

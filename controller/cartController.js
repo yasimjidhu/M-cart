@@ -6,6 +6,9 @@ const session = require('express-session')
 const users = require('../model/userSchema')
 const { default: mongoose, set } = require('mongoose')
 const { ObjectId } = require('mongoose');
+// const { ObjectId } = require('mongodb')
+
+
 
 
 
@@ -15,35 +18,55 @@ const toCart = async (req, res) => {
         return res.redirect('/user/tosignup')
     }
     const userEmail = req.session.email;
+    const user = await users.findOne({email:userEmail})
+    const userId= user._id
     try {
-        const userCart = await users.aggregate([
+        const cartData = await cart.aggregate([
             {
-                $match: {
-                    email: userEmail
+                $match:{userId:userId}
+            },
+            {
+                $unwind:'$products'
+            },
+            {
+                $project:{
+                    item:'$products.productId',
+                    quantity:'$products.quantity'
                 }
             },
             {
-                $lookup: {
-                    from: 'carts',
-                    localField: '_id',
-                    foreignField: 'userId',
-                    as: 'userCartItems'
+                $lookup:{
+                    from:'products',
+                    localField:"item",
+                    foreignField:'_id',
+                    as:'cartItems'
                 }
             },
             {
-                $project: {
-                    _id: 1,
-                    products: 1,
-                    userId: 1,
-                    userCartItems: 1 // Include the 'userCartItems' field in the projection
+                $project:{
+                    item:1,
+                    quantity:1,
+                    product:{$arrayElemAt:['$cartItems',0]}
+                }
+            },
+            {
+                $group:{
+                    _id:null,
+                    total:{$sum:{$multiply:['$quantity','$product.price']}}
                 }
             }
-        ]).exec();
+        ]).exec()
+
+        if(cartData.length<=0){
+            return res.render('./user/emptyCart')
+        }
+
+        
 
         // console.log('usercartitems', userCart);
-        const firstCartItem = userCart[0].userCartItems[0];
-        // console.log('First cart item:', firstCartItem);
-        res.render('./user/cart',firstCartItem);
+        const firstCartItem = cartData[0];
+        console.log(firstCartItem.total);
+        res.render('./user/cart',{cartTotal:firstCartItem.total});
     } catch (error) {
         console.log(error);
     }
@@ -106,25 +129,28 @@ const addToCart = async (req, res) => {
 
         const userEmail = req.session.email;
         const user = await users.findOne({ email: userEmail });
+        console.log("user",user)
         
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });
         }
 
         const userId = user._id;
+        console.log('userId',userId)
 
-        const cartItem = await cart.findOne({ userId });
+        const cartItem = await cart.findOne({ userId :userId});
 
-        if (!cartItem) {
+        if (cartItem===null) {
             // If the cart doesn't exist for the user, create a new cart and add the product
             const newCartItem = new cart({
                 userId: userId,
                 products: [{
-                    productId:new ObjectId(productId),
+                    productId:productId,
                     quantity: quantity
                 }]
             });
             await newCartItem.save();
+            return res.json({message:'product added to cart',success:true})
 
         } else {
 
@@ -183,10 +209,16 @@ const RemoveItem = async (req, res) => {
 };
 
 
+//checkout
+const toCheckout = (req,res)=>{
+    res.render('./user/checkout')
+}
+
 module.exports = {
     addToCart,
     toCart,
     cartProducts,
-    RemoveItem
+    RemoveItem,
+    toCheckout
     
 }

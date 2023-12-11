@@ -157,7 +157,7 @@ const addAddress = async (req, res) => {
                 return res.status(201).json({ success: true });
             }else{
                 console.log('limit reached')
-                return res.json({ success: false,message:"Maximum limit reached" });
+                return res.json({ success: false,message:"Maximum limit reached",limit:true});
 
                 // return res.status(400).json({message:'Maximum address limit reached',success:false})
             }
