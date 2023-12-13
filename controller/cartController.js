@@ -1,6 +1,7 @@
 const { json } = require('body-parser')
 const cart = require('../model/cart')
 const products = require('../model/productschema')
+const address = require('../model/address')
 const router = require('../Router/cartRouter')
 const session = require('express-session')
 const users = require('../model/userSchema')
@@ -64,7 +65,7 @@ const toCart = async (req, res) => {
         
 
         // console.log('usercartitems', userCart);
-        const firstCartItem = cartData[0];
+        var firstCartItem = cartData[0];
         console.log(firstCartItem.total);
         res.render('./user/cart',{cartTotal:firstCartItem.total});
     } catch (error) {
@@ -210,9 +211,82 @@ const RemoveItem = async (req, res) => {
 
 
 //checkout
-const toCheckout = (req,res)=>{
-    res.render('./user/checkout')
-}
+const toCheckout = async (req, res) => {
+    try {
+      const userEmail = req.session.email;
+      const user = await users.findOne({ email: userEmail });
+  
+      if (!user) {
+        // Handle scenario when user is not found
+        return res.status(404).send('User not found');
+      }
+  
+      const userCartData = await cart.aggregate([
+        {
+          $match: {
+            userId: user._id // Match using user._id
+          }
+        },
+        {
+          $project: {
+            products: 1,
+            _id: 0
+          }
+        },
+        {
+            $unwind:'$products'
+        },
+        
+        {
+            $lookup:{
+                from:'products',
+                localField:'products.productId',
+                foreignField:'_id',
+                as:'userCartProducts'
+            }
+        },
+        {
+            $project: {
+              userCartProducts: {
+                $map: {
+                  input: '$userCartProducts',
+                  as: 'product',
+                  in: {
+                    _id: '$$product._id',
+                    productName: '$$product.productName',
+                    price: '$$product.price',
+                    image: '$$product.image',
+                  }
+                }
+              }
+            }
+          }
+        
+      ]).exec()
+      
+      const cartItems = userCartData.map(cartItem => cartItem.userCartProducts);
+      const flattenedCartItems = [].concat(...cartItems);
+      
+      // Calculate the sum of cart items' prices
+      const cartTotal = flattenedCartItems.reduce((total, currentItem) => total + currentItem.price, 0);
+      console.log('cartTotal',cartTotal)
+  
+      const userAddressData = await address.findOne({ userId: user._id });
+      const userAddress = userAddressData;
+  
+      if (userAddress === null) {
+        return res.render('./user/checkout', { userCartData, userAddress, msg: 'Address is not available' });
+      }
+  
+      res.render('./user/checkout', { userCartData, userAddress: userAddress.address, cartTotal });
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
+    }
+  };
+
+
+
 
 module.exports = {
     addToCart,

@@ -95,4 +95,8 @@ admin.get('/edit-brand/:brandId',adminauth.verifyAdmin,adminController.toEditBra
 admin.post('/edit-brand/:brandId',adminauth.verifyAdmin,upload.single('logo'),adminController.updateBrand)
 admin.post('/block-brand/:brandId', adminauth.verifyAdmin,adminController.blockBrand)
 admin.post('/unblock-brand/:brandId',adminauth.verifyAdmin,adminController.unblockBrand)
+
+
+// Orders
+admin.get('/orders',adminController.toOrders)
 module.exports = admin

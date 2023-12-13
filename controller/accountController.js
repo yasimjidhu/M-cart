@@ -12,7 +12,7 @@ const { use } = require('passport')
 
 
 // To profile
-const toProfile = async (req, res) => {
+const  toProfile = async (req, res) => {
     const userEmail = req.session.email
     const userData = await users.findOne({email:userEmail})
     console.log('userdata is',userData)
@@ -29,14 +29,11 @@ const toProfile = async (req, res) => {
             { $limit: 1 }
         ]).exec()
 
-        if (userAddress && userAddress.length > 0) {
             const firstAddress = userAddress[0]; // Assuming the first address
         
             console.log('lookuped data is ', firstAddress); 
             res.status(200).render('./user/profile', { firstAddress, userData });
-        } else {
-            res.redirect(`/user/tosignup?msg=user not found`);
-        }
+        
        
     } catch (error) {
         console.error(error);

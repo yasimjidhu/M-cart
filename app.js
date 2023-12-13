@@ -10,6 +10,7 @@ const admminRouter = require('./Router/adminRouter')
 const authRouter = require('./Router/authRouter')
 const cartRouter = require('./Router/cartRouter')
 const accountRouter = require('./Router/accountRouter')
+const orderRouter = require('./Router/orderRouter')
 const {errorHandler} = require('./middleware/errorMiddleware')
 const crypto = require('crypto')
 const nodemailer = require('nodemailer')
@@ -51,6 +52,7 @@ app.use('/admin',admminRouter)
 app.use('/auth', authRouter);
 app.use('/cart',cartRouter)
 app.use('/account',accountRouter)
+app.use('/order',orderRouter)
 
 // Error middleware
 // app.use(errorHandler)

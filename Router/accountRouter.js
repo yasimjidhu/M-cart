@@ -18,7 +18,7 @@ account.get('/addressBook',accountController.toAddressBook)
 
 // Add address 
 account.get('/addAddress',accountController.toAddAddress)
-account .post('/addAddress',accountController.addAddress)
+account.post('/addAddress',accountController.addAddress)
 
 
 

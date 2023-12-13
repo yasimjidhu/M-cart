@@ -793,6 +793,12 @@ const unblockBrand = async (req, res) => {
   }
 };
 
+
+// To OrderPage
+const toOrders = (req,res)=>{
+    res.render('./admin/order')
+}
+
 // Admin logout
 const toLogout = (req, res) => {
   req.session.adminlogged = false;
@@ -835,4 +841,5 @@ module.exports = {
   updateBrand,
   blockBrand,
   unblockBrand,
+  toOrders
 };

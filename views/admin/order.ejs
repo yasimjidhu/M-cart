@@ -1,0 +1,42 @@
+<!--header-->
+<%- include('../user/partials/header') %>
+
+<!--Navbar-->
+<%- include('../admin/partials/nav') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10">
+            <ul class="horizontal-list mt-4">
+                <li>Pending</li>
+                <li>Confirmed</li>
+                <li>Processing</li>
+                <li>Shipped</li>
+                <li>Delivered</li>
+                <li>Cancelled</li>
+            </ul>
+            <div class="search-div">
+                <input type="text" id="orderIdSearchLeft" placeholder="Search by Order ID" class="start">
+                <input type="text" id="orderIdSearchRight" placeholder="Search by Order ID" class="end">
+              </div>
+            <table class="table table-hover mt-5">
+                <th>ORDER ID</th>
+                <th>CREATED</th>
+                <th>CUSTOMER</th>
+                <th>TOTAL</th>
+                <th>STATUS</th>
+                    <tr>
+                        <td>548</td>
+                        <td>2023</td>
+                        <td>tintu</td>
+                        <td>total</td>
+                        <td>status</td>
+                    </tr>
+              </table>
+        </div>
+        
+    </div>
+</div>

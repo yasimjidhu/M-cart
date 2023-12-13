@@ -1,4 +1,6 @@
 const User = require("../model/userSchema");
+const cart = require('../model/cart')
+const cartFunctions = require('../global/cartFunctions')
 const products = require("../model/productschema");
 const session = require("express-session");
 const bcrypt = require("bcryptjs");
@@ -9,6 +11,8 @@ const brands = require("../model/brands");
 const category = require("../model/category");
 require("dotenv").config();
 const { VERIFYotp } = require('../controller/otpcontroller');
+
+
 
 // Function to get the unblocked products from brands
 async function getProductsFromActiveBrands() {
@@ -28,6 +32,8 @@ async function getProductsFromActiveBrands() {
 const toHome = async (req, res) => {
   try {
 
+      
+
       const blockedBrands = await brands.find({ brandStatus: false }, { _id: 1 });
       const blockedBrandIds = blockedBrands.map((brand) => brand._id);
 
@@ -39,6 +45,8 @@ const toHome = async (req, res) => {
       const flashsalesProducts = flashsales ? await products.find({ category: flashsales._id, brand:{$nin:blockedBrandIds} }) : [];
       const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
       const brandData = await brands.find();
+
+      
 
       res.render("./user/userhome", {
         title: "Home",
@@ -172,6 +180,8 @@ const verifyOtp = async (req, res) => {
         const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
         const brand = await brands.find();
 
+        
+
         res.render("./user/userhome", {
           title: "Home",
           err: false,
@@ -182,7 +192,7 @@ const verifyOtp = async (req, res) => {
           flashSalesId:flashsales?flashsales._id:null,
           bestSellerId:bestSeller?bestSeller._id:null,
           bestSellerData:bestSellerProducts,
-          isAuthenticated
+          isAuthenticated,
         });
       } else {
         // Handle if Premium category is not found
@@ -282,6 +292,22 @@ const userlog = async (req, res) => {
       const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
       const brandData = await brands.find();
 
+        let cartItemsCount = 0
+        // function for cart items cart
+        const userEmail = req.session.email
+        await cartFunctions.getProductsArrayLength(userEmail)
+        .then((productsArrayLength)=>{
+          console.log('length of product array',productsArrayLength)
+          cartItemsCount = productsArrayLength
+        })
+        .catch((err)=>{
+          console.error('error',err)
+        })
+
+        console.log('cartItemsCount1',cartItemsCount)
+        
+      
+
       res.render("./user/userhome", {
         title: "Home",
         err: false,
@@ -292,7 +318,8 @@ const userlog = async (req, res) => {
         flashSalesId:flashsales?flashsales._id:null,
         bestSellerId:bestSeller?bestSeller._id:null,
         bestSellerData:bestSellerProducts,
-        isAuthenticated
+        isAuthenticated,
+        cartItemsCount
       });
     } else {
       res.redirect("/");
