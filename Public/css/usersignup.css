@@ -717,11 +717,13 @@ body{
     transition: border-bottom 0.3s ease-in-out; 
     border-bottom: 1px solid transparent; 
     border-width: 2px;
+    font-weight: 700;
     
 }
 .horizontal-list li:hover{
     border-bottom: 2px solid #FF7D00;
     border-width: 2px;
+    font-weight: 700;
 }
 .search-img{
     height: auto;
@@ -1361,3 +1363,13 @@ body{
     justify-content: space-between;
     margin-left: 10px;
   }
+#order-status{
+    background-color: #001524;
+    
+}
+#order-status li a{
+    color: white;
+}
+#order-status li a:hover{
+    color: #FF7D00;
+}

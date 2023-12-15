@@ -4,39 +4,111 @@
 <!--Navbar-->
 <%- include('../admin/partials/nav') %>
 
+<script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+<script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/searchbuilder/1.6.0/js/dataTables.searchBuilder.min.js"></script>
+<script src="https://cdn.datatables.net/datetime/1.5.1/js/dataTables.dateTime.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"></script>
+
 <div class="container-fluid">
     <div class="row">
         <div class="col-lg-2 p-0">
             <%-include('../admin/partials/sidebar') %>
         </div>
         <div class="col-lg-10">
-            <ul class="horizontal-list mt-4">
+            <!-- <ul class="horizontal-list mt-4">
                 <li>Pending</li>
                 <li>Confirmed</li>
                 <li>Processing</li>
                 <li>Shipped</li>
                 <li>Delivered</li>
                 <li>Cancelled</li>
-            </ul>
-            <div class="search-div">
+            </ul> -->
+            <!-- <div class="search-div">
                 <input type="text" id="orderIdSearchLeft" placeholder="Search by Order ID" class="start">
                 <input type="text" id="orderIdSearchRight" placeholder="Search by Order ID" class="end">
-              </div>
-            <table class="table table-hover mt-5">
-                <th>ORDER ID</th>
-                <th>CREATED</th>
-                <th>CUSTOMER</th>
-                <th>TOTAL</th>
-                <th>STATUS</th>
+              </div> -->
+            <table class="table table-hover mt-5" id="orders">
+                <thead>
                     <tr>
-                        <td>548</td>
-                        <td>2023</td>
-                        <td>tintu</td>
-                        <td>total</td>
-                        <td>status</td>
+                        <th>ORDER ID</th>
+                        <th>CREATED</th>
+                        <th>CUSTOMER</th>
+                        <th>TOTAL</th>
+                        <th>STATUS</th>
+                        <th>ACTION</th>
                     </tr>
+                </thead>
+                <tbody>
+                    <% if(allOrders && allOrders.length > 0 && UserData && UserData.length > 0 ){ %>
+                        <% allOrders.forEach((data)=>{ %>
+                            <tr>
+                                <td><%=data._id %></td>
+                                <td><%if(data.deliveryDate instanceof Date){%>
+                                <%=data.deliveryDate.toLocaleDateString('en-GB') %>
+                                <% } else { %>
+                                      N/A
+                                <% } %></td>
+                                <% let matchedUser = UserData.find(user => String(user._id) == String(data.userId)); %>
+                                <td><%= matchedUser ? matchedUser.name : 'User Not Found' %></td>
+                                <td><%=data.totalAmount %></td>
+                                <td><%=data.status %></td>
+                                <td>
+                                    <div class="dropdown">
+                                        <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                           Change Status
+                                        </button>
+                                        <ul class="dropdown-menu" id="order-status">
+                                          <li><a class="dropdown-item" href="#" onclick="changeStatus('<%=data._id %>','Pending')">Pending</a></li>
+                                          <li><a class="dropdown-item" href="#" onclick="changeStatus('<%=data._id %>','Processing')">Processing</a></li>
+                                          <li><a class="dropdown-item" href="#" onclick="changeStatus('<%=data._id %>','Placed')">Placed</a></li>
+                                          <li><a class="dropdown-item" href="#" onclick="changeStatus('<%=data._id %>','Shipped')">Shipped</a></li>
+                                          <li><a class="dropdown-item" href="#" onclick="changeStatus('<%=data._id %>','Delivered')">Delivered</a></li>
+                                        </ul>
+                                      </div>
+                                </td>
+                            </tr>
+                        <% }) %>
+                    <% }else{%>
+                        No Order Data available
+                    <%} %>
+                </tbody>
               </table>
         </div>
         
     </div>
 </div>
+
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/searchbuilder/1.6.0/css/searchBuilder.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.5.1/css/dataTables.dateTime.min.css">
+
+<script>
+
+            $(document).ready(function () {
+            $('#orders')
+            .DataTable();
+        });
+
+    // function to change the order status 
+    function changeStatus(orderId,newStatus){
+     
+        // send a request to update the status
+        fetch(`/admin/updateOrderStatus?orderId=${orderId}&newStatus=${newStatus}`,{
+            method:'PUT',
+            headers:{
+                'Content-Type':'application/json '
+            }
+        })
+        .then(response =>{
+            console.log('updated status')
+            window.location.reload()
+        })
+        .catch(error =>{
+            console.error(error)
+        })
+    }
+
+    
+
+</script>

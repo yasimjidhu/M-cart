@@ -164,7 +164,10 @@
                     <h6 class="mt-4" style="font-size: 20px;"><%= product.productName.toUpperCase() %></h6>
                     <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
                   </div>
-                  <a href="/addtocart" class="btn" style="background-color:#001524; color: white; width: 100%;">Add To Cart</a>
+                  <form action="/cart/add-cart/<%= product._id %>" method="post">
+                    <button type="submit" class="btn" style="background-color:#001524; color: white; width: 100%;">
+                      Add To Cart
+                    </button>
                 </div>
               <% }); %>
             </div>

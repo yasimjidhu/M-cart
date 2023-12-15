@@ -19,28 +19,28 @@
                     <form action="/account/addAddress" method="post" id="addAddress">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" class="form-control" name="fullName" placeholder="John">
+                        <input type="text" id="fullName" class="form-control" required name="fullName" placeholder="John">
                         <p id="name-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
                     <div class="form-group">
                         <label for="phoneNumber">Phone Number</label>
-                        <input type="number" id="phoneNumber" class="form-control" name="phoneNumber" placeholder="9876543210">
+                        <input type="number" id="phoneNumber" class="form-control" required name="phoneNumber" placeholder="9876543210">
                         <p id="number-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" name="email" placeholder="John@gmail.com">
+                        <input type="email" id="email" class="form-control" required name="email" placeholder="John@gmail.com">
                         <p id="email-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="country">Country</label>
-                        <select id="country" class="form-control" name="country" placeholder="india">
+                        <select id="country" class="form-control" required  name="country" placeholder="india">
                             <option value="" disabled selected>Select Your country</option>
                         </select> 
                         <p id="country-error"></p>
@@ -49,56 +49,56 @@
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="Pin code">Pin Code</label>
-                        <input type="number" id="pinCode" class="form-control" name="pinCode" placeholder="687956" onchange="fetchLocation()">
+                        <input type="number" id="pinCode" class="form-control" required name="pinCode" placeholder="687956" onchange="fetchLocation()">
                         <p id="pinCode-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="state">State</label>
-                        <input type="text" id="state" class="form-control" name="state" placeholder="kerala">
+                        <input type="text" id="state" class="form-control" required name="state" placeholder="kerala">
                         <p id="state-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="district">district</label>
-                        <input type="text" id="district" class="form-control" name="district" placeholder="calicut">
+                        <input type="text" id="district" class="form-control" required name="district" placeholder="calicut">
                         <p id="district-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input type="text" id="city" class="form-control" name="city" placeholder="mankavu">
+                        <input type="text" id="city" class="form-control" required name="city" placeholder="mankavu">
                         <p id="city-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="area">Area</label>
-                        <input type="text" id="area" class="form-control" name="area" placeholder="nadakkavu">
+                        <input type="text" id="area" class="form-control" required name="area" placeholder="nadakkavu">
                         <p id="area-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="street">Street</label>
-                        <input type="text" id="street" class="form-control" name="street" placeholder="2nd street">
+                        <input type="text" id="street" class="form-control" required name="street" placeholder="2nd street">
                         <p id="street-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="building">Building</label>
-                        <input type="text" id="building" class="form-control" name="building" placeholder="skyline">
+                        <input type="text" id="building" class="form-control" required name="building" placeholder="skyline">
                         <p id="building-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="houseNumber">House Number</label>
-                        <input type="number" id="houseNumber" class="form-control" name="houseNumber" placeholder="113">
+                        <input type="number" id="houseNumber" class="form-control" required name="houseNumber" placeholder="113">
                         <p id="houseNumber-error"></p>
                     </div>
                    </div>

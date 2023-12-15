@@ -12,6 +12,10 @@ const orderSchema = new mongoose.Schema({
         type:String,
         required:true
     },
+    shippingMethod:{
+        type:String,
+        required:true
+    },
     deliveryDate:{
         type:Date
     },
@@ -34,7 +38,7 @@ const orderSchema = new mongoose.Schema({
                 type:ObjectId,
                 required:true
             },
-            qty:{
+            quantity:{
                 type:Number,
             },
             price:{

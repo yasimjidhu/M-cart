@@ -104,13 +104,13 @@ const cartProducts = async (req, res) => {
         // Remove duplicate productIds if any
         const uniqueProductDetails = [...new Map(productDetails.map(item => [item.productId.toString(), item])).values()];
         const productIds = uniqueProductDetails.map(product => product.productId);
+        const productQuantity =  uniqueProductDetails.map(product => product.quantity)
 
         // Fetch products based on the array of productIds
         const productsInCart = await products.find({ _id: { $in: productIds } }, { image: 1, price: 1 ,_id:1});
         // console.log('productsInCart',productsInCart)
         
-
-        return res.json({ success: true, datas: productsInCart, cartData: uniqueProductDetails });
+        return res.json({ success: true, datas: productsInCart, cartData: uniqueProductDetails,productQty: productQuantity[0]});
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal server error' });
@@ -270,20 +270,40 @@ const toCheckout = async (req, res) => {
       // Calculate the sum of cart items' prices
       const cartTotal = flattenedCartItems.reduce((total, currentItem) => total + currentItem.price, 0);
       console.log('cartTotal',cartTotal)
-  
-      const userAddressData = await address.findOne({ userId: user._id });
-      const userAddress = userAddressData;
-  
-      if (userAddress === null) {
-        return res.render('./user/checkout', { userCartData, userAddress, msg: 'Address is not available' });
+      
+      let total = 0; // Initialize the 'total' variable
+
+    const cartUser = await cart.findOne({ userId: user._id });
+
+    if (cartUser) {
+      for (const product of cartUser.products) {
+        const productId = product.productId;
+        const quantity = product.quantity;
+
+        const productDetails = await products.findOne({ _id: productId });
+        if (productDetails) {
+          const price = productDetails.price;
+          const productTotal = quantity * price;
+          total += productTotal; // Accumulate the total price for all products
+        }
       }
-  
-      res.render('./user/checkout', { userCartData, userAddress: userAddress.address, cartTotal });
-    } catch (error) {
-      console.error('Error:', error);
-      res.status(500).send('Internal Server Error');
+    } else {
+      console.log('Cart is empty or user not found.');
     }
-  };
+
+    const userAddressData = await address.findOne({ userId: user._id });
+    const userAddress = userAddressData;
+
+    if (userAddress === null) {
+      return res.render('./user/checkout', { userCartData, userAddress, msg: 'Address is not available' });
+    }
+
+    res.render('./user/checkout', { userCartData, userAddress: userAddress.address, total });
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).send('Internal Server Error');
+  }
+};
 
 
 

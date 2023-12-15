@@ -5,6 +5,7 @@ const { ObjectId } = require("mongodb");
 const admin = require("../Router/adminRouter");
 const category = require("../model/category");
 const brands = require("../model/brands");
+const orders = require('../model/orders')
 const { reset } = require("nodemon");
 const sharp = require('sharp')
 const fs = require('fs').promises;
@@ -795,8 +796,69 @@ const unblockBrand = async (req, res) => {
 
 
 // To OrderPage
-const toOrders = (req,res)=>{
-    res.render('./admin/order')
+const toOrders = async(req,res)=>{
+   
+    const allOrders = await orders.find()
+    
+    const UserData = await Users.aggregate([
+      {
+        $lookup:{
+          from:'orders',
+          localField:'_id',
+          foreignField:'userId',
+          as:'allOrderedUsers'
+        }
+      },
+      {
+        $project:{
+          _id:1,
+          name:1
+        }
+      }
+    ]).exec()
+
+    const userOrderedImages = await orders.aggregate([
+      {
+        $lookup:{
+          from:'products',
+          localField:'orders.products.productId',
+          foreignField:'_id',
+          as:'allOrdersOfUsers'
+        }
+      },
+      {
+        $unwind:'$image'
+      }
+    ]).exec()
+    
+    
+    res.render('./admin/order',{UserData,allOrders})
+
+}
+
+
+// update order status
+const updateOrderStatus = async (req,res)=>{
+    const {orderId,newStatus} = req.query
+
+    try{
+
+      const updatedOrderStatus = await orders.findOneAndUpdate(
+        {_id:orderId},
+        {$set:{status:newStatus}},
+        {new:true}
+      )
+
+      if(!updatedOrderStatus){
+        return res.status(404).json({ error: 'Order not found' });
+      }
+
+      return res.status(200).json({ message: 'Order status updated successfully', order: updatedOrderStatus });
+    
+    }catch(err){
+      console.error(err)
+      return res.status(500).json({message:'internal sever error'})
+    }
 }
 
 // Admin logout
@@ -841,5 +903,6 @@ module.exports = {
   updateBrand,
   blockBrand,
   unblockBrand,
-  toOrders
+  toOrders,
+  updateOrderStatus
 };

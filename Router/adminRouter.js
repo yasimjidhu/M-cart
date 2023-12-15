@@ -99,4 +99,5 @@ admin.post('/unblock-brand/:brandId',adminauth.verifyAdmin,adminController.unblo
 
 // Orders
 admin.get('/orders',adminController.toOrders)
+admin.put('/updateOrderStatus',adminController.updateOrderStatus)
 module.exports = admin

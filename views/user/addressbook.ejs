@@ -37,12 +37,12 @@
                                         <h6>House Number: <span class="key-value"><%-data.houseNumber %></span></h6>
                                         <input type="checkbox" class="checkbox" onclick="hideOrShow(this)">
                                     </ul>
-                                    <div class="action">
+                                    <div class="action" >
                                         <div class="sub-action">
-                                            <a href="/account/edit-address/<%=data._id%>" class="edit-btn hide" style="color: #04203e; font-size: 25px;">
+                                            <a href="/account/edit-address/<%=data._id%>" class="edit-btn hide" style="color: #04203e; font-size: 25px;display: none;">
                                                 <i class="fa-solid fa-pen-to-square edit-btn"  style="color: #04203e;font-size: 25px;"></i>
                                             </a>
-                                            <a href="javascript:void(0);" class="delete-btn hide" onclick="deleteAlert() && deleteAddress('<%= data._id %>')">
+                                            <a href="javascript:void(0);" class="delete-btn hide" onclick="deleteAlert() && deleteAddress('<%= data._id %>')" style="display: none;">
                                                 <i class="fa-solid fa-trash" id="delete-btn" style="color: #071836; font-size: 25px;"></i>
                                             </a>
                                         </div>
@@ -54,7 +54,7 @@
                 <% } %>
             <% }) %>
         <% } else { %>
-            <p>No addresses found.</p>
+            <h1 class="text-center">No addresses found</h1>
         <% } %>
         <div class=" addAddress-btn">
 
@@ -121,11 +121,11 @@
     const deleteBtn = cardBody.querySelector('.delete-btn');
 
     // Check if the buttons are initially hidden (display: none)
-    const isEditBtnHidden = window.getComputedStyle(editBtn).display === 'none';
-    const isDeleteBtnHidden = window.getComputedStyle(deleteBtn).display === 'none';
+    const isEditBtnHidden = window.getComputedStyle(editBtn).display === 'block';
+    const isDeleteBtnHidden = window.getComputedStyle(deleteBtn).display === 'block';
 
     // Toggle the display based on the initial state
-    if (isEditBtnHidden && isDeleteBtnHidden) {
+    if (!isEditBtnHidden && !isDeleteBtnHidden) {
         editBtn.style.display = 'block';
         deleteBtn.style.display = 'block';
     } else {

@@ -1,291 +1,356 @@
 <%- include('../user/partials/header') %>
 
-<!--Navbar-->
+  <!--Navbar-->
 
-<%-include('../user/partials/navbar') %>
+  <%-include('../user/partials/navbar') %>
 
-<div class="container mt-5">
-  <form id="placeOrder">
-  <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal" data-bs-whatever="@mdo">Add Address</button>
-    <div class="row">
+    <div class="container mt-5">
+      <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal"
+        data-bs-whatever="@mdo">Add Address</button>
+      <div class="row">
         <div class="col-lg-7 mt-3  p-0  d-flex">
-            <%if(userAddress && userAddress.length>0){%>
-                <%userAddress.forEach((data,index)=>{%>
-                    <div class="col-lg-4 col-md-6 m-1 address1 border" style="box-shadow:0px 0px 7px 0px #001524;">
-                        <p><%= data.fullName.toUpperCase()%></p>
-                        <p><%= data.phoneNumber %></p>
-                        <p><%= data.email%></p>
-                        <p><%= data.pinCode %></p>
-                        <p><%= data.state %></p>
-                        <p><%= data.district %></p>
-                        <p><%= data.area %></p>
-                        <p><%= data.street %></p>
-                        <p><%= data.building %></p>
-                        <p><%= data.houseNumber %></p>
-                        <input type="radio" id="select<%= index %>" name="address" value="<%= data.id %>" class="float-right mt-1">
-                        <label for="select<%= index %>" class="text-danger float-right mr-3">Select</label>
-                    </div>
-                <%})%>
-            <%}else if(userAddress===null){%>
-                <h4>Create An Address</h4>
-            <%}%>
-            <div class="col-lg-3">
-            
-
-            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-              <div class="modal-dialog">
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Create A New Address</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                  </div>
-                  <div class="modal-body">
-                    <form id="addAddressModal">
-                      <div class="mb-3">
-                        <label for="recipient-name" class="col-form-label">Full Name</label>
-                        <input type="text" class="form-control" id="fullName" required  name="fullName">
-                        <p id="name-error"></p>
-                      </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Phone Number</label>
-                        <input type="text" class="form-control" id="phoneNumber" required name="phoneNumber">
-                        <p id="phoneNumber-error"></p>
-                      </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Email</label>
-                        <input type="email" class="form-control" id="email" required name="email">
-                        <p id="email-error"></p>
-                      </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Country</label>
-                        <input type="text" class="form-control" id="country" required name="country">
-                        <p id="country-error"></p>
-                      </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Pincode</label>
-                        <input type="number" class="form-control" id="pinCode" name="pincode">
-                        <p id="pinCode-error"></p>
-                      </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">State</label>
-                        <input type="text" class="form-control" id="state" name="state">
-                        <p id="state-error"></p>
-                      </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">District</label>
-                        <input type="text" class="form-control" id="district" required name="district">
-                        <p id="district-error"></p>
-                    </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">City</label>
-                        <input type="text" class="form-control" id="city" required name="city">
-                        <p id="city-error"></p>
-                    </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Area</label>
-                        <input type="text" class="form-control" id="area" required name="area">
-                        <p id="area-error"></p>
-                    </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Street</label>
-                        <input type="text" class="form-control" id="street" required name="street">
-                        <p id="street-error"></p>
-                    </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">Building</label>
-                        <input type="text" class="form-control" id="building" required name="building">
-                        <p id="building-error"></p>
-                    </div>
-                      <div class="mb-3">
-                        <label for="message-text" class="col-form-label">house Number</label>
-                        <input type="number" class="form-control" id="houseNumber" required name="houseNumber">
-                        <p id="houseNumber-error"></p>
-                      </div>
-                      <button type="submit" class="btn btn-primary">Submit</button>
-                    </form>
-                  </div>
-                  <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    
-                  </div>
-                </div>
+          <%if(userAddress && userAddress.length>0){%>
+            <%userAddress.forEach((data,index)=>{%>
+              <div class="col-lg-4 col-md-6 m-1 address1 border" style="box-shadow:0px 0px 7px 0px #001524;">
+                <p>
+                  <%= data.fullName.toUpperCase()%>
+                </p>
+                <p>
+                  <%= data.phoneNumber %>
+                </p>
+                <p>
+                  <%= data.email%>
+                </p>
+                <p>
+                  <%= data.pinCode %>
+                </p>
+                <p>
+                  <%= data.state %>
+                </p>
+                <p>
+                  <%= data.district %>
+                </p>
+                <p>
+                  <%= data.area %>
+                </p>
+                <p>
+                  <%= data.street %>
+                </p>
+                <p>
+                  <%= data.building %>
+                </p>
+                <p>
+                  <%= data.houseNumber %>
+                </p>
+                <input type="radio" id="select<%= index %>" name="address" value="<%= data.id %>"
+                  class="float-right mt-1">
+                <label for="select<%= index %>" class="text-danger float-right mr-3">Select</label>
               </div>
-            </div>
+              <%})%>
+                <%}else if(userAddress===null){%>
+                  <h4>Create An Address</h4>
+                  <%}%>
+                    <div class="col-lg-3">
 
-        </div>
-        </div>
 
+                      <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                          <div class="modal-content">
+                            <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLabel">Create A New Address</h5>
+                              <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                              <form id="addAddressModal">
+                                <div class="mb-3">
+                                  <label for="recipient-name" class="col-form-label">Full Name</label>
+                                  <input type="text" class="form-control" id="fullName" required name="fullName">
+                                  <p id="name-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Phone Number</label>
+                                  <input type="text" class="form-control" id="phoneNumber" required name="phoneNumber">
+                                  <p id="phoneNumber-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Email</label>
+                                  <input type="email" class="form-control" id="email" required name="email">
+                                  <p id="email-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Country</label>
+                                  <input type="text" class="form-control" id="country" required name="country">
+                                  <p id="country-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Pincode</label>
+                                  <input type="number" class="form-control" id="pinCode" name="pincode">
+                                  <p id="pinCode-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">State</label>
+                                  <input type="text" class="form-control" id="state" name="state">
+                                  <p id="state-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">District</label>
+                                  <input type="text" class="form-control" id="district" required name="district">
+                                  <p id="district-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">City</label>
+                                  <input type="text" class="form-control" id="city" required name="city">
+                                  <p id="city-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Area</label>
+                                  <input type="text" class="form-control" id="area" required name="area">
+                                  <p id="area-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Street</label>
+                                  <input type="text" class="form-control" id="street" required name="street">
+                                  <p id="street-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">Building</label>
+                                  <input type="text" class="form-control" id="building" required name="building">
+                                  <p id="building-error"></p>
+                                </div>
+                                <div class="mb-3">
+                                  <label for="message-text" class="col-form-label">house Number</label>
+                                  <input type="number" class="form-control" id="houseNumber" required
+                                    name="houseNumber">
+                                  <p id="houseNumber-error"></p>
+                                </div>
+                                <button type="submit" class="btn btn-primary">Submit</button>
+                              </form>
+                            </div>
+                            <div class="modal-footer">
+                              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+        </div>
+        <!-- <form id="placeOrder"> -->
         <div class="col-lg-4 col-md-6 Subtotal-div ml-5 mt-3">
           <div class="col-lg-12 img-div align-items-start"> <!-- Adjusted class -->
-            <% userCartData.forEach((data, index) => { %>
-              <% data.userCartProducts.forEach((product) => { %>
-                <div class="border-bottom">
-                  <img src="/uploads/<%= product.image[4] %>" class="figure-img product-img img-fluid rounded " alt="Image <%= index + 1 %>">
-                  <h6 class="float-right"><%=product.price %></h6>
+            <% userCartData.forEach((data, index)=> { %>
+              <% data.userCartProducts.forEach((product)=> { %>
+                <div class="border-bottom mt-3">
+                  <img src="/uploads/<%= product.image[4] %>" class="figure-img product-img img-fluid rounded "
+                    alt="Image <%= index + 1 %>">
+                  <h6 class="float-right">
+                    <%=product.price %>
+                  </h6>
+                  <input type="hidden" value="<%=product._id %>" id="productId">
                 </div>
-              <% }); %>
-            <% }); %>
+                <% }); %>
+                  <% }); %>
           </div>
           <div class="col-lg-12">
-            <h6 class="bordered">Subtotal <span class="float-right"><%=cartTotal%></span></h6>
-            <h6 class="bordered">Shipping <span class="float-right">free</span></h6>
-            <h6 class="bordered">Total <span class="float-right">1000</span></h6>
+            <h6 class="bordered">Subtotal <span class="float-right">
+                <%=total%>
+              </span></h6>
+            <h6 class="bordered">Shipping <span id="displayedShippingPrice" class="float-right">0</span></h6>
+            <h6 class="bordered">Total <span id="displayedTotalPrice" class="float-right">0</span></h6>
           </div>
           <div class="col-lg-12">
             <div>
-              <input type="radio" name="paymentMethod" id="bank" value="bank">
-              <label for="bank">Bank</label>
-              <img src="/svg/razorpay.svg" class="razorpay float-right" alt="">
+              <!-- <input type="radio" name="paymentMethod" id="bank" value="bank"> -->
+              <!-- <label for="bank">Bank</label> -->
+              <!-- <img src="/svg/razorpay.svg" class="razorpay float-right" alt=""> -->
             </div>
             <div>
               <input type="radio" name="paymentMethod" id="cashOnDelivery" value="cashOnDelivery">
               <label for="cashOnDelivery">Cash On Delivery</label>
-              <button class="btn btn-primary float-right mt-5 mb-3 ">Place Order</button>
+              <button type="submit" class="btn btn-primary float-right mt-5 mb-3" id="placeOrderButton">Place
+                Order</button>
             </div>
-              
+
           </div>
         </div>
-    </div>
-    <h4 class="mt-5">Choose Shipping Type</h4>
-    <div class="row mt-5 p-0  d-flex justify-content-between">
+      </div>
+      <h4 class="mt-5">Choose Shipping Type</h4>
+      <div class="row mt-5 p-0  d-flex justify-content-between">
         <div class="col-lg-3 col-md-6 border Shipping">
-            <input type="radio" name="standard" value="standard">
-            <label for="standard" class="ml-2" style="font-weight: 700;">Standard</label>
-            <p>Partner:<span class="ml-1">Drip Store</span></p>
-            <p>Type:<span class="ml-1">free</span></p>
-            <p>Shipping charge:<span class="ml-1 text-danger">0</span></p>
+          <input type="radio" name="shippingMethod" value="standard">
+          <label for="standard" class="ml-2" style="font-weight: 700;">Standard</label>
+          <p>Partner:<span class="ml-1">Drip Store</span></p>
+          <p>Type:<span class="ml-1">free</span></p>
+          <p>Shipping charge:<span class="ml-1 text-danger">0</span></p>
         </div>
         <div class="col-lg-3 col-md-6 border Shipping ">
-            <input type="radio" name="express" value="express">
-            <label for="express" class="ml-2" style="font-weight: 700;">Express</label>
-            <p>Partner:<span class="ml-1">DHL</span></p>
-            <p>Type:<span class="ml-1">Paid</span></p>
-            <p>Shipping charge:<span class="ml-1 text-danger">100</span></p>
+          <input type="radio" name="shippingMethod" value="express">
+          <label for="express" class="ml-2" style="font-weight: 700;">Express</label>
+          <p>Partner:<span class="ml-1">DHL</span></p>
+          <p>Type:<span class="ml-1">Paid</span></p>
+          <p>Shipping charge:<span class="ml-1 text-danger">100</span></p>
         </div>
         <div class="col-lg-3 col-md-6 border Shipping">
-            <input type="radio" name="sameDay">
-            <label for="sameDay" class="ml-2" style="font-weight: 700;">Same Day</label>
-            <p>Partner:<span class="ml-1">FedeX</span></p>
-            <p>Type:<span class="ml-1">Paid</span></p>
-            <p>Shipping charge:<span class="ml-1 text-danger">150</span></p>
+          <input type="radio" name="shippingMethod" value="sameDay" id="sameDay">
+          <label for="sameDay" class="ml-2" style="font-weight: 700;">Same Day</label>
+          <p>Partner:<span class="ml-1">FedeX</span></p>
+          <p>Type:<span class="ml-1">Paid</span></p>
+          <p>Shipping charge:<span class="ml-1 text-danger">150</span></p>
         </div>
+      </div>
+      <!-- </form> -->
     </div>
-  </form>
-</div>
 
-<!---footer-->
-<%-include('partials/footer') %>
+    <!---footer-->
+    <%-include('partials/footer') %>
 
-<script>
+    <script>
 
-     // add Address post
-    document.getElementById('addAddressModal').addEventListener('submit', async function (event) {
-    event.preventDefault();
-    alert('called above')
+        const placeOrderButton = document.getElementById('placeOrderButton');
 
-    const formData = {
-        fullName: document.getElementById('fullName').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
-        email: document.getElementById('email').value,
-        country: document.getElementById('country').value,
-        pinCode: parseInt(document.getElementById('pinCode').value),
-        state: document.getElementById('state').value,
-        district: document.getElementById('district').value,
-        city: document.getElementById('city').value,
-        area: document.getElementById('area').value,
-        street: document.getElementById('street').value,
-        building: document.getElementById('building').value,
-        houseNumber: document.getElementById('houseNumber').value,
-    };
-
-    try {
-        const response = await fetch('/account/addAddress', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
+        placeOrderButton.addEventListener('click', function() {
+          window.location.href = '/order/orderSuccess'; // Redirect to the desired URL
         });
 
-        if (!response.ok) {
+      // add Address post
+      document.getElementById('addAddressModal').addEventListener('submit', async function (event) {
+        event.preventDefault();
+    
+        const formData = {
+          fullName: document.getElementById('fullName').value,
+          phoneNumber: document.getElementById('phoneNumber').value,
+          email: document.getElementById('email').value,
+          country: document.getElementById('country').value,
+          pinCode: parseInt(document.getElementById('pinCode').value),
+          state: document.getElementById('state').value,
+          district: document.getElementById('district').value,
+          city: document.getElementById('city').value,
+          area: document.getElementById('area').value,
+          street: document.getElementById('street').value,
+          building: document.getElementById('building').value,
+          houseNumber: document.getElementById('houseNumber').value,
+        };
+    
+        try {
+          const response = await fetch('/account/addAddress', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+          });
+    
+          if (!response.ok) {
             throw new Error('Failed to add address');
-        }
-
-        const data = await response.json();
-        
-        if (data.success) {
+          }
+    
+          const data = await response.json();
+    
+          if (data.success) {
             // Show success message using SweetAlert
             Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Address edited successfully',
-                showConfirmButton: true,
-                timer: 4000
+              icon: 'success',
+              title: 'Success',
+              text: 'Address edited successfully',
+              showConfirmButton: true,
+              timer: 4000
             }).then(() => {
-                window.location.href = '/account/addressBook';
-                console.log('Address added to db', data);
+              window.location.href = '/account/addressBook';
+              console.log('Address added to db', data);
             });
+          }
+        } catch (error) {
+          console.error(error);
         }
-    } catch (error) {
-        console.error(error);
-    }
-});
-
-
-// Place order 
-
-document.getElementById('placeOrder').addEventListener('submit', async function (event){
-  event.preventDefault()
-
-  // gather order related data
-  const selectedAddress = document.querySelector('input[name="address"]:checked').value
-  const selectedpaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value
-
-  let selectedShippingType = ''
-
-  //check which shipping options is selected
-  const standardShipping = document.querySelector('input[name="standard"]:checked');
-  const expressShipping = document.querySelector('input[name="express"]:checked');
-  const sameDayShipping = document.querySelector('input[name="sameDay"]:checked');
-
-  if(standardShipping){
-    selectedShippingType = standardShipping.value
-  }else if(expressShipping){
-    selectedShippingType = expressShipping.value
-  }else if(sameDayShipping){
-    selectedShippingType = sameDayShipping.value
-  }
-
-  // Create an object with gathered data
-  const orderData = {
-    selectedAddress,
-    selectedpaymentMethod,
-    selectedShippingType
-  }
-
-  try{
+      });
     
-    const response = await fetch('/order/placeOrder',{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json'
-      },
-      body:JSON.stringify(orderData)
-    })
-
-    if(!response.ok){
-      throw new Error('failed to place order')
-    }
-
-    const data = await response.json()
-    alert('data is'+data)
-
-  }catch(error){
-    console.error(error)
-  }
-
-})
-
-</script>
-
-
+      // Shipping charges object corresponding to each shipping method
+      const shippingCharges = {
+        standard: 0,
+        express: 100,
+        sameDay: 150
+      };
+    
+      // Function to calculate the total price based on the selected shipping method and cart total
+      function calculateTotalPrice(cartTotal, selectedShippingType) {
+        const shippingCharge = shippingCharges[selectedShippingType];
+        return cartTotal + shippingCharge;
+      }
+    
+      // Function to update displayed total price based on the selected method and cart total
+      function updateTotalPrice() {
+        const selectedShipping = document.querySelector('input[name="shippingMethod"]:checked');
+        const cartTotal = parseFloat('<%=total%>');
+    
+        if (selectedShipping) {
+          const selectedShippingType = selectedShipping.value;
+          const totalPrice = calculateTotalPrice(cartTotal, selectedShippingType);
+    
+          document.getElementById('displayedShippingPrice').textContent = shippingCharges[selectedShippingType];
+          document.getElementById('displayedTotalPrice').textContent = totalPrice;
+        }
+      }
+    
+      // Event listeners for each shipping method input
+      const shippingInputs = document.querySelectorAll('input[name="shippingMethod"]');
+      shippingInputs.forEach(input => {
+        input.addEventListener('change', updateTotalPrice);
+      });
+    
+      async function placeOrder(event) {
+        event.preventDefault();
+    
+        const productId = document.getElementById('productId').value;
+        const selectedAddress = document.querySelector('input[name="address"]:checked').value;
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked').value;
+    
+        const standardShipping = document.querySelector('input[name="shippingMethod"][value="standard"]:checked');
+        const expressShipping = document.querySelector('input[name="shippingMethod"][value="express"]:checked');
+        const sameDayShipping = document.querySelector('input[name="shippingMethod"][value="sameDay"]:checked');
+    
+        let selectedShippingType = '';
+        if (standardShipping) {
+          selectedShippingType = standardShipping.value;
+        } else if (expressShipping) {
+          selectedShippingType = expressShipping.value;
+        } else if (sameDayShipping) {
+          selectedShippingType = sameDayShipping.value;
+        }
+    
+        const totalPrice = calculateTotalPrice(parseFloat('<%=total%>'), selectedShippingType);
+    
+        const orderData = {
+          productId,
+          selectedAddress,
+          selectedPaymentMethod,
+          selectedShippingType,
+          totalPrice // Include the calculated total price in the order data
+        };
+    
+        try {
+          const response = await fetch('/order/placeOrder', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(orderData)
+          });
+    
+          if (!response.ok) {
+            throw new Error('Failed to place order');
+          }
+    
+          const data = await response.json();
+          alert('Data: ' + JSON.stringify(data)); // Handle the success response here
+    
+        } catch (error) {
+          console.error(error);
+        }
+      }
+    
+      document.getElementById('placeOrderButton').addEventListener('click', placeOrder);
+    
+    </script>

@@ -27,11 +27,8 @@
       </div>
       <div class="col-12 d-flex mt-3">
           <div class="col-lg-6 d-flex justify-content-start">
-              <button class="cart-btn btn ">Return to shop</button>
+              <a href="/user/home"><button class="cart-btn btn ">Return to shop</button></a>
           </div>
-          <!-- <div class="col-lg-6 d-flex justify-content-end">
-              <button class="cart-btn ">Update Cart</button>
-          </div> -->
       </div>
       <div class="row w-100 mt-5 ml-1  coupon-div d-flex justify-content-start align-items-center">
         <div class="col-lg-3  d-flex justify-content-start align-items-center">
@@ -47,8 +44,8 @@
                     <h5 class="text-white">Cart Total</h5>
                     <br>
                     <p class="bordered text-white" id="fullTotal">Sub Total: <span class="float-right"> <%=locals.cartTotal%></span></p>
-                    <p class="bordered text-white">Shipping</p>
-                    <p class="text-white">Total</p>
+                    <p class="bordered text-white">Shipping <span class="float-right">Free</span></p>
+                    <p class="text-white">Total <span class="float-right"><%=locals.cartTotal%></span></p>
                     <div class="checkout-div ">
                       <a href="/cart/checkout"><button class="checkout-btn">Process To Checkout</button></a>
                     </div>
@@ -175,50 +172,64 @@
       .catch(error => console.error('Error occurred:', error));
   });
 
-  // Remove item from cart
-  async function removeItem(productID){
-    const productId = productID
+  async function removeItem(productID) {
+  const productId = productID;
 
-    try {
-      const response = await fetch(`/cart/removeItem/${productId}`,{
-        method:'DELETE'
+  try {
+    const confirmed = await deleteAlert();
+    
+    if (confirmed) {
+      const response = await fetch(`/cart/removeItem/${productId}`, {
+        method: 'DELETE'
       });
 
-      if(response.ok){
-        console.log('item deleted successfully')
+      if (response.ok) {
+        console.log('item deleted successfully');
+        const img = document.querySelector(`#productRow_${productId} img`); // Select the image element
+        if (img) {
+          img.style.display = 'none'; // Hide the image by setting display to 'none'
+        }
+      } else {
+        console.log('deletion failed');
         Swal.fire({
-          icon:'warning',
-          title:'warning',
-          text:'Are you sure to delete this item from cart',
-          showConfirmButton:true,
-        }).then(()=>{
-          // const rowToRemove = document.getElementById(`productRow_${productId}`);
-          // if (rowToRemove) {
-          //   rowToRemove.style.display = 'none';
-          // }
-          window.location.reload()
-        })
-      }else{
-        console.log('deletion failed')
-        Swal.fire({
-          icon:'error',
-          title:'failed',
-          text:'product not found',
-          showConfirmButton:false,
-          timer:2000
-        })
+          icon: 'error',
+          title: 'Failed',
+          text: 'Product not found',
+          showConfirmButton: false,
+          timer: 2000
+        });
       }
-    } catch (error) {
-      console.error(error)
-      Swal.fire({
-          icon:'error',
-          title:'failed',
-          text:'Internal server error',
-          showConfirmButton:false,
-          timer:2000
-        })
+    } else {
+      console.log('Deletion canceled');
     }
+  } catch (error) {
+    console.error(error);
+    Swal.fire({
+      icon: 'error',
+      title: 'Failed',
+      text: 'Internal server error',
+      showConfirmButton: false,
+      timer: 2000
+    });
   }
+}
+
+// Alert for product deletion
+function deleteAlert() {
+  return new Promise((resolve) => {
+    Swal.fire({
+      icon: 'warning',
+      title: 'Warning',
+      text: 'Are you sure to delete this item from cart?',
+      showConfirmButton: true,
+      showCancelButton: true,
+      confirmButtonText: 'Yes, delete it',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      resolve(result.isConfirmed);
+    });
+  });
+}
 </script>
 
 
