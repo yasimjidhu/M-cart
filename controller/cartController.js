@@ -213,98 +213,61 @@ const RemoveItem = async (req, res) => {
 //checkout
 const toCheckout = async (req, res) => {
     try {
+      const quantity = req.query.quantity;
+      const totalPrice = req.query.total;
+      console.log('hey quantity',quantity)
+      console.log('hey totalPrice',totalPrice)
       const userEmail = req.session.email;
       const user = await users.findOne({ email: userEmail });
   
       if (!user) {
-        // Handle scenario when user is not found
         return res.status(404).send('User not found');
       }
   
       const userCartData = await cart.aggregate([
+        { $match: { userId: user._id } },
+        { $project: { products: 1, _id: 0 } },
+        { $unwind: '$products' },
         {
-          $match: {
-            userId: user._id // Match using user._id
+          $lookup: {
+            from: 'products',
+            localField: 'products.productId',
+            foreignField: '_id',
+            as: 'userCartProducts'
           }
         },
         {
           $project: {
-            products: 1,
-            _id: 0
-          }
-        },
-        {
-            $unwind:'$products'
-        },
-        
-        {
-            $lookup:{
-                from:'products',
-                localField:'products.productId',
-                foreignField:'_id',
-                as:'userCartProducts'
-            }
-        },
-        {
-            $project: {
-              userCartProducts: {
-                $map: {
-                  input: '$userCartProducts',
-                  as: 'product',
-                  in: {
-                    _id: '$$product._id',
-                    productName: '$$product.productName',
-                    price: '$$product.price',
-                    image: '$$product.image',
-                  }
+            userCartProducts: {
+              $map: {
+                input: '$userCartProducts',
+                as: 'product',
+                in: {
+                  _id: '$$product._id',
+                  productName: '$$product.productName',
+                  price: '$$product.price',
+                  image: '$$product.image',
                 }
               }
             }
           }
-        
-      ]).exec()
-      
+        }
+      ]).exec();
+  
       const cartItems = userCartData.map(cartItem => cartItem.userCartProducts);
       const flattenedCartItems = [].concat(...cartItems);
-      
-      // Calculate the sum of cart items' prices
-      const cartTotal = flattenedCartItems.reduce((total, currentItem) => total + currentItem.price, 0);
-      console.log('cartTotal',cartTotal)
-      
-      let total = 0; // Initialize the 'total' variable
-
-    const cartUser = await cart.findOne({ userId: user._id });
-
-    if (cartUser) {
-      for (const product of cartUser.products) {
-        const productId = product.productId;
-        const quantity = product.quantity;
-
-        const productDetails = await products.findOne({ _id: productId });
-        if (productDetails) {
-          const price = productDetails.price;
-          const productTotal = quantity * price;
-          total += productTotal; // Accumulate the total price for all products
-        }
-      }
-    } else {
-      console.log('Cart is empty or user not found.');
+  
+      const userAddressData = await address.findOne({ userId: user._id });
+      const userAddress = userAddressData ? userAddressData.address : null;
+  
+      const total = flattenedCartItems.reduce((acc, currentItem) => acc + currentItem.price, 0);
+  
+      res.render('./user/checkout', { userCartData, userAddress, total , quantity, totalPrice})
+    } catch (error) {
+      console.error('Error:', error);
+      res.status(500).send('Internal Server Error');
     }
-
-    const userAddressData = await address.findOne({ userId: user._id });
-    const userAddress = userAddressData;
-
-    if (userAddress === null) {
-      return res.render('./user/checkout', { userCartData, userAddress, msg: 'Address is not available' });
-    }
-
-    res.render('./user/checkout', { userCartData, userAddress: userAddress.address, total });
-  } catch (error) {
-    console.error('Error:', error);
-    res.status(500).send('Internal Server Error');
-  }
-};
-
+  };
 
 
 

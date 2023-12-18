@@ -197,79 +197,67 @@ const toEditProduct = async (req, res) => {
 // Edit product post
 const updateProduct = async (req, res) => {
   try {
-    console.log('req.files',req.files)
     const productId = req.params.productId;
-    console.log(productId)
-    const { Category, productName,description, brand, specifications } = req.body;
+    const { Category, productName, description, brand, specifications } = req.body;
     const existingProduct = await getProductById(productId);
 
     if (!existingProduct) {
-      return res.status(404).send("Product not found");
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    // price validation
-    const Price = req.body.price
-    const Stock = req.body.stock
+    // Price and Stock validation
+    const Price = req.body.price;
+    const Stock = req.body.stock;
     let redirectURL = `/admin/edit-product/${productId}?`;
 
     if (Price <= 0) {
-        redirectURL += 'priceErr=Please enter a valid price&';
+      redirectURL += 'priceErr=Please enter a valid price&';
     }
 
     if (Stock < 0) {
-        redirectURL += 'stockErr=Please enter a valid stock&';
+      redirectURL += 'stockErr=Please enter a valid stock&';
     }
 
     if (redirectURL !== `/admin/edit-product/${productId}?`) {
-        return res.status(500).redirect(redirectURL.slice(0, -1)); // Remove the trailing "&"
-    }
-    if(Stock<0){
-      return res.status(500).redirect(`/admin/edit-product/${productId}?stockErr=Please enter a valid stock`);
+      return res.status(500).redirect(redirectURL.slice(0, -1)); // Remove the trailing "&"
     }
 
     const existingImages = existingProduct.image;
-    console.log('existing images',existingImages)
     const updatedImages = [];
 
     // Loop through the existing images to check if a new image is provided
-    for (let i = 0; i <=4; i++) {
+    for (let i = 0; i <= 4; i++) {
       let newImage;
 
       if (i === 4) {
-        // Handle the main image (image[4])
         newImage = req.files["mainImage"];
       } else {
-        // Handle other images (image[0] to image[3])
         newImage = req.files[`newProductImage${i}`];
       }
 
       const existingImage = existingImages[i];
-
-      // Use the new image if provided, otherwise use the existing one
       const image = newImage ? newImage[0].filename : existingImage;
 
       updatedImages.push(image);
     }
-    console.log('updated images ',updatedImages)
 
-    // check the provided images are img format
-    const validFormat = ['.jpg','.jpeg','.png','.bmp','.svg']
-    let hasInvalidImage = false
-    
-    for(const imageName of updatedImages){
-    var isValidImage = validFormat.some(ext=>imageName.toLowerCase().endsWith(ext))
-    console.log(`${imageName} is a valid image format: ${isValidImage}`);
-    
-    if(!isValidImage){
-      hasInvalidImage=true
-      break;
-     }
-    }
-      if(hasInvalidImage){
-        const err = 'only image files are accepted'
-        console.log('false got')
-        return res.redirect(`/admin/add-product?error=${encodeURIComponent(err)}`)
+    // Check if the provided images have valid formats
+    const validFormat = ['.jpg', '.jpeg', '.png', '.bmp', '.svg'];
+    let hasInvalidImage = false;
+
+    for (const imageName of updatedImages) {
+      const isValidImage = validFormat.some(ext => imageName.toLowerCase().endsWith(ext));
+
+      if (!isValidImage) {
+        hasInvalidImage = true;
+        break;
       }
+    }
+
+    if (hasInvalidImage) {
+      const err = 'only image files are accepted';
+      return res.status(404).json({ success: false, err, hasInvalidImage });
+    }
 
     // Update the product with the new images and other details
     const results = await products.updateOne(
@@ -289,22 +277,17 @@ const updateProduct = async (req, res) => {
     );
 
     if (results.nModified === 0) {
-      return res.status(404).send("Product not found");
+      return res.status(404).json({ message: "Product not found" });
     }
 
-    res.redirect("/admin/products");
+    return res.status(200).json({ message: "Product updated successfully" });
   } catch (error) {
     console.error("Error updating product:", error);
     const errorMessage = error.message || "Error updating product";
     const productsData = await products.find();
     const categories = await category.find();
     const brand = await brands.find();
-    return res.status(500).render("./admin/products", {
-      err: errorMessage,
-      productsData,
-      categories,
-      brand,
-    });
+    return res.status(500).json({ success: false, err: errorMessage, productsData, categories, brand });
   }
 };
 
@@ -592,6 +575,41 @@ const toProducts = async (req, res) => {
     res.status(500).send("Internal Server Error");
   }
 };
+
+const deleteProductImage = async (req,res)=>{
+  try {
+    const {productId,imageId} = req.params;
+    console.log('productId',productId)
+    console.log('imageId',imageId)
+
+    // find the product by id
+    const product = await products.findById(productId);
+
+    //check if the product exists
+    if(!product){
+      return res.status(404).json({error:'Product not found'})
+    }
+    // find the index of the image in the product's images array
+    const imageIndex = product.image.findIndex(images => images ===imageId)
+
+    //if the image index is valid, remove the image from the array
+    if(imageIndex !== -1){
+      product.image.splice(imageIndex,1);
+      await product.save()
+      return res.status(200).json({message:'image deleted successfully'})
+    }else{
+      return res.status(404).json({error:'image not found'})
+    }
+  } catch (error) {
+    console.error(error)
+    return res.status(500).json({error:'Error occured during image deletion'})
+  }
+}
+
+
+
+
+
 
 /*----------------------------brands------------------------*/
 
@@ -904,5 +922,6 @@ module.exports = {
   blockBrand,
   unblockBrand,
   toOrders,
-  updateOrderStatus
+  updateOrderStatus,
+  deleteProductImage  
 };

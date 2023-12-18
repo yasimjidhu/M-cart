@@ -5,10 +5,10 @@
     <div class="admin-sidebar vh-100">
         <a href="/account/profile" onclick="updateTitle('Dashboard')" class="active">Profile</a>
         <a href="/account/addressBook" onclick="updateTitle('customers')" class="active">Address Book</a>
-        <a href="#" onclick="updateTitle('Category')" class="active">My orders</a>
-        <a href="#" onclick="updateTitle('Products')" class="active">Payment options</a>
-        <a href="#" onclick="updateTitle('Brands')" class="active">My returns</a>
-        <a href="#" onclick="updateTitle('Orders')" class="inactive">My cancellation</a>
+        <a href="/order/toUserOrders" onclick="updateTitle('Category')" class="active">My orders</a>
+        <a href="/order/cancelledOrders" onclick="updateTitle('Orders')" class="active">My cancellation</a>
+        <a href="#" onclick="updateTitle('Products')" class="inactive">Payment options</a>
+        <a href="#" onclick="updateTitle('Brands')" class="inactive">My returns</a>
         <a href="#" onclick="updateTitle('Banner')" class="inactive">My wishlist</a>
     </div>
 </div>

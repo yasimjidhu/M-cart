@@ -56,7 +56,6 @@ admin.post('/add-product', upload.fields([
     { name: 'productImage4', maxCount: 1 },
     { name: 'mainImage', maxCount: 1 }
 ]),(req, res) => {
-    // Your existing code
     adminController.addproducts(req, res);
 });
 
@@ -72,6 +71,7 @@ admin.post('/edit-product/:productId', upload.fields([
 
 admin.post('/delete-product/:productid',adminauth.verifyAdmin,adminController.deleteProduct)
 
+admin.delete('/products/:productId/images/:imageId',adminController.deleteProductImage)
 
 // Block user get
 admin.get('/block/:userId', adminController.blockUser);

@@ -1,0 +1,59 @@
+<!--header-->
+<%- include('../user/partials/header') %> 
+<%- include('../user/partials/links') %>
+<!--Navbar-->
+<%- include('../user/partials/navbar') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../user/partials/sidebar') %>
+        </div>
+        <div class="col-lg-9">
+            <div class="row row-cols-1 row-cols-md-2 g-4">
+                <% if (userCancelledOrders && userCancelledOrders.length > 0) { %>
+                    <% userCancelledOrders.forEach((order) => { %>
+                        <div class="col">
+                            <div class="card mb-3 mt-5" id="cardBox">
+                                <div class="row g-0">
+                                    <div class="col-md-4">
+                                        <% if (order.products && order.products.productImage && order.products.productImage.length > 0) { %>
+                                            <% const fourthImage = order.products.productImage[4]; %>
+                                            <img src="/uploads/<%= fourthImage %>" class="card-img-top" alt="Product Image">
+                                        <% } else { %>
+                                            <!-- <p class="text-center mt-3">No images available</p> -->
+                                        <% } %>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <div class="card-body">
+                                            <% if (order.products && order.products.productName && order.products.productPrice && order.products.productBrand) { %>
+                                                <% const brand = brandData.find(b => b._id.toString() === order.products.productBrand.toString()); %>
+                                                <% if (brand) { %>
+                                                    <h5 class="card-title"><%= order.products.productName %></h5>
+                                                    <p class="card-text">Price: <%= order.products.productPrice %></p>
+                                                    <p class="card-text">Brand: <%= brand.brandName %></p>
+                                                <% } else { %>
+                                                    <h5 class="card-title"><%= order.products.productName %></h5>
+                                                    <p class="card-text">Price: <%= order.products.productPrice %></p>
+                                                    <p class="card-text">Brand: Not found</p>
+                                                <% } %>
+                                            <% } else { %>
+                                                <!-- <p>Product details not available</p> -->
+                                            <% } %>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } else { %>
+                    <!-- <div class="col-12">
+                        <div class="alert alert-warning mt-3" role="alert">
+                            No Cancelled orders found.
+                        </div>
+                    </div> -->
+                <% } %>
+            </div>
+        </div>
+    </div>
+</div>

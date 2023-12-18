@@ -1,20 +1,25 @@
-// const errorHandler = (err,req,res,next)=>{
-//     let status = err.status || 500
-//     let message = err.message || 'internal server error'
-//     console.log('error middleware called')
-//     if(err.name==='notFound'){
-//         status = 404
-//     }
-
-//     res.status(status).json({
-//         error:{
-//             message:message,
-//             status:status
-//         }
-//     });
-    
-// }
-
-// module.exports = {
-//     errorHandler
-// }
+// Custom error handling middleware
+function errorHandler(err, req, res, next) {
+    let statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+    let message = 'Internal Server Error';
+  
+    if (err.name === 'ValidationError') {
+      // Handling validation errors
+      statusCode = 400; // Bad Request
+      message = err.message;
+    } else if (err.name === 'MongoError' && err.code === 11000) {
+      // Handling duplicate key (MongoDB) errors
+      statusCode = 400; // Bad Request
+      message = 'Duplicate key error';
+    }
+  
+    res.status(statusCode).json({
+      success: false,
+      error: {
+        message: message,
+        stack: process.env.NODE_ENV === 'production' ? 'Error details are hidden in production' : err.stack,
+      },
+    });
+  }
+  
+  module.exports = errorHandler;

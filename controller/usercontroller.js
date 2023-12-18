@@ -68,7 +68,7 @@ const toHome = async (req, res) => {
 
 
 //User signup
-const userSignup = async (req, res) => {
+const userSignup = async (req, res, next) => {
   console.log("user signup");
 
   try {
@@ -113,10 +113,11 @@ const userSignup = async (req, res) => {
       req.session.err = "User already exists";
       return res.render("./user/usersignup", { msg: "User Already exist" });
     }
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.log(error);
     req.session.err = "something went wrong";
-    return res.render("./user/usersignup");
+    res.render("./user/usersignup");
+    next(error) // Pass the error to the error handling middleware
   }
 };
 

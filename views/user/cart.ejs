@@ -43,11 +43,11 @@
                    <div class="col-lg-12 txt-div  mt-1">
                     <h5 class="text-white">Cart Total</h5>
                     <br>
-                    <p class="bordered text-white" id="fullTotal">Sub Total: <span class="float-right"> <%=locals.cartTotal%></span></p>
+                    <p class="bordered text-white" id="fullTotal">Sub Total: <span id="subCartTotal" class="float-right"><%=locals.cartTotal%></span></p>
                     <p class="bordered text-white">Shipping <span class="float-right">Free</span></p>
-                    <p class="text-white">Total <span class="float-right"><%=locals.cartTotal%></span></p>
+                    <p class="text-white">Total <span class="float-right" id="wholeTotal" ><%=locals.cartTotal%></span></p>
                     <div class="checkout-div ">
-                      <a href="/cart/checkout"><button class="checkout-btn">Process To Checkout</button></a>
+                      <a href="#" class="checkout-btn" style="text-decoration: none; color: black;">Process To Checkout</a>
                     </div>
                    </div>
                 </div>
@@ -65,8 +65,7 @@
 <!--fetch sample-->
 <script>
   document.addEventListener('DOMContentLoaded', function () {
-    console.log('dom content loaded')
-
+    
     fetch('/cart/cart-products')
       .then(response => response.json())
       .then(data => {
@@ -161,16 +160,63 @@
 
         function updateSubtotal(input, priceCell) {
           const quantity = input.value;
-          const price = parseFloat(priceCell.textContent.replace('$', ''));
+          const price = parseFloat(priceCell.textContent);
           const subtotal = quantity * price;
           const row = input.parentNode.parentNode;
           const subtotalCell = row.getElementsByTagName('td')[3];
+          const subTotalCard = document.getElementById('subCartTotal')
+          const wholeTotal = document.getElementById('wholeTotal')
 
           subtotalCell.textContent = `${subtotal.toFixed(2)}`;
+          subTotalCard.textContent = `${subtotal.toFixed(2)}`;
+          wholeTotal.textContent = `${subtotal.toFixed(2)}`;
         }
       })
       .catch(error => console.error('Error occurred:', error));
+
+
+      function constructCheckoutURL() {
+      const checkoutButton = document.querySelector('.checkout-btn');
+      checkoutButton.addEventListener('click', function (event) {
+        event.preventDefault(); // Prevent default link behavior
+
+        const currentQuantity = getCurrentQuantity();
+        const totalPrice = getCartTotal();
+
+        const checkoutHref = '/cart/checkout';
+        const updatedCheckoutHref = `${checkoutHref}?quantity=${currentQuantity}&total=${totalPrice}`;
+
+        window.location.href = updatedCheckoutHref; // Redirect to the checkout URL
+      });
+    }
+
+    function getCurrentQuantity() {
+      const quantityInputs = document.querySelectorAll('.quantity-input');
+      let totalQuantity = 0;
+      quantityInputs.forEach(input => {
+        totalQuantity += parseInt(input.value);
+      });
+      return totalQuantity;
+    }
+
+    function getCartTotal() {
+      const allProducts = document.querySelectorAll('.quantity-input')
+      let totalPrice = 0;
+
+      allProducts.forEach(product =>{
+        const quantity = parseInt(product.value);
+        const price = parseFloat(product.parentNode.previousElementSibling.textContent)
+
+        totalPrice += quantity * price;
+      })
+
+      return totalPrice.toFixed(2);
+    }
+
+    constructCheckoutURL(); // Call the function to attach the click event listener
   });
+
+
 
   async function removeItem(productID) {
   const productId = productID;
@@ -185,10 +231,7 @@
 
       if (response.ok) {
         console.log('item deleted successfully');
-        const img = document.querySelector(`#productRow_${productId} img`); // Select the image element
-        if (img) {
-          img.style.display = 'none'; // Hide the image by setting display to 'none'
-        }
+        window.location.reload()
       } else {
         console.log('deletion failed');
         Swal.fire({

@@ -17,6 +17,7 @@ const nodemailer = require('nodemailer')
 const zoom = require('js-image-zoom')
 const dotenv =require('dotenv')
 const passport = require('passport')
+const errorMiddleware = require('./middleware/errorMiddleware')
 const passwordvalidator = require('password-validator')
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
 const { log } = require('console')
@@ -55,7 +56,7 @@ app.use('/account',accountRouter)
 app.use('/order',orderRouter)
 
 // Error middleware
-// app.use(errorHandler)
+app.use(errorMiddleware)
 
 const port = process.env.PORT||4000
 
