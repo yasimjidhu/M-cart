@@ -43,30 +43,40 @@ const  toProfile = async (req, res) => {
 
 
 // Upload profile image
-const updateProfile  =async (req,res)=>{
-    console.log('reqfile',req.file)
+const updateProfile = async (req, res) => {
+    try {
+        if (req.file) {
+            // Array of accepted image MIME types
+            const acceptedImageTypes = ['image/jpeg', 'image/png', 'image/gif', /* Add more types if necessary */];
 
-    try{
-        if(req.file){
-            const updatedProfile = await users.findOneAndUpdate(
-                {email:req.session.email},
-                {profileImage:req.file.filename},
-                {new:true}
-            )
-            if(updatedProfile){
-                res.status(200).json({message:'Profile photo updated successfully',success:true})
-            }else{
-                req.status(400).json({error:'user not found',success:false})
+            if (!acceptedImageTypes.includes(req.file.mimetype)) {
+                // Invalid image file type
+                console.log('Invalid image');
+                return res.status(400).json({ error: 'Invalid image file type' });
             }
-        }else{
-            res.status(400).json({error:'no file was uploaded'})
-        }
+            console.log('Valid image');
+            // Proceed to update profile
+            const updatedProfile = await users.findOneAndUpdate(
+                { email: req.session.email },
+                { profileImage: req.file.filename },
+                { new: true }
+            );
 
-    }catch(err){
-        res.status(500).json({message:'internal server error'})
-        console.error(err)
+            if (updatedProfile) {
+                res.status(200).json({ message: 'Profile photo updated successfully', success: true });
+            } else {
+                res.status(400).json({ error: 'User not found', success: false });
+            }
+        } else {
+            res.status(400).json({ error: 'No file was uploaded' });
+        }
+    } catch (err) {
+        res.status(500).json({ message: 'Internal server error' });
+        console.error(err);
     }
-}
+};
+
+
 
 
 
@@ -373,6 +383,44 @@ const cropImage = (req,res)=>{
     res.status(200).json({success:true})
 }
 
+const editUserInfo = async (req,res,next)=>{
+    console.log('>>>>>>>>>>>>>>>>>>>>>>>>.')
+    const userEmail = req.session.email
+    const user = await users.findOne({email:userEmail})
+    const userId = user._id
+
+    const {name,state,phoneNumber} = req.body
+
+    try{
+        if(!user){
+            return res.status(404).json({message:'User not found'})
+        }
+
+        const updatedFields = {};
+        // Update only the fields that are provided and not empty
+        if (name) {
+            updatedFields.name = name;
+        }
+        
+        if (state) {
+            updatedFields.state = state;
+        }
+        if (phoneNumber) {
+            updatedFields.phoneNumber = phoneNumber;
+        }
+
+        const updatedUser = await users.updateOne(
+            { _id: userId },
+            {
+                $set: updatedFields
+            }
+        );
+        return res.status(200).json({message:'user info updated successfully',success:false})
+
+    }catch(err){
+        next(err)
+    }
+}
 
 
 
@@ -389,5 +437,6 @@ module.exports = {
     updateProfile,
     ResetPassword,
     toCrop,
-    cropImage
+    cropImage,
+    editUserInfo
 }

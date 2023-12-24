@@ -8,6 +8,8 @@ cart.get('/cart-products',cartController.cartProducts)
 cart.post('/add-cart',cartController.addToCart)
 cart.delete('/removeItem/:productID',cartController.RemoveItem)
 
+// update order quantity
+cart.post('/updateQuantity',cartController.updateQuantity)
 
 // chekout 
 cart.get('/checkout',cartController.toCheckout)

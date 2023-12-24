@@ -14,52 +14,69 @@
 <body>
   <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-2 p-0">
-            <!-- Sidebar -->
-            <%- include('../user/partials/sidebar') %>
-        </div>
-        <div class="col-lg-10">
-            <% if (userOrders && userOrders.length > 0) { %>
-                <% userOrders.forEach((order) => { %>
-                    <% order.productDetails.forEach((product) => { %>
-                        <div class="col-md-12 mb-4">
-                            <div class="card mt-4" id="orderCard">
-                                <div class="row">
-                                    <div class="col-md-4" style="padding: 25px;">
-                                        <img src="/uploads/<%= product.image[4] %>" class="card-img" alt="Product Image">
-                                    </div>
-                                    <div class="col-md-8">
-                                        <div class="card-body product-details">
-                                            <div class="mt-4 ml-5">
-                                                <h3 class="card-title"><%= product.productName %></h3>
-                                                <p class="card-text">Price: <%= product.price %></p>
-                                                <p class="card-text">Quantity: <%= order.quantity %></p>
-                                                <p class="card-text">Total: <%= order.totalAmount %></p>
-                                                <p class="card-text">Status: <span id="orderStatus_<%= order._id %>"><%= order.status %></span></p>
-                                                <button onclick="cancelOrder('<%= order._id %>')" class="btn btn-primary">Cancel order</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+      <div class="col-lg-2 p-0">
+        <!-- Sidebar -->
+        <%- include('../user/partials/sidebar') %>
+      </div>
+      <div class="col-lg-10">
+        <% if (userOrders && userOrders.length > 0) { %>
+          <% userOrders.forEach((order) => { %>
+            <% order.productDetails.forEach((product, index) => { %>
+              <% const productQuantity = order.products && order.products[index] ? order.products[index].quantity : 0; %>
+              <% const totalCost = product.price *productQuantity; %> 
+              <div class="col-md-12 mb-4">
+                <div class="card mt-4" id="orderCard">
+                  <div class="row">
+                    <div class="col-md-4">
+                      <img src="/uploads/<%= product.image[4] %>" class="card-img" alt="Product Image">
+                    </div>
+                    <div class="col-md-8">
+                      <div class="card-body product-details">
+                        <div class="mt-4 ml-5">
+                          <h3 class="card-title"><%= product.productName %></h3>
+                          <p class="card-text">Price: <%= product.price %></p>
+                          <p class="card-text">Quantity: <%= productQuantity %></p>
+                          <p class="card-text">Total: <%= totalCost %></p>
+                          <p class="card-text">Status: <span id="orderStatus_<%= order._id %>"><%= order.status %></span></p>
+                          <% if (order.status === 'Cancelled') { %>
+                            <!-- Display cancellation status or handle accordingly -->
+                          <% } else { %>
+                            <button id="cancelButton_<%= order._id %>" onclick="cancelOrder('<%= order._id %>')" class="btn btn-primary">Cancel order</button>
+                          <% } %>
                         </div>
-                    <% }) %>
-                <% }) %>
-            <% } else { %>
-                <div class="col-12">
-                    <p>No orders found.</p>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-            <% } %>
-        </div>
+              </div>
+            <% }) %>
+          <% }) %>
+        <% } else { %>
+          <div class="col-12 d-flex justify-content-center">
+            <img src="/images/theme/empty-order.jpg" width="45%" alt="">
+          </div>
+          <h4 class="text-danger text-center">You haven't ordered <span class="text-dark">anything</span></h4>
+        <% } %>
+      </div>
     </div>
-</div>
+  </div>
 </body>
 
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
-<script>
 
+<script>
   function cancelOrder(orderId) {
+    const orderStatus = document.getElementById(`orderStatus_${orderId}`);
+    const cancelButton = document.getElementById(`cancelButton_${orderId}`);
+
+    if (orderStatus.textContent.trim() === 'Cancelled') {
+      if (cancelButton) {
+        cancelButton.style.display = 'none'; // Hide the button
+      }
+      return;
+    }
+
     Swal.fire({
       icon: 'warning',
       title: 'Are you sure?',
@@ -76,49 +93,47 @@
           headers: {
             'Content-Type': 'application/json',
           },
-        })
-          .then((response) => {
-            if (response.ok) {
-              const orderStatus = document.getElementById(`orderStatus_${orderId}`);
-              if (orderStatus) {
-                orderStatus.innerHTML = 'Cancelled';
-              }
-              Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Order cancelled successfully',
-                showConfirmButton: true,
-                timer: 2000,
-              });
-            } else if (response.status === 403) {
-              Swal.fire({
-                icon: 'error',
-                title: 'Warning',
-                text: 'Order already Cancelled',
-                showConfirmButton: true,
-                timer: 2000,
-              });
-            } else if(response.status===400) {
-              Swal.fire({
-                icon: 'error',
-                title: 'Warning',
-                text: 'cannot cancel a shipped order',
-                showConfirmButton: true,
-                // timer: 2000,
-              });
+        }).then((response) => {
+          if (response.ok) {
+            if (orderStatus) {
+              orderStatus.textContent = 'Cancelled';
             }
-          })
-          .catch((error) => {
-            console.error(error);
+            if (cancelButton) {
+              cancelButton.style.display = 'none'; // Hide the button
+            }
+            Swal.fire({
+              icon: 'success',
+              title: 'Success',
+              text: 'Order cancelled successfully',
+              showConfirmButton: true,
+              timer: 2000,
+            });
+          } else if (response.status === 403) {
             Swal.fire({
               icon: 'error',
-              title: 'Error',
-              text: 'Failed to cancel order',
+              title: 'Warning',
+              text: 'Order already Cancelled',
+              showConfirmButton: true,
+              timer: 2000,
+            });
+          } else if (response.status === 400) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Warning',
+              text: 'Cannot cancel a shipped order',
               showConfirmButton: true,
             });
+          }
+        }).catch((error) => {
+          console.error(error);
+          Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to cancel order',
+            showConfirmButton: true,
           });
+        });
       }
     });
   }
-  
 </script>

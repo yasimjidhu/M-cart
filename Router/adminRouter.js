@@ -100,4 +100,15 @@ admin.post('/unblock-brand/:brandId',adminauth.verifyAdmin,adminController.unblo
 // Orders
 admin.get('/orders',adminController.toOrders)
 admin.put('/updateOrderStatus',adminController.updateOrderStatus)
+
+
+admin.use((req,res)=>{
+    try{
+        res.status(404).render('./user/404')
+    }catch(err){
+        console.error(err)
+        res.status(500).send('internal server error')
+    }
+})
+
 module.exports = admin

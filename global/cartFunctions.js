@@ -1,6 +1,7 @@
 const userModel = require('../model/userSchema')
 const cart = require('../model/cart')
 
+
 const getProductsArrayLength = async (email) => {
     try {
       const user = await userModel.findOne({ email });
@@ -19,6 +20,8 @@ const getProductsArrayLength = async (email) => {
       return 0;
     }
   };
+
+
 
 module.exports = {
     getProductsArrayLength

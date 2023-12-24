@@ -13,27 +13,27 @@ account.post('/uploadCroppedImage',upload.single('profileImage'),accountControll
 
 
 // to Address Book
-account.get('/addressBook',accountController.toAddressBook)
+account.get('/addressBook',userAuth.profileAuth,accountController.toAddressBook)
 
 
 // Add address 
-account.get('/addAddress',accountController.toAddAddress)
-account.post('/addAddress',accountController.addAddress)
+account.get('/addAddress',userAuth.profileAuth,accountController.toAddAddress)
+account.post('/addAddress',userAuth.profileAuth,accountController.addAddress)
 
 
 
 //edit address
-account.get('/edit-address/:addressId',accountController.toEditAddress)
-account.post('/edit-address/:addressId',accountController.editAddress)
-account.post('/deleteAddress/:addressId',accountController.deleteAddress)
+account.get('/edit-address/:addressId',userAuth.profileAuth,accountController.toEditAddress)
+account.post('/edit-address/:addressId',userAuth.profileAuth,accountController.editAddress)
+account.post('/deleteAddress/:addressId',userAuth.profileAuth,accountController.deleteAddress)
 
 
 account.get('/countries',accountController.getCountriesList)// Get countries
 account.get('/fetch-location',accountController.getLocation)// Get location by pincode
 
 // Reset Password
-account.post('/reset-password',accountController.ResetPassword)
-
+account.post('/reset-password',userAuth.profileAuth,accountController.ResetPassword)
+account.post('/edit-UserInfo',userAuth.profileAuth,accountController.editUserInfo)
 
 
 account.get('/crop',accountController.toCrop)

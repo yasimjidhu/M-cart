@@ -5,6 +5,7 @@ const address = require('../model/address')
 const router = require('../Router/cartRouter')
 const session = require('express-session')
 const users = require('../model/userSchema')
+const cartHelpers = require('../helpers/cartHelpers')
 const { default: mongoose, set } = require('mongoose')
 const { ObjectId } = require('mongoose');
 // const { ObjectId } = require('mongodb')
@@ -62,12 +63,15 @@ const toCart = async (req, res) => {
             return res.render('./user/emptyCart')
         }
 
+        const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
+        console.log('eachProductPrice',eachProductPrice)
         
 
         // console.log('usercartitems', userCart);
         var firstCartItem = cartData[0];
-        console.log(firstCartItem.total);
-        res.render('./user/cart',{cartTotal:firstCartItem.total});
+        const cartTotal = firstCartItem.total
+        console.log('cartdata',cartData)
+        res.render('./user/cart',{cartTotal});
     } catch (error) {
         console.log(error);
     }
@@ -95,6 +99,9 @@ const cartProducts = async (req, res) => {
             return res.json({ success: true, datas: [], cartData: [] }); // Return empty cart for the user if no items found
         }
 
+        const cartId = cartItemsForUser._id
+        console.log('cartID',cartId)
+
         // Extracting product ids and quantities from the user's cart
         const productDetails = cartItemsForUser.products.map(product => ({
             productId: product.productId,
@@ -110,7 +117,7 @@ const cartProducts = async (req, res) => {
         const productsInCart = await products.find({ _id: { $in: productIds } }, { image: 1, price: 1 ,_id:1});
         // console.log('productsInCart',productsInCart)
         
-        return res.json({ success: true, datas: productsInCart, cartData: uniqueProductDetails,productQty: productQuantity[0]});
+        return res.status(200).json({ success: true, datas: productsInCart, cartData: uniqueProductDetails,productQty: productQuantity[0],cartId});
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal server error' });
@@ -270,12 +277,47 @@ const toCheckout = async (req, res) => {
   };
 
 
+  const updateQuantity = async (req,res)=>{
+    try {
+        const {cartId,productId,change} = req.body
+        console.log('cartId',cartId)
+        console.log('productId',productId)
+        console.log('change',change)
+
+        const updatedCart = await cart.updateOne(
+            {
+                _id:cartId,
+                'products.productId':productId,
+            },
+            {
+                $inc:{'products.$.quantity':change}// Increment or decrement the quantity based on 'change' value
+            },
+            {new:true}
+        );
+
+        if(updatedCart){
+            console.log('quantity updated')
+            return res.json({success:true,message:'quantity updated successfully'})
+        }else{
+            console.log('cart not found or not updated')
+            return res.status(404).json({success:false,message:'Cart not found or not updated'})
+        }
+
+
+    } catch (error) {
+        console.error(error)
+        return res.status(500).json({success:false,error:error.message})
+    }
+  }
+
+
 
 module.exports = {
     addToCart,
     toCart,
     cartProducts,
     RemoveItem,
-    toCheckout
+    toCheckout,
+    updateQuantity
     
 }

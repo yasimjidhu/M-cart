@@ -26,12 +26,12 @@
                             </label>                        
                         </form>
                     <div class="dts" style="width: 55%; text-align: center;">
-                        <h3 class="" style="font-size: 18px; font-weight: 600; color: #fff;"><%=userData.name.toUpperCase() %></h3>
+                        <h3 class="" style="font-size: 18px; font-weight: 600; color: #FF7D00;"><%=userData.name.toUpperCase() %></h3>
                         <p class="textwhite"><%=userData.email %></p>
                         <%if(firstAddress&&firstAddress.address){%>
                             <p class="textwhite"><%=firstAddress.address.district%></p>
                         <%}else{%>
-                            <p>Not available</p>
+                            <a href="/account/addAddress" style="text-decoration: none;"><p style="color: gray; cursor: pointer;" data-toggle="tooltip" data-placement="left" title="click to add address">Not available</p></a>
                         <%}%>
                     </div>    
                 </div>
@@ -56,30 +56,31 @@
                     <h5>Edit Your profile</h5>
                 </div>
                 <div class="row">
-                    <%if(firstAddress&&firstAddress.address){%>
                     <div class="col-lg-6 ">
                         <div class="form-group">
                             <label for="fullName">Full Name</label>
-                            <input type="text" class="form-control" name="fullName" value="<%=firstAddress.address.fullName%>" readonly>
+                            <input type="text" class="form-control edit-input" name="name" readonly id="name" value="<%=userData.name.toUpperCase() %>">
+                            <img src="/png/pencil.png" alt="" class="edit-info-icon-1 edit-btn">
                         </div>
                         <div class="form-group">
                             <label for="state">State</label>
-                            <input type="text" class="form-control"  name="state" value="<%=firstAddress.address.state%>" readonly >
+                            <input type="text" class="form-control edit-input"  name="state"  readonly id="state" value="<%=userData.state%>">
+                            <img src="/png/pencil.png" alt="" class="edit-info-icon-2 edit-btn">
                         </div>
                     </div>
                 <div class="col-lg-6 ">
                   <div class="form-group">
                     <label for="Email">Email</label>
-                    <input type="email" class="form-control"  name="email" value="<%=firstAddress.address.email%>" readonly>
+                    <input type="email" class="form-control"  name="email" readonly id="email"  value="<%=userData.email %>">
+                    <!-- <img src="/png/pencil.png" alt="" class="edit-info-icon-1 edit-btn"> -->
                   </div>
                   <div class="form-group">
                     <label for="Address">Phone Number</label>
-                    <input type="number" class="form-control"  name="phoneNumber" value="<%=firstAddress.address.phoneNumber%>" readonly >
+                    <input type="number" class="form-control edit-input"  name="phoneNumber" readonly id="phoneNumber" value="<%=userData.phoneNumber %>">
+                    <img src="/png/pencil.png" alt="" class="edit-info-icon-2 edit-btn">
                   </div>
                 </div>
-                <%} else {%>
-                    <h5>Address not available</h5>
-                <%}%>
+
             </div>
             <form id="passwordChangeForm">
                 <div class="row">
@@ -119,52 +120,106 @@
     //     document.getElementById('profileImageInput').click();
     // });
     function uploadprofilePic(event) {
-        const fileInput = event.target;
+    const fileInput = event.target;
 
-        if (fileInput.files && fileInput.files[0]) {
-            const formData = new FormData();
-            formData.append('profileImage', fileInput.files[0]);
+    if (fileInput.files && fileInput.files[0]) {
+        const file = fileInput.files[0];
+        const imageTypes = ['image/jpeg', 'image/png', 'image/gif']; // Array of accepted image types
 
-            // Display the selected image in the userDp div
-            const imageContainer = document.querySelector('.userDp');
-
-            const reader = new FileReader();
-            reader.onload = function (event) {
-                const imageUrl = event.target.result;
-
-                // Create an img element to display the selected image
-                const selectedImage = document.createElement('img');
-                selectedImage.src = imageUrl;
-                selectedImage.classList.add('selected-image');
-
-                // Clear previous content and append the selected image
-                imageContainer.innerHTML = '';
-                imageContainer.appendChild(selectedImage);
-            };
-
-            reader.readAsDataURL(fileInput.files[0]);
-
-            fetch('/account/uploadCroppedImage', {
-                method: 'POST',
-                body: formData
-            })
-            .then(res => {
-                if (res.ok) {
-                    console.log('file uploaded successfully');
-                    window.location.reload()
-                } else {
-                    alert('failed')
-                    console.error('upload failed');
-                }
-            })
-            .catch(err => console.error('Error uploading files', err));
+        if (!imageTypes.includes(file.type)) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid File Type',
+                text: 'Please select a valid image file (JPEG, PNG, GIF)',
+            });
+            return;
         }
-    }
 
+        const formData = new FormData();
+        formData.append('profileImage', file);
+
+        // Display the selected image in the userDp div
+        const imageContainer = document.querySelector('.userDp');
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const imageUrl = event.target.result;
+
+            // Create an img element to display the selected image
+            const selectedImage = document.createElement('img');
+            selectedImage.src = imageUrl;
+            selectedImage.classList.add('selected-image');
+
+            // Clear previous content and append the selected image
+            imageContainer.innerHTML = '';
+            imageContainer.appendChild(selectedImage);
+        };
+
+        reader.readAsDataURL(file);
+
+        fetch('/account/uploadCroppedImage', {
+            method: 'POST',
+            body: formData
+        })
+        .then(res => {
+            if (res.ok) {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'File uploaded successfully',
+                    timer: 2000, // Set timer for 2 seconds (2000 ms)
+                    showConfirmButton: false // Hide the "OK" button
+                }).then(() => {
+                    // Perform reload after the timer ends
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 2000); // Same duration as the timer
+                });
+            } else {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to upload file',
+                });
+                console.error('Upload failed');
+            }
+        })
+        .catch(err => {
+            console.error('Error uploading files', err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: 'Error uploading files',
+            });
+        });
+    }
+}
+
+
+        function validatePassword(password) {
+
+            const strongPasswordPattern = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[!@#$%^&*()_+}{"':;?/>.<,])(?=.*[a-zA-Z]).{8,}$/;
+
+            return strongPasswordPattern.test(password)
+          }
 
     // RESET PASSWORD
     document.getElementById('passwordChangeForm').addEventListener('submit',async function(event){
+    event.preventDefault()
+
+    const passwordValue = document.getElementById('newPassword').value
+
+    if(!validatePassword(passwordValue)){
         event.preventDefault()
+        Swal.fire({
+                icon: 'error',
+                title: 'oops',
+                text: 'password must be atleast 8 characters long,one digit,one lower case letter,one uppercase letter and atleast one special character',
+                showConfirmButton: true,
+            })
+            return
+    }
+
 
         const formData = {
             currentPassword:document.getElementById('currentPassword').value,
@@ -211,9 +266,9 @@
             })
             }else{
                 Swal.fire({
-                icon: 'error',
+                icon: 'Error',
                 title: 'failed',
-                text: 'user not found or password not updated',
+                text: 'password must be atleast 8 characters long,one digit,one lower case letter,one uppercase letter and atleast one special character',
                 showConfirmButton: false,
                 timer: 2000
             }).then(()=>{
@@ -233,5 +288,68 @@
             
         }
     })
+
+    // function to change the input field from read only mode to edit mode
+   // Get all input fields and buttons
+   const inputFields = document.querySelectorAll('.edit-input');
+   const editButtons = document.querySelectorAll('.edit-btn');
+
+        // Add event listeners to all edit buttons
+        editButtons.forEach((button, index) => {
+            button.addEventListener('click', function(event) {
+                const img = this;
+                const parent = this.closest('.form-group'); // Find the parent container of the clicked button
+
+                if (inputFields[index].readOnly) {
+                    inputFields[index].readOnly = false;
+                    img.src = '/png/ok.png';
+                     // Pass the index of the clicked button
+                } else {
+                    inputFields[index].readOnly = true;
+                    img.src = '/png/pencil.png';
+                    editUserInfo(index);
+                }
+            });
+        });
+
+        // Edit user info based on the index received from the clicked button
+        async function editUserInfo(index) {
+            // alert('called')
+            const name = document.getElementById('name').value;
+            const state = document.getElementById('state').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            const UserData = {
+                name,
+                state,
+                phoneNumber
+            };
+
+            // Modify the URL and data sent based on the index if needed
+            const response = await fetch('/account/edit-UserInfo', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(UserData)
+            });
+
+            if (!response.ok) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Failed to update userInfo',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            } else {
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Updated',
+                    text: 'User Info updated',
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+        }
 
 </script>

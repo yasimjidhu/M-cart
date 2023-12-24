@@ -23,11 +23,12 @@
                 <thead>
                     <tr>
                         <th>ORDER ID</th>
-                        <th>CREATED</th>
+                        <th>ORDER DATE</th>
                         <th>CUSTOMER</th>
                         <th>TOTAL</th>
                         <th>STATUS</th>
                         <th>ACTION</th>
+                        <th>DETAILS</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -57,6 +58,11 @@
                                           <li><a class="dropdown-item" href="#" onclick="changeStatus('<%=data._id %>','Delivered')">Delivered</a></li>
                                         </ul>
                                       </div>
+                                </td>
+                                <td>
+                                    <a href="/order/viewDetails/<%=data._id %>"><button class="btn btn-success" type="button">
+                                        View Details
+                                    </button></a>
                                 </td>
                             </tr>
                         <% }) %>

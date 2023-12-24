@@ -20,7 +20,7 @@
                     <%existingAddress.address.forEach((data)=>{%> 
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" class="form-control" name="fullName" value="<%=data.fullName%>">
+                        <input type="text" id="fullName" class="form-control" name="name" value="<%=data.fullName%>">
                         <p id="name-error"></p>
                     </div>
                    </div>
@@ -106,7 +106,7 @@
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="cancelDiv">
-                        <button class="cancel-btn">Cancel</button>
+                        <a href="/account/addressBook"><button class="cancel-btn">Cancel</button></a>
                     </div>  
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
@@ -123,6 +123,14 @@
 </body>
 
 <script>
+
+    // Event listener for the cancel button
+    document.querySelector('.cancel-btn').addEventListener('click', function (event) {
+    event.preventDefault();
+    // Handle cancel button action here, for example, redirecting to another page
+    window.location.href = '/account/addressBook';
+});
+
     
      // Fetch countries from the server and populate the dropdown
      window.addEventListener('DOMContentLoaded',async ()=>{
@@ -191,22 +199,254 @@
     // add Address post
     document.getElementById('editAddress').addEventListener('submit', async function (event) {
     event.preventDefault();
+    alert('called')
     
+    
+    // form validation
+    function isEmpty(value){
+            const trimmed =  value.trim()
+            return trimmed ===""
+        }
+        function isValidName(name){
+            const regex= /^[a-zA-Z]+$/
+            return regex.test(name)
+        }
+        function isValidPhoneNumber(phoneNumber){
+            const regex =  /^\d{3}-\d{3}-\d{4}$/
+            return regex.test(phoneNumber)
+        }
+        function isValidPincode(pinCode){
+            const regex = /^\d{6}$/
+            return regex.test(pinCode)
+        }
+        function isValidEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
+        function isValidStreet(street){
+            const regex =  /^[a-zA-Z0-9]+$/
+            return regex.test(street)
+        }
+        function isValidCity(city){
+            const regex = /^[a-zA-Z]+$/
+            return regex.test(city)
+        }
+        
+        
+            var namevalue = document.querySelector('#name').value.trim()
+            var nameError = document.querySelector('#name-error')
 
-    const formData = {
-        fullName: document.getElementById('fullName').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
-        email: document.getElementById('email').value,
-        country: document.getElementById('country').value,
-        pinCode: parseInt(document.getElementById('pinCode').value),
-        state: document.getElementById('state').value,
-        district: document.getElementById('district').value,
-        city: document.getElementById('city').value,
-        area: document.getElementById('area').value,
-        street: document.getElementById('street').value,
-        building: document.getElementById('building').value,
-        houseNumber: document.getElementById('houseNumber').value,
-    };
+            var numberValue = document.querySelector('#phoneNumber').value.trim()
+            var numberError = document.querySelector('#houseNumber-error')
+
+            var emailValue = document.querySelector('#email').value.trim()
+            var emailError = document.querySelector('#email-error')
+
+            var countryValue = document.querySelector('#country').value.trim()
+            var countryError = document.querySelector('#country-error')
+
+            var pincodeValue = document.querySelector('#pinCode').value.trim()
+            var pinCodeError = document.querySelector('#pinCode-error')
+
+            var stateValue = document.querySelector('#state').value.trim()
+            var stateError = document.querySelector('#state-error')
+
+            var districtValue = document.querySelector('#district').value.trim()
+            var districtError = document.querySelector('#district-error')
+
+            var cityValue = document.querySelector('#city').value.trim()
+            var cityError = document.querySelector('#city-error')
+
+            var areaValue = document.querySelector('#area').value.trim()
+            var areaError = document.querySelector('#area-error')
+
+            var buildingValue = document.querySelector('#building').value.trim()
+            var buildingError = document.querySelector('#building-error')
+
+            var houseNumberValue = document.querySelector('#houseNumber').value.trim()
+            var houseNumberError = document.querySelector('#houseNumber-error')
+
+            var streetValue = document.querySelector('#street').value.trim()
+            var streetError = document.querySelector('#street-error')
+
+            // Validation for name
+            if (isEmpty(namevalue)) {
+                nameError.textContent = 'Please enter a name.';
+                nameError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidName(namevalue)) {
+                nameError.textContent = 'Please enter a valid name (only alphabets allowed).';
+                nameError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                nameError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for phone number
+            if (isEmpty(numberValue)) {
+                numberError.textContent = 'Please enter a phone number.';
+                numberError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidPhoneNumber(numberValue)) {
+                numberError.textContent = 'Please enter a valid phone number (e.g., xxx-xxx-xxxx).';
+                numberError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                numberError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for email
+            if (isEmpty(emailValue)) {
+                emailError.textContent = 'Please enter an email address.';
+                emailError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                emailError.textContent = ''; // Clear the error message
+                
+               
+             if (!isValidEmail(emailValue)) {
+                    emailError.textContent = 'Please enter a valid email address.';
+                    emailError.style.color='red'
+                    event.preventDefault(); // Prevent form submission
+                }
+            }
+
+            // Validation for country
+            if (isEmpty(countryValue)) {
+                countryError.textContent = 'Please enter a country.';
+                countryError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                countryError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for pincode
+            if (isEmpty(pincodeValue)) {
+                pinCodeError.textContent = 'Please enter a pin code.';
+                pinCodeError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidPincode(pincodeValue)) {
+                pinCodeError.textContent = 'Please enter a valid pin code (6 digits).';
+                pinCodeError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                pinCodeError.textContent = ''; // Clear the error message
+            }
+            if(isEmpty(areaValue)){
+                areaError.textContent = 'Please enter a state.';
+                areaError.style.color='red'
+                event.preventDefault();
+            }
+            if(isValidCity(areaValue)){
+                areaError.textContent = 'Please enter a valid state.';
+                areaError.style.color='red'
+                event.preventDefault();
+            }
+
+           
+            // Validation for state
+            if (isEmpty(stateValue)) {
+                stateError.textContent = 'Please enter a state.';
+                stateError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                stateError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for district
+            if (isEmpty(districtValue)) {
+                districtError.textContent = 'Please enter a district.';
+                districtError.style.color='red'
+
+                event.preventDefault(); // Prevent form submission
+            } else {
+                districtError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for city
+            if (isEmpty(cityValue)) {
+                cityError.textContent = 'Please enter a city.';
+                cityError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidCity(cityValue)) {
+                cityError.textContent = 'Please enter a valid city (only alphabets allowed).';
+                cityError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                cityError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for building
+            if (isEmpty(buildingValue)) {
+                buildingError.textContent = 'Please enter a building name.';
+                buildingError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                buildingError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for house number
+            if (isEmpty(houseNumberValue)) {
+                houseNumberError.textContent = 'Please enter a house number.';
+                houseNumberError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                houseNumberError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for street
+            if (isEmpty(streetValue)) {
+                streetError.textContent = 'Please enter a street.';
+                streetError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidStreet(streetValue)) {
+                streetError.textContent = 'Please enter a valid street (alphanumeric characters allowed).';
+                streetError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                streetError.textContent = ''; // Clear the error message
+            }
+
+            // If all validations pass, the form will be submitted.
+
+
+
+            if (
+        /* Your conditions to check all validations */
+        !isEmpty(namevalue) &&
+        isValidName(namevalue) &&
+        !isEmpty(numberValue) &&
+        isValidPhoneNumber(numberValue) &&
+        !isEmpty(emailValue) &&
+        isValidEmail(emailValue) &&
+        !isEmpty(countryValue) &&
+        !isEmpty(pincodeValue) &&
+        isValidPincode(pincodeValue) &&
+        !isEmpty(stateValue) &&
+        !isEmpty(districtValue) &&
+        !isEmpty(cityValue) &&
+        isValidCity(cityValue) &&
+        !isEmpty(buildingValue) &&
+        !isEmpty(houseNumberValue) &&
+        !isEmpty(streetValue) &&
+        isValidStreet(streetValue)
+    ) {
+        const formData = {
+            fullName: nameValue,
+            phoneNumber: numberValue,
+            email: emailValue,
+            country: countryValue,
+            pinCode: parseInt(pincodeValue),
+            state: stateValue,
+            district: districtValue,
+            city: cityValue,
+            area: document.getElementById('area').value,
+            street: streetValue,
+            building: buildingValue,
+            houseNumber: houseNumberValue,
+        };
+
+    
     const addressId = document.querySelector('#addressId').value
 
 
@@ -241,73 +481,11 @@
     } catch (error) {
         console.error(error);
     }
-});
 
-
-    // form validation
-        function isEmpty(value){
-            const trimmed =  value.trim()
-            return trimmed ===""
-        }
-        function isValidName(name){
-            const regex= /^[a-zA-Z]+$/
-            return regex.test(name)
-        }
-        function isValidPhoneNumber(phoneNumber){
-            const regex =  /^\d{3}-\d{3}-\d{4}$/
-            return regex.test(phoneNumber)
-        }
-        function isValidPincode(pinCode){
-            const regex = /^\d{6}$/
-            return regex.test(pinCode)
-        }
-        function isValidStreet(street){
-            const regex =  /^[a-zA-Z0-9]+$/
-            return regex.test(street)
-        }
-        function isValidCity(city){
-            const regex = /^[a-zA-Z]+$/
-            return regex.test(city)
-        }
-        document.getElementById('addAddress').addEventListener('submit',function(event){
-        
-            var namevalue = document.querySelector('#name').value
-            var nameError = document.querySelector('#name-error')
-
-            var numberValue = document.querySelector('#phoneNumber').value
-            var numberError = document.querySelector('houseNumber-error')
-
-            var emailValue = document.querySelector('#email').value
-            var emailError = document.querySelector('#email-error')
-
-            var countryValue = document.querySelector('#country').value
-            var countryError = document.querySelector('#country-error')
-
-            var pincodeValue = document.querySelector('#pinCode').value
-            var pinCodeError = document.querySelector('#pinCode-error')
-
-            var stateValue = document.querySelector('#state').value
-            var stateError = document.querySelector('state-error')
-
-            var districtValue = document.querySelector('#district').value
-            var districtError = document.querySelector('#district-error')
-
-            var cityValue = document.querySelector('#city').value
-            var cityError = document.querySelector('#city-error')
-
-            var buildingValue = document.querySelector('#building').value
-            var buildingError = document.querySelector('#building-error')
-
-            var houseNumberValue = document.querySelector('#houseNumber').value
-            var houseNumberError = document.querySelector('#houseNumber-error')
-
-            var streetValue = document.querySelector('#street').value
-            var streetError = document.querySelector('street-error')
-
-            
-    
-    
-    })
+    }else{
+        event.preventDefault()
+    }
+})
 
 
 </script>

@@ -1,0 +1,78 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+<!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        <div class="col-lg-6 px-4">
+            <table class="table table-striped w-100 mt-4 ml-3" >
+
+                <thead>
+                    <tr>
+                        <th scope="col">Product</th>
+                        <th scope="col">Product Name</th>
+                        <th scope="col">Quantity</th>
+                        <th scope="col">Price</th>
+                        <th scope="col">Total Price</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% if (userOrderWithProducts && userOrderWithProducts.length > 0) { %>
+                        <% userOrderWithProducts.forEach(order => { %>
+                            <tr>
+                                <td><img src="/uploads/<%= order.userOrderedProducts.image[4] %>" alt="" width="50px"></td>
+                                <td><%= order.userOrderedProducts.productName %></td>
+                                <td><%= order.products.quantity %></td>
+                                <td><%= order.userOrderedProducts.price %></td>
+                                <td><%= order.userOrderedProducts.totalAmount %></td> <!-- Accessing totalAmount -->
+                                <!-- Add other fields as needed -->
+                            </tr>
+                        <% }) %>
+                    <% } %>
+                </tbody>
+            </table>
+        </div>
+        <div class="col-4 mt-3 pl-3">
+            <div class="col-lg-12  userDpDiv2">
+                <div class="row justify-content-center align-items-center">
+                    <% if (userOrderWithProducts && userOrderWithProducts.length > 0) {
+                        const order = userOrderWithProducts[0]; // Accessing the first order %>
+                        <div class="col-5 p-0">
+                            <div class="rounded-circle overflow-hidden" style="width: 75%; margin: auto;">
+                                <% if (order.userProfileImage) { %>
+                                    <img src="/uploads/profile_images/<%= order.userProfileImage %>" class="selected-image" alt="">
+                                <% } else { %>
+                                    <img src="/png/userNew.png" class="selected-image" alt="Default Image">
+                                <% } %>
+                            </div>
+                        </div>
+                        <div class="col-7 p-0">
+                            <% if (order.userAddress && order.userAddress.length > 0) { %>
+                                <% const address = order.userAddress[0].address[0]; %>
+                                <p class="text-white tag"> <span class="order-span">Full Name:</span> <%= address.fullName %></p>
+                                <p class="text-white tag"> <span class="order-span">Email:</span> <%= address.email %></p>
+                                <p class="text-white tag"> <span class="order-span">Mobile: </span><%= address.phoneNumber %></p>
+                                <p class="text-white tag"> <span class="order-span">PinCode:</span><%= address.pinCode %></p>
+                                <!-- Other fields -->
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+            <div class="col-lg-12 mt-5 order-details">
+                <% if(orderFound){ %>
+                    <h6 class="order-value"><span class="order-data">Payment Mode:</span><%= orderFound.paymentmode %></h6>
+                    <h6 class="order-value"><span class="order-data">Shipping Method:</span><%= orderFound.shippingMethod %></h6>
+                    <h6 class="order-value"><span class="order-data">Delivery Date:</span><%= orderFound.deliveryDate.toLocaleString() %></h6>
+                    <h6 class="order-value"><span class="order-data">Status:</span><%= orderFound.status %></h6>
+                    <h6 class="order-value"><span class="order-data">Total Amount:</span><%= orderFound.totalAmount %></h6>
+                <% } %>
+            </div>
+        </div>
+</div>

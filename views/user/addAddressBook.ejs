@@ -7,7 +7,7 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-2 p-0 bg-danger">
+            <div class="col-lg-2 p-0 ">
                 <%-include('../user/partials/sidebar') %>
             </div>
             <div class="col-lg-10 p-0 ">
@@ -19,28 +19,28 @@
                     <form action="/account/addAddress" method="post" id="addAddress">
                     <div class="form-group">
                         <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" class="form-control" required name="fullName" placeholder="John">
+                        <input type="text" id="fullName" class="form-control"  name="fullName" placeholder="John">
                         <p id="name-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
                     <div class="form-group">
                         <label for="phoneNumber">Phone Number</label>
-                        <input type="number" id="phoneNumber" class="form-control" required name="phoneNumber" placeholder="9876543210">
+                        <input type="number" id="phoneNumber" class="form-control"  name="phoneNumber" placeholder="9876543210">
                         <p id="number-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" required name="email" placeholder="John@gmail.com">
+                        <input type="email" id="email" class="form-control"  name="email" placeholder="John@gmail.com">
                         <p id="email-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="country">Country</label>
-                        <select id="country" class="form-control" required  name="country" placeholder="india">
+                        <select id="country" class="form-control"   name="country" placeholder="india">
                             <option value="" disabled selected>Select Your country</option>
                         </select> 
                         <p id="country-error"></p>
@@ -49,56 +49,56 @@
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="Pin code">Pin Code</label>
-                        <input type="number" id="pinCode" class="form-control" required name="pinCode" placeholder="687956" onchange="fetchLocation()">
+                        <input type="number" id="pinCode" class="form-control"  name="pinCode" placeholder="687956" onchange="fetchLocation()">
                         <p id="pinCode-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="state">State</label>
-                        <input type="text" id="state" class="form-control" required name="state" placeholder="kerala">
+                        <input type="text" id="state" class="form-control"  name="state" placeholder="kerala">
                         <p id="state-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="district">district</label>
-                        <input type="text" id="district" class="form-control" required name="district" placeholder="calicut">
+                        <input type="text" id="district" class="form-control"  name="district" placeholder="calicut">
                         <p id="district-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input type="text" id="city" class="form-control" required name="city" placeholder="mankavu">
+                        <input type="text" id="city" class="form-control"  name="city" placeholder="mankavu">
                         <p id="city-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="area">Area</label>
-                        <input type="text" id="area" class="form-control" required name="area" placeholder="nadakkavu">
+                        <input type="text" id="area" class="form-control"  name="area" placeholder="nadakkavu">
                         <p id="area-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="street">Street</label>
-                        <input type="text" id="street" class="form-control" required name="street" placeholder="2nd street">
+                        <input type="text" id="street" class="form-control"  name="street" placeholder="2nd street">
                         <p id="street-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="building">Building</label>
-                        <input type="text" id="building" class="form-control" required name="building" placeholder="skyline">
+                        <input type="text" id="building" class="form-control"  name="building" placeholder="skyline">
                         <p id="building-error"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="houseNumber">House Number</label>
-                        <input type="number" id="houseNumber" class="form-control" required name="houseNumber" placeholder="113">
+                        <input type="number" id="houseNumber" class="form-control"  name="houseNumber" placeholder="113">
                         <p id="houseNumber-error"></p>
                     </div>
                    </div>
@@ -189,87 +189,8 @@
     document.getElementById('addAddress').addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    const formData = {
-        fullName: document.getElementById('fullName').value,
-        phoneNumber: document.getElementById('phoneNumber').value,
-        email: document.getElementById('email').value,
-        country: document.getElementById('country').value,
-        pinCode: parseInt(document.getElementById('pinCode').value),
-        state: document.getElementById('state').value,
-        district: document.getElementById('district').value,
-        city: document.getElementById('city').value,
-        area: document.getElementById('area').value,
-        street: document.getElementById('street').value,
-        building: document.getElementById('building').value,
-        houseNumber: document.getElementById('houseNumber').value,
-    };
-
-    try {
-        const response = await fetch('/account/addAddress', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (!response.ok) {
-            throw new Error('Failed to add address');
-        }
-
-        const data = await response.json();
-        if (data.success) {
-            // Show success message using SweetAlert
-            Swal.fire({
-                icon: 'success',
-                title: 'Success',
-                text: 'Address added successfully',
-                showConfirmButton: true,
-                timer: 4000
-            }).then(() => {
-                window.location.href = '/account/addressBook';
-                console.log('Address added to db', data);
-            });
-        }else if(data.limit){
-            Swal.fire({
-                icon: 'error',
-                title: 'Address Limit Reached',
-                text: 'You have reached the maximum limit for addresses.',
-                showConfirmButton: true,
-                timer: 4000
-            }).then(()=>{
-                window.location.href='/account/addressBook'
-            })
-
-        }
-    } catch (error) {
-        // Handle the error message for address limit reached
-        if (error.message === 'Maximum address limit reached') {
-            alert('limit reached')
-            Swal.fire({
-                icon: 'error',
-                title: 'Address Limit Reached',
-                text: 'You have reached the maximum limit for addresses.',
-                showConfirmButton: false,
-                timer: 4000
-            });
-        } else {
-            console.error(error);
-        }
-    }
-});             
-
-
-     // Handle cancel button click
-     document.getElementById('cancelButton').addEventListener('click', function(event) {
-        event.preventDefault(); // Prevent the default form submission behavior
-
-        // Redirect to the address page
-        window.location.href = '/account/addressBook';
-    });
-
     // form validation
-        function isEmpty(value){
+    function isEmpty(value){
             const trimmed =  value.trim()
             return trimmed ===""
         }
@@ -281,55 +202,312 @@
             const regex =  /^\d{3}-\d{3}-\d{4}$/
             return regex.test(phoneNumber)
         }
+        function isValidEmail(email) {
+            const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return regex.test(email);
+        }
         function isValidPincode(pinCode){
             const regex = /^\d{6}$/
             return regex.test(pinCode)
         }
         function isValidStreet(street){
-            const regex =  /^[a-zA-Z0-9]+$/
+            const regex = /^[a-zA-Z0-9 ]+$/;
             return regex.test(street)
         }
         function isValidCity(city){
             const regex = /^[a-zA-Z]+$/
             return regex.test(city)
         }
-        document.getElementById('addAddress').addEventListener('submit',function(event){
-        
-            var namevalue = document.querySelector('#name').value
+
+            var nameValue = document.querySelector('#fullName').value.trim()
             var nameError = document.querySelector('#name-error')
 
-            var numberValue = document.querySelector('#phoneNumber').value
-            var numberError = document.querySelector('houseNumber-error')
+            var numberValue = document.querySelector('#phoneNumber').value.trim()
+            var numberError = document.querySelector('#number-error')
 
-            var emailValue = document.querySelector('#email').value
+            var emailValue = document.querySelector('#email').value.trim()
             var emailError = document.querySelector('#email-error')
 
-            var countryValue = document.querySelector('#country').value
+            var countryValue = document.querySelector('#country').value.trim()
             var countryError = document.querySelector('#country-error')
 
-            var pincodeValue = document.querySelector('#pinCode').value
+            var pincodeValue = document.querySelector('#pinCode').value.trim()
             var pinCodeError = document.querySelector('#pinCode-error')
 
-            var stateValue = document.querySelector('#state').value
-            var stateError = document.querySelector('state-error')
+            var stateValue = document.querySelector('#state').value.trim()
+            var stateError = document.querySelector('#state-error')
 
-            var districtValue = document.querySelector('#district').value
+            var districtValue = document.querySelector('#district').value.trim()
             var districtError = document.querySelector('#district-error')
 
-            var cityValue = document.querySelector('#city').value
+            var cityValue = document.querySelector('#city').value.trim()
             var cityError = document.querySelector('#city-error')
 
-            var buildingValue = document.querySelector('#building').value
+            var areaValue = document.querySelector('#area').value.trim()
+            var areaError = document.querySelector('#area-error')
+
+            var buildingValue = document.querySelector('#building').value.trim()
             var buildingError = document.querySelector('#building-error')
 
-            var houseNumberValue = document.querySelector('#houseNumber').value
+            var houseNumberValue = document.querySelector('#houseNumber').value.trim()
             var houseNumberError = document.querySelector('#houseNumber-error')
 
-            var streetValue = document.querySelector('#street').value
-            var streetError = document.querySelector('street-error')
+            var streetValue = document.querySelector('#street').value.trim()
+            var streetError = document.querySelector('#street-error')
 
     
-    })
+            // Validation for name
+            if (isEmpty(nameValue)) {
+                nameError.textContent = 'Please enter a name.';
+                nameError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+                
+            } else if (!isValidName(nameValue)) {
+                nameError.textContent = 'Please enter a valid name (only alphabets allowed).';
+                nameError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                nameError.textContent = ''; // Clear the error message
+            }
 
+            // Validation for phone number
+            if (isEmpty(numberValue)) {
+                numberError.textContent = 'Please enter a phone number.';
+                numberError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidPhoneNumber(numberValue)) {
+                numberError.textContent = 'Please enter a valid phone number (e.g., xxx-xxx-xxxx).';
+                numberError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                numberError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for email
+            if (isEmpty(emailValue)) {
+                emailError.textContent = 'Please enter an email address.';
+                emailError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                emailError.textContent = ''; // Clear the error message
+                
+               
+             if (!isValidEmail(emailValue)) {
+                    emailError.textContent = 'Please enter a valid email address.';
+                    emailError.style.color='red'
+                    event.preventDefault(); // Prevent form submission
+                }
+            }
+
+            // Validation for country
+            if (isEmpty(countryValue)) {
+                countryError.textContent = 'Please enter a country.';
+                countryError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                countryError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for pincode
+            if (isEmpty(pincodeValue)) {
+                pinCodeError.textContent = 'Please enter a pin code.';
+                pinCodeError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidPincode(pincodeValue)) {
+                pinCodeError.textContent = 'Please enter a valid pin code (6 digits).';
+                pinCodeError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                pinCodeError.textContent = ''; // Clear the error message
+            }
+            if(isEmpty(areaValue)){
+                areaError.textContent = 'Please enter a state.';
+                areaError.style.color='red'
+                event.preventDefault();
+            }
+            if(isValidCity(areaValue)){
+                areaError.textContent = 'Please enter a valid state.';
+                areaError.style.color='red'
+                event.preventDefault();
+            }
+
+           
+            // Validation for state
+            if (isEmpty(stateValue)) {
+                stateError.textContent = 'Please enter a state.';
+                stateError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                stateError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for district
+            if (isEmpty(districtValue)) {
+                districtError.textContent = 'Please enter a district.';
+                districtError.style.color='red'
+
+                event.preventDefault(); // Prevent form submission
+            } else {
+                districtError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for city
+            if (isEmpty(cityValue)) {
+                cityError.textContent = 'Please enter a city.';
+                cityError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidCity(cityValue)) {
+                cityError.textContent = 'Please enter a valid city (only alphabets allowed).';
+                cityError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                cityError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for building
+            if (isEmpty(buildingValue)) {
+                buildingError.textContent = 'Please enter a building name.';
+                buildingError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                buildingError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for house number
+            if (isEmpty(houseNumberValue)) {
+                houseNumberError.textContent = 'Please enter a house number.';
+                houseNumberError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                houseNumberError.textContent = ''; // Clear the error message
+            }
+
+            // Validation for street
+            if (isEmpty(streetValue)) {
+                streetError.textContent = 'Please enter a street.';
+                streetError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else if (!isValidStreet(streetValue)) {
+                streetError.textContent = 'Please enter a valid street (alphanumeric characters allowed).';
+                streetError.style.color='red'
+                event.preventDefault(); // Prevent form submission
+            } else {
+                streetError.textContent = ''; // Clear the error message
+            }
+
+            // If all validations pass, the form will be submitted.
+
+    
+
+    if (
+        /* Your conditions to check all validations */
+        !isEmpty(nameValue) &&
+        isValidName(nameValue) &&
+        !isEmpty(numberValue) &&
+        isValidPhoneNumber(numberValue) &&
+        !isEmpty(emailValue) &&
+        isValidEmail(emailValue) &&
+        !isEmpty(countryValue) &&
+        !isEmpty(pincodeValue) &&
+        isValidPincode(pincodeValue) &&
+        !isEmpty(stateValue) &&
+        !isEmpty(districtValue) &&
+        !isEmpty(cityValue) &&
+        isValidCity(cityValue) &&
+        !isEmpty(buildingValue) &&
+        !isEmpty(houseNumberValue) &&
+        !isEmpty(streetValue) &&
+        isValidStreet(streetValue)
+    ) {
+        const formData = {
+            fullName: nameValue,
+            phoneNumber: numberValue,
+            email: emailValue,
+            country: countryValue,
+            pinCode: parseInt(pincodeValue),
+            state: stateValue,
+            district: districtValue,
+            city: cityValue,
+            area: document.getElementById('area').value,
+            street: streetValue,
+            building: buildingValue,
+            houseNumber: houseNumberValue,
+        };
+
+        try {
+            const response = await fetch('/account/addAddress', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to add address');
+            }
+
+            const data = await response.json();
+            if (data.success) {
+                // Show success message using SweetAlert
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success',
+                    text: 'Address added successfully',
+                    showConfirmButton: true,
+                    timer: 4000
+                }).then(() => {
+                    window.location.href = '/account/addressBook';
+                    console.log('Address added to db', data);
+                });
+            } else if (data.limit) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Address Limit Reached',
+                    text: 'You have reached the maximum limit for addresses.',
+                    showConfirmButton: true,
+                    timer: 4000
+                }).then(() => {
+                    window.location.href = '/account/addressBook';
+                });
+            }
+        } catch (error) {
+            // Handle the error message
+            if (error.message === 'Maximum address limit reached') {
+                alert('limit reached');
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Address Limit Reached',
+                    text: 'You have reached the maximum limit for addresses.',
+                    showConfirmButton: false,
+                    timer: 4000
+                });
+            } else {
+                console.error(error);
+            }
+        }
+    } else {
+        // Validation failed, prevent form submission
+        // Display error messages or handle validation errors here
+        // nameError.textContent = isEmpty(namevalue)? 'Please enter a name':'';
+        // numberError.textContent = isEmpty(numberValue) ? 'Please enter a phone number' : '';
+        // emailError.textContent = isEmpty(emailValue) ? 'Please enter an email address' : '';
+        // countryError.textContent = isEmpty(countryValue) ? 'Please enter a country' : '';
+        // pinCodeError.textContent = isEmpty(pincodeValue) ? 'Please enter a pin code' : '';
+        event.preventDefault()
+    }
+})
+    
+
+
+     // Handle cancel button click
+     document.getElementById('cancelButton').addEventListener('click', function(event) {
+        event.preventDefault(); // Prevent the default form submission behavior
+
+        // Redirect to the address page
+        window.location.href = '/account/addressBook';
+    });
+
+    
 
 </script>

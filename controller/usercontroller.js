@@ -139,7 +139,7 @@ const verifyOtp = async (req, res) => {
       const currentTime = Date.now();
       const timeDifference = currentTime - storedTimestamp;
     
-    if (otp ===  storedOtp && timeDifference <= 1 * 60 * 1000) {
+    if (otp ===  storedOtp && timeDifference <= 5 * 60 * 1000) {
       // OTP is correct, proceed to save the user
       console.log("OTP is correct, proceeding to save user");
       req.session.userlogged = true;

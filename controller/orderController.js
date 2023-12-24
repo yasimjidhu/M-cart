@@ -11,27 +11,40 @@ const { default: mongoose, set } = require('mongoose')
 const { ObjectId } = require('mongoose');
 const { use } = require('passport')
 const order = require('../Router/orderRouter')
+const errorHandler = require('../middleware/errorMiddleware')
+const Cart = require('../model/cart')
+const crypto = require('crypto')
+const Razorpay = require('razorpay')
+require('dotenv').config()
 
+
+const instance = new Razorpay({
+    key_id: process.env.RAZORPAY_KEY_ID,
+    key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 const placeOrder = async (req, res) => {
     try {
-        // Retrieving user details
+        // Retrieve user details
         const user = await users.findOne({ email: req.session.email });
         const userId = user._id;
 
-        // Checking if request body contains necessary data
+        // Check if request body contains necessary data
         if (!req.body) {
             return res.status(404).json({ message: 'Data not found in request' });
         }
 
         const { selectedAddress, selectedPaymentMethod, selectedShippingType, quantity, totalPrice } = req.body;
-        console.log('ordered quantity',quantity)
-        console.log('ordered totalPrice',totalPrice)
 
-        // Calculating the grand total
+        // Calculate the grand total
         const grandTotal = totalPrice;
 
-        // Getting products from cart aggregate
+        // const amountInRupees=Math.floor(grandTotal)
+
+        // const amountInPaisa = Math.round(amountInRupees * 100);
+        // console.log('amountInPaisa',amountInPaisa)
+
+        // Get products from cart aggregate (assuming cart and products collections exist)
         const aggregateData = await cart.aggregate([
             { $match: { userId: userId } },
             { $unwind: '$products' },
@@ -59,11 +72,11 @@ const placeOrder = async (req, res) => {
 
         const productsArray = [];
 
-        // Processing each product in the cart
+        // Process each product in the cart
         for (const data of aggregateData) {
             for (const innerArray of data.productDetails) {
                 const productId = innerArray._id;
-                // const quantity = innerArray.quantity;
+                const quantity = innerArray.quantity;
                 const price = innerArray.price[0];
 
                 try {
@@ -108,87 +121,163 @@ const placeOrder = async (req, res) => {
             deliveryDate: new Date(),
             status: 'Pending',
             totalAmount: grandTotal,
-            address: selectedAddress,
+            address: selectedAddress,               
             products: productsArray,
         });
 
-        await newOrder.save();
+        const savedOrder = await newOrder.save();
+        console.log('saved id or receipt',savedOrder._id)
+        
 
-        res.status(201).json({ success: true, message: 'Order created successfully', data: newOrder });
+        if(selectedPaymentMethod=='cashOnDelivery'){
+            res.json({
+                codSuccess:true,
+                message:'order success'
+            })
+        }else if (selectedPaymentMethod === 'razorPay') {
+            console.log('selectedPaymentMethod checking reached')
+            const options = {
+                amount: grandTotal * 100, // amount in paisa
+                currency: 'INR',
+                receipt: savedOrder._id, // Use the order ID as the receipt
+            };
+
+            const razorpayOrder = await instance.orders.create(options);
+            console.log('razorPayorder',razorpayOrder)
+
+            res.status(201).json({
+                success: true,
+                message: 'Razorpay order created successfully',
+                data: {
+                    order: savedOrder,
+                    razorpayOrderId: razorpayOrder.id,
+                    razorpayOptions: razorpayOrder,
+                    online:true,
+                }
+            });
+            console.log('razorpay order created and saved',)
+        } else {
+            res.status(201).json({ success: true, message: 'Order created successfully', data: savedOrder });
+        }
     } catch (error) {
         console.error('Error:', error);
         res.status(500).send('Internal Server Error');
     }
 };
 
+const verifyPayment = async (req, res) => {
+    try {
+      console.log('verifypayment called')
+      console.log(req.body)
+      
+      let hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
+     
+      const {payment,order}=req.body
+      const orderArray = order.data.razorpayOrder
+      console.log('orderArray is',orderArray)
 
+  
+      const orderId= order.data.order._id
+      console.log('orderid in the database',orderId)
+      const updateOrderDocument = await orders.findByIdAndUpdate(orderId, {
+        status: "Paid",
+      });
+          res.json({ success: true });
+      hmac.update(payment.razorpay_order_id +"|" + payment.razorpay_payment_id);
+  
+      hmac = hmac.digest("hex");
+      if (hmac === req.body.payment.razorpay_signature) {
+        const orderId = new mongoose.Types.ObjectId(
+          req.body.order.data.order._id
+        );
+      } else {
+        
+        res.json({ failure: true });
+      }
+    } catch (error) {
+  
+      console.error("failed to verify the payment", error);
+    }
+  };
+  
+  
 
 
 const orderSuccess = (req,res)=>{
-    res.render('./user/orderPlaced')
+    try {
+        res.render('./user/orderPlaced')
+    } catch (error) {
+        errorHandler(error,req,res)
+    }
+    
 }
-
 const toUserOrders = async (req, res) => {
     const userEmail = req.session.email;
     const user = await users.findOne({ email: userEmail });
-  
+    
     if (!user) {
       return res.status(404).send("User not found");
     }
-  
+    
     const userId = user._id;
-  
-  
-const userOrders = await orders.aggregate([
-    {
-      $match: {
-        userId: userId // Match orders for a specific user
+    
+    const userOrders = await orders.aggregate([
+      {
+        $match: {
+          userId: userId // Match orders for a specific user
+        }
+      },
+      {
+        $unwind: '$products' // Unwind the products array
+      },
+      {
+        $lookup: {
+          from: 'products', // Lookup from the products collection
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'productDetails' // Store the product details in 'productDetails' array
+        }
+      },
+      {
+        $unwind: '$productDetails' // Unwind the productDetails array
+      },
+      {
+        $project: {
+          'productDetails.productName': 1, // Include specific fields from productDetails
+          'productDetails.image': 1,
+          'productDetails.price': 1,
+          'products.quantity': 1, // Include quantity from the orders collection
+          'totalAmount': 1, // Include totalAmount from the orders collection
+          'status': 1,
+          'totalCost': { $multiply: ['$products.quantity', '$productDetails.price'] } // Calculate total cost
+        }
+      },
+      {
+        $group: {
+          _id: '$_id', // Group by order ID
+          productDetails: { $push: '$productDetails' }, // Push product details for the order
+          products: {
+            $push: {
+              quantity: '$products.quantity', // Push quantities for each product
+              totalCost: '$totalCost' // Push total cost for each product
+            }
+          },
+          totalAmount: { $first: '$totalAmount' }, // Retrieve totalAmount
+          status: { $first: '$status' }, // Retrieve status
+          createdAt: { $first: '$createdAt' } // Retrieve createdAt date
+        }
+      },
+      {
+        $sort: { createdAt: 1 } // Sort by createdAt field in descending order (latest first)
       }
-    },
-    {
-      $unwind: '$products' // Unwind the products array
-    },
-    {
-      $lookup: {
-        from: 'products', // Lookup from the products collection
-        localField: 'products.productId',
-        foreignField: '_id',
-        as: 'productDetails' // Store the product details in 'productDetails' array
-      }
-    },
-    {
-      $unwind: '$productDetails' // Unwind the productDetails array
-    },
-    {
-      $project: {
-        'productDetails.productName': 1, // Include specific fields from productDetails
-        'productDetails.image': 1,
-        'productDetails.price': 1,
-        'products.quantity': 1, // Include quantity from the orders collection
-        'totalAmount': 1, // Include totalAmount from the orders collection
-        'status':1
-      }
-    },
-    {
-      $group: {
-        _id: '$_id', // Group by order ID
-        productDetails: { $push: '$productDetails' }, // Push product details for the order
-        quantity: { $sum: '$products.quantity' }, // Sum of quantities for the order
-        totalAmount: { $first: '$totalAmount' }, // Retrieve totalAmount
-        status: { $first: '$status' } // Retrieve status
-      }
-    }
-  ]);
-  
-//   console.log('userOrders',userOrders);
-
-  userOrders.forEach((obj)=>{
-    obj.productDetails.forEach((item)=>{
-        // console.log('item in userOrder',item)
-    })
-  })
-  
-
+    ]);
+    
+    userOrders.forEach(order => {
+      order.products.forEach((product, index) => {
+        console.log(`Order ID: ${order._id}, Product ${index + 1} Quantity: ${product.quantity}, Total Cost: ${product.totalCost}`);
+      });
+    });
+    
     res.render('./user/userOrders', { userOrders });
   };
   
@@ -207,6 +296,25 @@ const userOrders = await orders.aggregate([
             return res.status(403).json({message:'This product you already cancelled'})
         }
 
+         // Retrieve the products from the cancelled order
+         const Products = order.products;
+         console.log('PRoducts',Products)
+
+         for (const product of Products) {
+            console.log('product.productId',product.productId)
+            // Find the corresponding product in the inventory by productId
+            const inventoryProduct = await products.findById(product.productId);
+            console.log('inventoryproduct',inventoryProduct)
+
+            // Increment the quantity in the inventory by the cancelled quantity
+            if (inventoryProduct) {
+                inventoryProduct.stock += product.quantity;
+                await inventoryProduct.save();
+            }
+        }
+        console.log('stock increased')
+
+
         // Update the order status to 'Cancelled'
         const updatedOrder = await orders.findByIdAndUpdate(
             orderId,
@@ -221,10 +329,12 @@ const userOrders = await orders.aggregate([
     }
  }
 
+ // to cancelled orders (user)
 const CancelledOrders = async (req,res)=>{
 
     const user = await users.findOne({email:req.session.email})
     const userId = user._id
+
     if(!userId){
         return res.status(404).json({message:'user not found'})
     }
@@ -275,17 +385,112 @@ const CancelledOrders = async (req,res)=>{
     
 }
 
+// admin order details view 
+const toAdminDetailedOrders = async (req,res)=>{
+    console.log('called')
+    const orderId = req.params.orderId
+
+    try{
+        const orderFound = await orders.findById(orderId)
+        console.log('orderfound',orderFound)
 
 
 
+        if(!orderFound){
+            return res.status(401).json({message:'order not found',success:false})
+        }
 
+        
+        const userOrderWithProducts = await orders.aggregate([
+            {
+                $match: {
+                    _id: new mongoose.Types.ObjectId(orderId)
+                }
+            },
+            {
+                $unwind: '$products'
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'products.productId',
+                    foreignField: '_id',
+                    as: 'userOrderedProducts'
+                }
+            },
+            {
+                $unwind: '$userOrderedProducts'
+            },
+            {
+                $addFields: {
+                    'userOrderedProducts.totalAmount': { $multiply: ['$userOrderedProducts.price', '$products.quantity'] }
+                }
+            },
+            {
+                $project: {
+                    'userOrderedProducts.productName': 1,
+                    'userOrderedProducts.image': 1,
+                    'userOrderedProducts.price': 1,
+                    'products.quantity': 1,
+                    'userOrderedProducts.totalAmount': 1,
+                    'userId': 1
+                }
+            },
+            {
+                $lookup: {
+                    from: 'addresses',
+                    localField: 'userId',
+                    foreignField: 'userId',
+                    as: 'userAddress'
+                }
+            },
+            {
+                $lookup: {
+                    from: 'users', // Assuming 'users' is the collection where user information is stored
+                    localField: 'userId',
+                    foreignField: '_id',
+                    as: 'userDetails'
+                }
+            },
+            {
+                $addFields: {
+                    userProfileImage: { $arrayElemAt: ['$userDetails.profileImage', 0] }
+                }
+            },
+            {
+                $project: {
+                    'userOrderedProducts.productName': 1,
+                    'userOrderedProducts.image': 1,
+                    'userOrderedProducts.price': 1,
+                    'products.quantity': 1,
+                    'userOrderedProducts.totalAmount': 1,
+                    'userAddress': 1,
+                    'userProfileImage': 1
+                    // Include other necessary fields
+                }
+            }
+        ]);
+
+        
+
+
+        res.render('./admin/orderDetails',{orderFound,userOrderWithProducts})
+        console.log('userOrderWithProducts is',userOrderWithProducts)
+
+       
+    }catch(err){
+        console.log(err)
+    }
+}
 
 module.exports = {
     placeOrder,
     orderSuccess,
     toUserOrders,
     cancelOrder,
-    CancelledOrders
+    CancelledOrders,
+    toAdminDetailedOrders,
+    verifyPayment
 
 }
  

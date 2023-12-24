@@ -64,6 +64,41 @@
 
 <!--fetch sample-->
 <script>
+
+  let plusButton = document.querySelector('.quantity-increment')
+  let minusButton = document.querySelector('.quantity-decrement')
+
+  async function changeQuntity(cartId,productId,change){
+    try{
+      const response = await fetch('/cart/updateQuantity',{
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          cartId,
+          productId,
+          change
+        })
+      })
+
+      const result = await response.json()
+      console.log('result',result)
+
+      if(result.success){
+        console.log('success')
+        // window.location.reload()
+      }else{
+        alert('failed to update the quantity')
+      }
+    }catch(err){
+      console.error('error updating quantity',err)
+    }
+  }
+
+
+
+
   document.addEventListener('DOMContentLoaded', function () {
     
     fetch('/cart/cart-products')
@@ -73,10 +108,9 @@
 
           console.log("fetch products",data)
           const cartTotal = data.total
-          console.log('cartTotal is')
+
         }
         const productTable = document.getElementById('tableRow');
-        console.log('data.datas',data.datas)
         data.datas.forEach(product => {
           const tr = document.createElement('tr');
           tr.id = `productRow_${product._id}`; // Assign unique ID to each row
@@ -97,11 +131,12 @@
           tr.appendChild(priceTd);
 
           // Quantity cell
+          
           const quantityTd = document.createElement('td');
           const quantityInput = document.createElement('input');
           quantityInput.type = 'number';
           quantityInput.min = '1';
-          quantityInput.value = product.quantity||1;
+          quantityInput.value = getProductQuantity(data.cartData, product._id) || 1; 
           quantityInput.classList.add('quantity-input');
           quantityInput.addEventListener('change', function () {
             updateSubtotal(this, priceTd);
@@ -115,7 +150,9 @@
             if (quantityInput.value > 1) {
               quantityInput.value = parseInt(quantityInput.value) - 1;
               updateSubtotal(quantityInput, priceTd);
+              changeQuntity(data.cartId,product._id,-1)
             }
+            // changeQuntity()
           });
 
           // Create increment button
@@ -125,6 +162,7 @@
           incrementButton.addEventListener('click', function () {
             quantityInput.value = parseInt(quantityInput.value) + 1;
             updateSubtotal(quantityInput, priceTd);
+            changeQuntity(data.cartId,product._id,+1)
           });
 
           quantityTd.appendChild(decrementButton);
@@ -136,7 +174,7 @@
 
           // Subtotal cell
           const subtotalTd = document.createElement('td');
-          subtotalTd.textContent = `${product.price}`;
+          subtotalTd.textContent = '<%=cartTotal%>';
           tr.appendChild(subtotalTd);
 
           const deleteTd = document.createElement('td')
@@ -174,13 +212,17 @@
       })
       .catch(error => console.error('Error occurred:', error));
 
+      function getProductQuantity(cartData, productId) {
+        const foundProduct = cartData.find(item => item.productId === productId);
+        return foundProduct ? foundProduct.quantity : null;
+      }
 
       function constructCheckoutURL() {
       const checkoutButton = document.querySelector('.checkout-btn');
       checkoutButton.addEventListener('click', function (event) {
         event.preventDefault(); // Prevent default link behavior
 
-        const currentQuantity = getCurrentQuantity();
+        const currentQuantity = getQuantities();
         const totalPrice = getCartTotal();
 
         const checkoutHref = '/cart/checkout';
@@ -190,14 +232,16 @@
       });
     }
 
-    function getCurrentQuantity() {
-      const quantityInputs = document.querySelectorAll('.quantity-input');
-      let totalQuantity = 0;
-      quantityInputs.forEach(input => {
-        totalQuantity += parseInt(input.value);
-      });
-      return totalQuantity;
-    }
+    function getQuantities() {
+    const quantityInputs = document.querySelectorAll('.quantity-input');
+    const quantities = [];
+
+    quantityInputs.forEach(input => {
+      quantities.push(parseInt(input.value));
+    });
+
+    return quantities;
+  }
 
     function getCartTotal() {
       const allProducts = document.querySelectorAll('.quantity-input')

@@ -20,7 +20,8 @@ const passport = require('passport')
 const errorMiddleware = require('./middleware/errorMiddleware')
 const passwordvalidator = require('password-validator')
 const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const { log } = require('console')
+const { log, error } = require('console')
+const res = require('express/lib/response')
 dotenv.config()
 
 const app = express()
@@ -56,7 +57,16 @@ app.use('/account',accountRouter)
 app.use('/order',orderRouter)
 
 // Error middleware
-app.use(errorMiddleware)
+// app.use(errorMiddleware)
+
+
+// Error handling middleware
+app.use((err,req,res,next)=>{
+    console.error(err.stack);
+    res.status(500).send('internal server error')
+})
+
+
 
 const port = process.env.PORT||4000
 

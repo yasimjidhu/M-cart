@@ -33,6 +33,12 @@ const userSchema = mongoose.Schema({
     otp:{
         type:Number,
         
+    },
+    state:{
+        type:String
+    },
+    phoneNumber:{
+        type:Number
     }
     
 });

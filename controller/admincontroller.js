@@ -591,7 +591,7 @@ const deleteProductImage = async (req,res)=>{
     }
     // find the index of the image in the product's images array
     const imageIndex = product.image.findIndex(images => images ===imageId)
-
+    console.log('image index',imageIndex)
     //if the image index is valid, remove the image from the array
     if(imageIndex !== -1){
       product.image.splice(imageIndex,1);
