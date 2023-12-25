@@ -1,4 +1,5 @@
 const Users = require("../model/userSchema");
+const address = require('../model/address')
 const mongoose = require('mongoose')
 const products = require("../model/productschema");
 const { ObjectId } = require("mongodb");
@@ -10,6 +11,7 @@ const { reset } = require("nodemon");
 const sharp = require('sharp')
 const fs = require('fs').promises;
 const path = require('path');
+const { log } = require("console");
 
 
 // Admin creadentials
@@ -28,7 +30,7 @@ const loginAdmin = async (req, res) => {
     req.session.adminlogged = true;
     //Retrieve the User data from the db
     const usersData = await Users.find();
-    res.render("./admin/dashboard", { title: "Admin Home", err: false });
+    res.redirect('/admin/dashboard')
   } 
 };
 
@@ -36,9 +38,294 @@ const tologin = (req, res) => {
   res.render("./admin/adminlogin", { title: "Login" });
 };
 
-const todashboard = (req, res) => {
-  res.render("./admin/dashboard", { title: "Admin Home" });
+
+// to admin Dashboard
+const todashboard =  (req, res) => {
+  res.render("./admin/dashboard", { title: "Admin Home"});
 };
+
+// get daily sales
+const dailySales = async (req, res) => {
+  try {
+    console.log('dailySales called');
+
+    // Set the start and end of the current day
+    const currentDate = new Date();
+    const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
+
+    // Daily sales aggregation pipeline
+    const dailySales = await orders.aggregate([
+      {
+        $match: {
+          deliveryDate: { $gte: startOfDay, $lte: endOfDay },
+          status: 'Paid'
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfMonth: '$deliveryDate' }, // Grouping by day of the month
+          totalSales: { $sum: '$totalAmount' }
+        }
+      },
+      {
+        $sort: { _id: 1 } // Sort by day of the month
+      }
+    ]);
+
+    console.log('dailySales', dailySales);
+    res.status(200).json({ success: true, dailySalesData: dailySales });
+
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, error: 'An error occurred while fetching daily sales data' });
+  }
+};
+
+
+
+// weekly sales
+const weeklySales = async (req, res) => {
+  try {
+    const today = new Date();
+    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay(), 0, 0, 0, 0);
+    const endOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + 6, 23, 59, 59, 999);
+
+    const weeklySales = await orders.aggregate([
+      {
+        $match: {
+          deliveryDate: { $gte: startOfWeek, $lte: endOfWeek },
+          status: 'Paid'
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfWeek: '$deliveryDate' }, // Grouping by day of the week (Sunday = 1, Monday = 2, ..., Saturday = 7)
+          totalSales: { $sum: '$totalAmount' }
+        }
+      },
+      { $sort: { '_id': 1 } } // Sort by day of the week
+    ]);
+
+    console.log('weekly sales', weeklySales);
+    res.status(200).json({ success: true, weeklyData: weeklySales });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, error: err.message });
+  }
+}
+
+
+// get Yearly sales
+const yearlySales = async (req, res) => {
+  try {
+    console.log('yearly sales called')
+    // Get unique years from the deliveryDate in the orders collection
+    const uniqueYears = await orders.aggregate([
+      {
+        $group: {
+          _id: { $year: '$deliveryDate' } // Grouping by year from deliveryDate
+        }
+      },
+      {
+        $sort: { '_id': 1 } // Sort the data by year
+      }
+    ]);
+
+    const yearlySalesData = [];
+
+    // For each unique year, calculate total sales
+    for (const year of uniqueYears) {
+      const yearVal = year._id;
+
+      // Aggregate pipeline to calculate yearly sales for each unique year
+      const yearlySalesAggregate = await orders.aggregate([
+        {
+          $match: {
+            deliveryDate: {
+              $gte: new Date(`${yearVal}-01-01T00:00:00.000Z`), // Start of the year
+              $lte: new Date(`${yearVal}-12-31T23:59:59.999Z`) // End of the year
+            },
+            status: 'Paid'
+          }
+        },
+        {
+          $group: {
+            _id: null, // Grouping all results together for the whole year
+            totalSales: { $sum: '$totalAmount' }
+          }
+        }
+      ]);
+
+      yearlySalesData.push({
+        year: yearVal,
+        sales: yearlySalesAggregate.length > 0 ? yearlySalesAggregate[0].totalSales : 0
+      });
+    }
+
+    console.log('Yearly sales data:', yearlySalesData);
+    res.status(200).json({ success: true,  yearlySalesData });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, error: 'An error occurred while fetching yearly sales data' });
+  }
+};
+
+
+
+// best selling products
+const bestSellingProducts = async (req, res) => {
+  try {
+    const bestSellingProducts = await orders.aggregate([
+      {
+        $match: {
+          status: 'Paid'
+        }
+      },
+      { 
+        $unwind: '$products' // Deconstruct the products array
+      },
+      {
+        $group: {
+          _id: '$products.productId', // Group by product ID
+          totalQuantity: { $sum: '$products.quantity' }, // Calculate total quantity sold for each product
+          totalRevenue: { $sum: '$products.price' }, // Calculate total revenue generated for each product
+          count: { $sum: 1 } // Count the number of occurrences of each product
+        }
+      },
+      {
+        $sort: { totalQuantity: -1 } // Sort by total quantity sold in descending order
+      },
+      {
+        $limit: 10 // Limit the result to the top 10 best selling products
+      },
+      {
+        $lookup: {
+          from: 'products', // Name of the product collection
+          localField: '_id', // Field from the orders collection
+          foreignField: '_id', // Field from the products collection
+          as: 'productInfo' // Alias for the joined product information
+        }
+      },
+      {
+        $project: {
+          _id: 1,
+          totalQuantity: 1,
+          totalRevenue: 1,
+          count: 1,
+          productName: { $arrayElemAt: ['$productInfo.productName', 0] } // Extract product name from the joined information
+        }
+      }
+    ]);
+
+    console.log('best selling products are', bestSellingProducts);
+    res.status(200).json({ success: true, bestSellingProducts });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ success: false, error: 'An error occurred while fetching best selling products' });
+  }
+};
+
+
+// inventory status
+const getInventoryStatus = async (req,res)=>{
+  try{
+
+    const inventoryStatus = await products.aggregate([
+      {
+        $match:{
+          stock:{$lte:10}  // Matches documents where the stock field is less than or equal to 10
+        }
+      },
+      {
+        $lookup:{
+          from:'brands',
+          localField:'brand',
+          foreignField:'_id',
+          as:'brandInfo'
+        }
+      },
+      {
+        $project:{
+          productName:1,
+          stock:1,
+          brandName : { $arrayElemAt: ['$brandInfo.brandName', 0] } // Extract product name from the joined information
+        }
+      },
+      {
+        $sort: { stock: -1 } // Sort by stock in descending order (-1 means descending)
+      }
+    ])
+
+    console.log('inventoryproducts are',inventoryStatus)
+    res.status(200).json({success:true,inventoryStatus})
+
+  }catch(err){
+    console.log(err);
+  }
+}
+
+
+// latest orders
+const getLatestOrders = async (req,res)=>{
+  try {
+    
+    const latestOrders = await orders.aggregate([
+      {
+        $unwind:'$products'
+      },
+      {
+        $match: {
+          status: { $nin: ['Cancelled'] } // Specify the statuses you want to match
+        }
+      },
+      {
+        $lookup:{
+          from:'products',
+          localField:'products.productId',
+          foreignField:'_id',
+          as:'productsInfo'
+        }
+      },
+      {
+        $lookup:{
+          from:'users',
+          localField:'userId',
+          foreignField:'_id',
+          as:'userInfo'
+        }
+      },
+      {
+        $sort: {
+          deliveryDate: -1 // Sort in descending order based on the 'timestamp' field (replace with your timestamp field name)
+        }
+      },
+      {
+        $limit: 10 // Limit to fetch the latest 10 orders
+      },
+      {
+        $project:{
+          productsInfo:{
+            productName:1
+          },
+          userInfo:{
+            name:1,
+            profileImage:1,
+            phoneNumber:1
+          }
+        }
+      }
+    ]);
+
+
+    console.log('latest order',latestOrders)
+    res.status(200).json({success:true,latestOrders})
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+
 
 // admin signout
 const signout = async (req, res) => {
@@ -896,6 +1183,12 @@ module.exports = {
   loginAdmin,
   tologin,
   todashboard,
+  dailySales,
+  weeklySales,
+  yearlySales,
+  bestSellingProducts,
+  getInventoryStatus,
+  getLatestOrders,
   signout,
   UserStatus,
   toaddProduct,

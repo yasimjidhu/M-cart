@@ -36,6 +36,12 @@ admin.get('/dts',(req,res)=>{
 })
 
 admin.get('/dashboard',adminauth.verifyAdmin,adminController.todashboard)
+admin.get('/daily-salesData',adminController.dailySales)
+admin.get('/weekly-salesData',adminController.weeklySales)
+admin.get('/yearly-sales',adminController.yearlySales)
+admin.get('/bestSellingProducts',adminController.bestSellingProducts)
+admin.get('/get-Inventory-Status',adminController.getInventoryStatus)
+admin.get('/getLatestOrders',adminController.getLatestOrders)
 admin.get('/customers',adminauth.verifyAdmin,adminController.toCustomers)
 
 // Products

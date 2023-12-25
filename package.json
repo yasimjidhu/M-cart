@@ -11,6 +11,8 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.20.2",
+    "chart.js": "^4.4.1",
+    "chartjs-plugin-datalabels": "^2.2.0",
     "cookie-session": "^2.0.0",
     "countries": "^1.0.2",
     "countries-list": "^3.0.6",

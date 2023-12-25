@@ -1540,3 +1540,14 @@ body{
         margin-left: 10px;
         font-weight: 500;
     }
+
+.dashboard{
+   background-color: rgb(216, 224, 224);
+}
+.latestOrders{
+    width: 95%;
+}
+.topSelling{
+    border-radius: 15px;
+    background-color: #15616D;
+}
