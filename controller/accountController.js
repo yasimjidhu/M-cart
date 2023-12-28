@@ -389,6 +389,10 @@ const editUserInfo = async (req,res,next)=>{
     const user = await users.findOne({email:userEmail})
     const userId = user._id
 
+    if(!req.body){
+        return res.status(401).json({noBody:true})
+    }
+
     const {name,state,phoneNumber} = req.body
 
     try{

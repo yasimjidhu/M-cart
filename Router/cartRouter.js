@@ -2,17 +2,18 @@ const express = require('express')
 const cart = express.Router()
 require('dotenv').config()
 const cartController = require('../controller/cartController')
+const userAuth = require('../middleware/userAuth')
 
-cart.get('/cart',cartController.toCart)
-cart.get('/cart-products',cartController.cartProducts)
-cart.post('/add-cart',cartController.addToCart)
-cart.delete('/removeItem/:productID',cartController.RemoveItem)
+cart.get('/cart', userAuth.verifyUser,cartController.toCart)
+cart.get('/cart-products',userAuth.verifyUser,cartController.cartProducts)
+cart.post('/add-cart',userAuth.verifyUser,cartController.addToCart)
+cart.delete('/removeItem/:productID',userAuth.verifyUser,cartController.RemoveItem)
 
 // update order quantity
-cart.post('/updateQuantity',cartController.updateQuantity)
+cart.post('/updateQuantity',userAuth.verifyUser,cartController.updateQuantity)
 
 // chekout 
-cart.get('/checkout',cartController.toCheckout)
+cart.get('/checkout',userAuth.verifyUser,cartController.toCheckout)
 
 
 

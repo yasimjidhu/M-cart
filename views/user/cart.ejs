@@ -175,6 +175,7 @@
           // Subtotal cell
           const subtotalTd = document.createElement('td');
           subtotalTd.textContent = '<%=cartTotal%>';
+          subtotalTd.classList.add('productSubtotal');
           tr.appendChild(subtotalTd);
 
           const deleteTd = document.createElement('td')
@@ -202,12 +203,25 @@
           const subtotal = quantity * price;
           const row = input.parentNode.parentNode;
           const subtotalCell = row.getElementsByTagName('td')[3];
-          const subTotalCard = document.getElementById('subCartTotal')
-          const wholeTotal = document.getElementById('wholeTotal')
-
+          
           subtotalCell.textContent = `${subtotal.toFixed(2)}`;
-          subTotalCard.textContent = `${subtotal.toFixed(2)}`;
-          wholeTotal.textContent = `${subtotal.toFixed(2)}`;
+          
+          updateTotal(); // Call a separate function to update total values
+        }
+
+        function updateTotal() {
+          const allSubtotalCells = document.querySelectorAll('.productSubtotal');
+          let totalCartValue = 0;
+
+          allSubtotalCells.forEach(cell => {
+            totalCartValue += parseFloat(cell.textContent);
+          });
+
+          const subTotalCard = document.getElementById('subCartTotal');
+          const wholeTotal = document.getElementById('wholeTotal');
+
+          subTotalCard.textContent = totalCartValue.toFixed(2);
+          wholeTotal.textContent = totalCartValue.toFixed(2);
         }
       })
       .catch(error => console.error('Error occurred:', error));

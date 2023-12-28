@@ -29,7 +29,7 @@
                         <h3 class="" style="font-size: 18px; font-weight: 600; color: #FF7D00;"><%=userData.name.toUpperCase() %></h3>
                         <p class="textwhite"><%=userData.email %></p>
                         <%if(firstAddress&&firstAddress.address){%>
-                            <p class="textwhite"><%=firstAddress.address.district%></p>
+                            <p class="textwhite"><%=firstAddress.address.state%></p>
                         <%}else{%>
                             <a href="/account/addAddress" style="text-decoration: none;"><p style="color: gray; cursor: pointer;" data-toggle="tooltip" data-placement="left" title="click to add address">Not available</p></a>
                         <%}%>
@@ -307,17 +307,72 @@
                 } else {
                     inputFields[index].readOnly = true;
                     img.src = '/png/pencil.png';
-                    editUserInfo(index);
+                    editUserInfo(index,event);
                 }
             });
         });
 
+
+        // input validation
+        function isEmpty(value){
+            const trimmed = value.trim()
+            return trimmed ===""
+        }
+
+        function validName(value){
+            const regex = /^[A-Za-z'-]+(?:\s[A-Za-z'-]+)*$/
+            return regex.test(value)
+        }
+        function validNumber(value){
+            const regex = /^\d{10}$/
+            return regex.test(value)
+        }
+        function validState(value){
+            const regex = /^[A-Za-z\s]+$/
+            return regex.test(value)
+        }
+
+
         // Edit user info based on the index received from the clicked button
-        async function editUserInfo(index) {
-            // alert('called')
+        async function editUserInfo(index,event) {
+
+            event.preventDefault()
+
             const name = document.getElementById('name').value;
             const state = document.getElementById('state').value;
             const phoneNumber = document.getElementById('phoneNumber').value;
+
+            // Validate form fields
+            if (isEmpty(name) || !validName(name)) {
+                showErrorAlert('please enter a valid name')
+                return
+            }
+            if (isEmpty(phoneNumber) || !validNumber(phoneNumber)) {
+                showErrorAlert('please enter valid phone number')
+                return
+                
+            }
+
+            if(isEmpty(state) || !validState(state)){
+                showErrorAlert('please enter valid state')
+                return
+            }
+
+
+            // function for showing error alert
+
+            function showErrorAlert(message) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Invalid Input',
+                    text: message,
+                    showConfirmButton: false,
+                    timer: 2000
+                });
+            }
+
+            // else (if the form is valid) the next function will work
+
             const UserData = {
                 name,
                 state,

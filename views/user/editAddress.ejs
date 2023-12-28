@@ -7,7 +7,7 @@
 <body>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-lg-2 p-0 bg-danger">
+            <div class="col-lg-2 p-0 ">
                 <%-include('../user/partials/sidebar') %>
             </div>
             <div class="col-lg-10 p-0 ">
@@ -19,89 +19,89 @@
                     <form id="editAddress">
                     <%existingAddress.address.forEach((data)=>{%> 
                     <div class="form-group">
-                        <label for="fullName">Full Name</label>
-                        <input type="text" id="fullName" class="form-control" name="name" value="<%=data.fullName%>">
-                        <p id="name-error"></p>
+                        <label for="fullName">Name</label>
+                        <input type="text" id="name" class="form-control" name="name" value="<%=data.fullName%>" placeholder="John">
+                        <p id="name-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 mt-4">
                     <div class="form-group">
                         <label for="phoneNumber">Phone Number</label>
-                        <input type="number" id="phoneNumber" class="form-control" name="phoneNumber" value="<%=data.phoneNumber%>" >
-                        <p id="number-error"></p>
+                        <input type="number" id="phoneNumber" class="form-control" name="phoneNumber" value="<%=data.phoneNumber%>" placeholder="9876543210" >
+                        <p id="number-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="email">Email</label>
-                        <input type="email" id="email" class="form-control" name="email" value="<%=data.email%>" >
-                        <p id="email-error"></p>
+                        <input type="email" id="email" class="form-control" name="email" value="<%=data.email%>" placeholder="John@gmail.com">
+                        <p id="email-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="country">Country</label>
-                        <select id="country" class="form-control" name="country" >
+                        <select id="country" class="form-control" name="country">
                             <option value="<%=data.country%>" disabled selected>Select Your country</option>
                         </select> 
-                        <p id="country-error"></p>
+                        <p id="country-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="Pin code">Pin Code</label>
-                        <input type="number" id="pinCode" class="form-control" name="pinCode" onchange="fetchLocation()" value="<%=data.pinCode%>">
-                        <p id="pinCode-error"></p>
+                        <input type="number" id="pinCode" class="form-control" name="pinCode" onchange="fetchLocation()" value="<%=data.pinCode%>" placeholder="698723">
+                        <p id="pinCode-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="state">State</label>
-                        <input type="text" id="state" class="form-control" name="state" value="<%=data.state%>" >
-                        <p id="state-error"></p>
+                        <input type="text" id="state" class="form-control" name="state" value="<%=data.state%>" placeholder="kerala">
+                        <p id="state-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="district">district</label>
-                        <input type="text" id="district" class="form-control" name="district" value="<%=data.district%>">
-                        <p id="district-error"></p>
+                        <input type="text" id="district" class="form-control" name="district" value="<%=data.district%>" placeholder="malappuram">
+                        <p id="district-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="city">City</label>
-                        <input type="text" id="city" class="form-control" name="city" value="<%=data.city%>" >
-                        <p id="city-error"></p>
+                        <input type="text" id="city" class="form-control" name="city" value="<%=data.city%>" placeholder="cherur" >
+                        <p id="city-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="area">Area</label>
-                        <input type="text" id="area" class="form-control" name="area" value="<%=data.area%>">
-                        <p id="area-error"></p>
+                        <input type="text" id="area" class="form-control" name="area" value="<%=data.area%>" placeholder="hubtown">
+                        <p id="area-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="street">Street</label>
-                        <input type="text" id="street" class="form-control" name="street" value="<%=data.street%>" >
+                        <input type="text" id="street" class="form-control" name="street" value="<%=data.street%>"  placeholder="2ndstreet">
                         <input type="hidden" id="addressId" name="addressId" value="<%=data._id%>">
-                        <p id="street-error"></p>
+                        <p id="street-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
                     <div class="form-group">
                         <label for="building">Building</label>
-                        <input type="text" id="building" class="form-control" name="building" value="<%=data.building%>">
-                        <p id="building-error"></p>
+                        <input type="text" id="building" class="form-control" name="building" value="<%=data.building%>" placeholder="Highlite">
+                        <p id="building-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12">
                     <div class="form-group">
                         <label for="houseNumber">House Number</label>
-                        <input type="number" id="houseNumber" class="form-control" name="houseNumber" value="<%=data.houseNumber%>" >
-                        <p id="houseNumber-error"></p>
+                        <input type="number" id="houseNumber" class="form-control" name="houseNumber" value="<%=data.houseNumber%>" placeholder="123584">
+                        <p id="houseNumber-error" class="error-message"></p>
                     </div>
                    </div>
                    <div class="col-lg-6 col-md-6 col-sm-12 ">
@@ -196,12 +196,6 @@
     }
 
 
-    // add Address post
-    document.getElementById('editAddress').addEventListener('submit', async function (event) {
-    event.preventDefault();
-    alert('called')
-    
-    
     // form validation
     function isEmpty(value){
             const trimmed =  value.trim()
@@ -212,7 +206,7 @@
             return regex.test(name)
         }
         function isValidPhoneNumber(phoneNumber){
-            const regex =  /^\d{3}-\d{3}-\d{4}$/
+            const regex =  /^\d{10}$/;
             return regex.test(phoneNumber)
         }
         function isValidPincode(pinCode){
@@ -224,7 +218,7 @@
             return regex.test(email);
         }
         function isValidStreet(street){
-            const regex =  /^[a-zA-Z0-9]+$/
+            const regex = /^[a-zA-Z0-9\s]+$/;
             return regex.test(street)
         }
         function isValidCity(city){
@@ -232,51 +226,57 @@
             return regex.test(city)
         }
         
+
+
+    // add Address post
+    document.getElementById('editAddress').addEventListener('submit', async function (event) {
+    event.preventDefault();
+    
+    
+    
         
-            var namevalue = document.querySelector('#name').value.trim()
-            var nameError = document.querySelector('#name-error')
+            var nameValue = document.getElementById('name').value
+            var nameError = document.getElementById('name-error')
 
-            var numberValue = document.querySelector('#phoneNumber').value.trim()
-            var numberError = document.querySelector('#houseNumber-error')
+            var numberValue = document.getElementById('phoneNumber').value
+            var numberError = document.getElementById('number-error')
 
-            var emailValue = document.querySelector('#email').value.trim()
-            var emailError = document.querySelector('#email-error')
+            var emailValue = document.getElementById('email').value
+            var emailError = document.getElementById('email-error')
 
-            var countryValue = document.querySelector('#country').value.trim()
-            var countryError = document.querySelector('#country-error')
+            var countryValue = document.getElementById('country').value
+            var countryError = document.getElementById('country-error')
 
-            var pincodeValue = document.querySelector('#pinCode').value.trim()
-            var pinCodeError = document.querySelector('#pinCode-error')
+            var pincodeValue = document.getElementById('pinCode').value
+            var pinCodeError = document.getElementById('pinCode-error')
 
-            var stateValue = document.querySelector('#state').value.trim()
-            var stateError = document.querySelector('#state-error')
+            var stateValue = document.getElementById('state').value
+            var stateError = document.getElementById('state-error')
 
-            var districtValue = document.querySelector('#district').value.trim()
-            var districtError = document.querySelector('#district-error')
+            var districtValue = document.getElementById('district').value
+            var districtError = document.getElementById('district-error')
 
-            var cityValue = document.querySelector('#city').value.trim()
-            var cityError = document.querySelector('#city-error')
+            var cityValue = document.getElementById('city').value
+            var cityError = document.getElementById('city-error')
 
-            var areaValue = document.querySelector('#area').value.trim()
-            var areaError = document.querySelector('#area-error')
+            var areaValue = document.getElementById('area').value
+            var areaError = document.getElementById('area-error')
 
-            var buildingValue = document.querySelector('#building').value.trim()
-            var buildingError = document.querySelector('#building-error')
+            var buildingValue = document.getElementById('building').value
+            var buildingError = document.getElementById('building-error')
 
-            var houseNumberValue = document.querySelector('#houseNumber').value.trim()
-            var houseNumberError = document.querySelector('#houseNumber-error')
+            var houseNumberValue = document.getElementById('houseNumber').value
+            var houseNumberError = document.getElementById('houseNumber-error')
 
-            var streetValue = document.querySelector('#street').value.trim()
-            var streetError = document.querySelector('#street-error')
+            var streetValue = document.getElementById('street').value
+            var streetError = document.getElementById('street-error')
 
             // Validation for name
-            if (isEmpty(namevalue)) {
+            if (isEmpty(nameValue)) {
                 nameError.textContent = 'Please enter a name.';
-                nameError.style.color='red'
                 event.preventDefault(); // Prevent form submission
-            } else if (!isValidName(namevalue)) {
-                nameError.textContent = 'Please enter a valid name (only alphabets allowed).';
-                nameError.style.color='red'
+            } else if (!isValidName(nameValue)) {
+                nameError.innerHTML = 'Please enter a valid name (only alphabets allowed).';
                 event.preventDefault(); // Prevent form submission
             } else {
                 nameError.textContent = ''; // Clear the error message
@@ -285,11 +285,9 @@
             // Validation for phone number
             if (isEmpty(numberValue)) {
                 numberError.textContent = 'Please enter a phone number.';
-                numberError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else if (!isValidPhoneNumber(numberValue)) {
                 numberError.textContent = 'Please enter a valid phone number (e.g., xxx-xxx-xxxx).';
-                numberError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 numberError.textContent = ''; // Clear the error message
@@ -298,7 +296,6 @@
             // Validation for email
             if (isEmpty(emailValue)) {
                 emailError.textContent = 'Please enter an email address.';
-                emailError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 emailError.textContent = ''; // Clear the error message
@@ -306,7 +303,6 @@
                
              if (!isValidEmail(emailValue)) {
                     emailError.textContent = 'Please enter a valid email address.';
-                    emailError.style.color='red'
                     event.preventDefault(); // Prevent form submission
                 }
             }
@@ -314,7 +310,6 @@
             // Validation for country
             if (isEmpty(countryValue)) {
                 countryError.textContent = 'Please enter a country.';
-                countryError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 countryError.textContent = ''; // Clear the error message
@@ -323,23 +318,19 @@
             // Validation for pincode
             if (isEmpty(pincodeValue)) {
                 pinCodeError.textContent = 'Please enter a pin code.';
-                pinCodeError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else if (!isValidPincode(pincodeValue)) {
                 pinCodeError.textContent = 'Please enter a valid pin code (6 digits).';
-                pinCodeError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 pinCodeError.textContent = ''; // Clear the error message
             }
             if(isEmpty(areaValue)){
-                areaError.textContent = 'Please enter a state.';
-                areaError.style.color='red'
+                areaError.textContent = 'Please enter a area.';
                 event.preventDefault();
             }
-            if(isValidCity(areaValue)){
-                areaError.textContent = 'Please enter a valid state.';
-                areaError.style.color='red'
+            if(!isValidCity(areaValue)){
+                areaError.textContent = 'Please enter a valid area.';
                 event.preventDefault();
             }
 
@@ -347,7 +338,6 @@
             // Validation for state
             if (isEmpty(stateValue)) {
                 stateError.textContent = 'Please enter a state.';
-                stateError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 stateError.textContent = ''; // Clear the error message
@@ -356,8 +346,6 @@
             // Validation for district
             if (isEmpty(districtValue)) {
                 districtError.textContent = 'Please enter a district.';
-                districtError.style.color='red'
-
                 event.preventDefault(); // Prevent form submission
             } else {
                 districtError.textContent = ''; // Clear the error message
@@ -366,11 +354,9 @@
             // Validation for city
             if (isEmpty(cityValue)) {
                 cityError.textContent = 'Please enter a city.';
-                cityError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else if (!isValidCity(cityValue)) {
                 cityError.textContent = 'Please enter a valid city (only alphabets allowed).';
-                cityError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 cityError.textContent = ''; // Clear the error message
@@ -379,7 +365,6 @@
             // Validation for building
             if (isEmpty(buildingValue)) {
                 buildingError.textContent = 'Please enter a building name.';
-                buildingError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 buildingError.textContent = ''; // Clear the error message
@@ -388,7 +373,6 @@
             // Validation for house number
             if (isEmpty(houseNumberValue)) {
                 houseNumberError.textContent = 'Please enter a house number.';
-                houseNumberError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 houseNumberError.textContent = ''; // Clear the error message
@@ -397,11 +381,9 @@
             // Validation for street
             if (isEmpty(streetValue)) {
                 streetError.textContent = 'Please enter a street.';
-                streetError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else if (!isValidStreet(streetValue)) {
                 streetError.textContent = 'Please enter a valid street (alphanumeric characters allowed).';
-                streetError.style.color='red'
                 event.preventDefault(); // Prevent form submission
             } else {
                 streetError.textContent = ''; // Clear the error message
@@ -413,8 +395,8 @@
 
             if (
         /* Your conditions to check all validations */
-        !isEmpty(namevalue) &&
-        isValidName(namevalue) &&
+        !isEmpty(nameValue) &&
+        isValidName(nameValue) &&
         !isEmpty(numberValue) &&
         isValidPhoneNumber(numberValue) &&
         !isEmpty(emailValue) &&

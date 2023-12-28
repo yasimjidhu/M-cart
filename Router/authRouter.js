@@ -1,21 +1,4 @@
-// // routes/authRouter.js
-// const express = require('express');
-// const passport = require('passport');
-// const passportgoogle = require('passport-google-oauth20')
-// const router = express.Router();
-// require('../middleware/googleauth')
-// // Initiate Google OAuth
-// router.get('/google', passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-// // Google OAuth callback
-// router.get(
-//     '/google/callback',
-//     passport.authenticate('google', { failureRedirect: '/' }),
-//     (req, res) => {
-//         // Redirect or respond as needed upon successful Google authentication
-//         res.redirect('/user/home'); // Redirect to your application's dashboard
-//     }
-// );
 
 // routes/authRouter.js
 const express = require('express');

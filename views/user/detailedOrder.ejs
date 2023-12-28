@@ -1,0 +1,61 @@
+<%- include('../user/partials/header') %>
+
+  <!--Navbar-->
+
+  <%-include('../user/partials/navbar') %>
+
+<div class="container">
+    <div class="row">
+        <div class="col-lg-2">
+            <%-include('../user/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10">
+            <section class="h-100 gradient-custom">
+                <div class="container py-5 h-100">
+                  <% ordersData.forEach((order, index) => { %>
+                    <div class="row d-flex justify-content-center align-items-center h-100">
+                      <div class="col-lg-10 col-xl-8">
+                        <div class="card" style="border-radius: 10px;">
+                          <div class="card-header px-4 py-5">
+                            <h5 class="text-muted mb-0">Thanks for your Order, <span style="color: #a8729a;"><%= order.customerName %></span>!</h5>
+                          </div>
+                          <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                              <p class="lead fw-normal mb-0" style="color: #a8729a;">Receipt</p>
+                              <p class="small text-muted mb-0">Receipt Voucher : <%= order.receiptNumber %></p>
+                            </div>
+                            <!-- ... other order details ... -->
+                            <% order.products.forEach(product => { %>
+                              <div class="card shadow-0 border mb-4">
+                                <div class="card-body">
+                                  <div class="row">
+                                    <div class="col-md-2">
+                                      <img src="<%= product.image %>" class="img-fluid" alt="<%= product.name %>">
+                                    </div>
+                                    <!-- Replace other static content with EJS tags to fetch dynamic data -->
+                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                      <p class="text-muted mb-0"><%= product.name %></p>
+                                    </div>
+                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                      <p class="text-muted mb-0 small"><%= product.color %></p>
+                                    </div>
+                                    <!-- ... other product details ... -->
+                                    <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
+                                      <p class="text-muted mb-0 small">$<%= product.price %></p>
+                                    </div>
+                                  </div>
+                                  <!-- ... rest of the product details ... -->
+                                </div>
+                              </div>
+                            <% }) %>
+                            <!-- ... rest of the order structure ... -->
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  <% }) %>
+                </div>
+              </section>
+        </div>
+    </div>
+</div>

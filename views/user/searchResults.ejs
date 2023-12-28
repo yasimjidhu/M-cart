@@ -8,9 +8,10 @@
 
 
 
-<h2 class="text-center mt-3">Search Results for <span class="text-danger"> "<%= searchItem %>"</span></h2>
 
-<% if (Products.length > 0) { %>
+
+<% if ( Products &&  Products.length > 0) { %>
+  <h2 class="text-center mt-3">Search Results for <span class="text-danger"> "<%= searchItem %>"</span></h2>
   <div class="row mt-5">
     <% Products.forEach(function(product) { %>
       <div class="col-lg-3 col-md-6 mb-4">
@@ -25,5 +26,8 @@
     <% }); %>
   </div>
 <% } else { %>
-  <p>No Products found</p>
+  <div class="col-lg-12 d-flex justify-content-center">
+    <img src="/images/theme/noData.jpg" alt="" width="50%">
+  </div>
+<h3 class="text-center text-danger">No Product Found</h3>
 <% } %>

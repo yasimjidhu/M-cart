@@ -173,7 +173,7 @@
               <input type="radio" name="paymentMethod" id="razorPay" value="razorPay">
               <label for="cashOnDelivery">Razor Pay</label>
               <img class="float-right" src="/svg/razorpay.svg" alt="" width="100px">
-              <button id="rzp-button1">Pay</button>
+              <!-- <button id="rzp-button1">Pay</button> -->
               <button type="submit" class="btn btn-primary float-right mt-5 mb-3" id="placeOrderButton">Place
                 Order</button>
             </div>
@@ -566,7 +566,7 @@
           };
 
           try {
-              const response = await fetch('/order/placeOrder', {
+            const response = await fetch('/order/placeOrder', {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json'
@@ -574,35 +574,26 @@
               body: JSON.stringify(orderData)
             });
 
-            if (!response.ok) {
-              throw new Error(`HTTP error! Status: ${response.status}`);
-            }
-
             const result = await response.json();
 
             if (result.codSuccess) {
               window.location.href = '/order/orderSuccess';
-            } else if (!result.data.online) { 
+            }else if(result.lowStock) {
+                Swal.fire({
+                  icon: 'error',
+                  title: 'Insufficient Stock',
+                  text: result.message,
+                  showConfirmButton: true
+                }).then(() => {
+                  window.location.href = '/cart/cart';
+                });
+            }else if (!result.data.online) {
               alert('Online payment not required or unsuccessful');
-              console.log('Online payment not required or unsuccessful:', result);
             } else if (result.data.online) {
-              alert('Online payment success front end');
-              console.log('Online payment:', result);
               razorPay(result);
-            } else if (response.status === 400) {
-              const data = await response.json();
-
-              Swal.fire({
-                icon: 'error',
-                title: 'Insufficient Stock',
-                text: data.message,
-                showConfirmButton: true
-              }).then(() => {
-                window.location.href = '/cart/cart';
-              });
-            }
-          } catch (error) {
-            console.error(error);
+            } 
+          } catch (err) {
+            console.error('fetch error',err);
           }
         }
 
@@ -612,7 +603,7 @@
 
         function razorpayHandler(payment, order) {
           console.log("Inside handler", payment, order);
-          alert('razorpayHandler called' + payment)
+          // alert('razorpayHandler called' + payment)
 
           fetch('/order/verify-payment', {
             method: 'POST',
@@ -650,7 +641,7 @@
           console.log('razprpay function called',order)
           console.log('ordertotalamount',order.data.order.totalAmount)
           console.log('ordertotalamount',order.data.razorpayOptions.id)
-            alert('razorPay called' + order)
+            // alert('razorPay called' + order)
             var options = {
               "key": "rzp_test_RKVZXQThwJG8UG",
               "amount":order.data.order.totalAmount,

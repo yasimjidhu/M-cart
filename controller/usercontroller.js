@@ -293,19 +293,21 @@ const userlog = async (req, res) => {
       const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
       const brandData = await brands.find();
 
+      const categories = await category.find()
+
+      const categoryNames = categories.map(value => value.CategoryName)
+      console.log('categories',categoryNames)
         let cartItemsCount = 0
         // function for cart items cart
         const userEmail = req.session.email
         await cartFunctions.getProductsArrayLength(userEmail)
         .then((productsArrayLength)=>{
-          console.log('length of product array',productsArrayLength)
           cartItemsCount = productsArrayLength
         })
         .catch((err)=>{
           console.error('error',err)
         })
 
-        console.log('cartItemsCount1',cartItemsCount)
         
       
 
@@ -320,7 +322,8 @@ const userlog = async (req, res) => {
         bestSellerId:bestSeller?bestSeller._id:null,
         bestSellerData:bestSellerProducts,
         isAuthenticated,
-        cartItemsCount
+        cartItemsCount,
+        categoryNames
       });
     } else {
       res.redirect("/");
@@ -341,7 +344,7 @@ const signupToLogin = (req, res, next) => {
 };
 
 // To Signup page
-const toSignup = (req, res, next) => {
+const toSignup = (req, res) => {
 
   const error = req.query.msg
 

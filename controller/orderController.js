@@ -105,7 +105,7 @@ const placeOrder = async (req, res) => {
                             console.log(`Product with ID ${productId} not found in the cart.`);
                         }
                     } else {
-                        return res.status(400).json({ success: false, message: 'Insufficient stock for the product' });
+                        return res.status(400).json({ success: false,lowStock:true, message: 'Insufficient stock for the product' });
                     }
                 } catch (error) {
                     console.error(`Failed to remove product with ID ${productId} from the cart: ${error}`);
@@ -249,6 +249,7 @@ const toUserOrders = async (req, res) => {
           'products.quantity': 1, // Include quantity from the orders collection
           'totalAmount': 1, // Include totalAmount from the orders collection
           'status': 1,
+          'deliveryDate':1,
           'totalCost': { $multiply: ['$products.quantity', '$productDetails.price'] } // Calculate total cost
         }
       },
@@ -264,11 +265,11 @@ const toUserOrders = async (req, res) => {
           },
           totalAmount: { $first: '$totalAmount' }, // Retrieve totalAmount
           status: { $first: '$status' }, // Retrieve status
-          createdAt: { $first: '$createdAt' } // Retrieve createdAt date
+          deliveryDate: { $first: '$deliveryDate' } // Retrieve createdAt date
         }
       },
       {
-        $sort: { createdAt: 1 } // Sort by createdAt field in descending order (latest first)
+        $sort: { deliveryDate: -1 } // Sort by createdAt field in descending order (latest first)
       }
     ]);
     
@@ -370,12 +371,17 @@ const CancelledOrders = async (req,res)=>{
                     'products.productName' :1,
                     'products.productBrand':1,
                     'products.productPrice':1,
-                    'products.productImage':1
+                    'products.productImage':1,
+                    'deliveryDate':1
                 }
+            },
+            {
+                $sort:{deliveryDate:-1}
             }
         ]).exec()
 
         const brandData = await brand.find()
+        console.log('userCancelledOrders',userCancelledOrders)
         res.render('./user/myCancellations',{userCancelledOrders,brandData})
         
     } catch (error) {
@@ -433,7 +439,10 @@ const toAdminDetailedOrders = async (req,res)=>{
                     'userOrderedProducts.price': 1,
                     'products.quantity': 1,
                     'userOrderedProducts.totalAmount': 1,
-                    'userId': 1
+                    'userOrderedProducts.specifications': 1,
+                    'userId': 1,
+                    'status':1,
+                    'address':1,
                 }
             },
             {
@@ -462,11 +471,12 @@ const toAdminDetailedOrders = async (req,res)=>{
                     'userOrderedProducts.productName': 1,
                     'userOrderedProducts.image': 1,
                     'userOrderedProducts.price': 1,
+                    'userOrderedProducts.specifications': 1,
                     'products.quantity': 1,
                     'userOrderedProducts.totalAmount': 1,
                     'userAddress': 1,
-                    'userProfileImage': 1
-                    // Include other necessary fields
+                    'userProfileImage': 1,
+                    'status':1
                 }
             }
         ]);
@@ -474,8 +484,10 @@ const toAdminDetailedOrders = async (req,res)=>{
         
 
 
-        res.render('./admin/orderDetails',{orderFound,userOrderWithProducts})
         console.log('userOrderWithProducts is',userOrderWithProducts)
+        console.log('orderfound',orderFound)
+   
+        res.render('./admin/orderDetails',{orderFound,userOrderWithProducts})
 
        
     }catch(err){
@@ -483,11 +495,43 @@ const toAdminDetailedOrders = async (req,res)=>{
     }
 }
 
+
+// to get order status for progress
+const getOrderStatus = async (req,res)=>{
+    const orderId = req.params.orderId
+    console.log('orderid is',orderId)
+
+    try{
+        const orderStatus = await orders.aggregate([
+            {
+                $match:{
+                    _id:new mongoose.Types.ObjectId(orderId)
+                }
+            },
+            {
+                $project:{
+                    'status':1,
+                    '_id':0
+                }
+            }
+        ])
+
+        console.log('orderstatus got',orderStatus)
+        return res.status(200).json({orderStatus})
+
+    }catch(err){
+        console.error(err)
+    }
+}
+
+
+
 module.exports = {
     placeOrder,
     orderSuccess,
     toUserOrders,
     cancelOrder,
+    getOrderStatus,
     CancelledOrders,
     toAdminDetailedOrders,
     verifyPayment

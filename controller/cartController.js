@@ -70,8 +70,9 @@ const toCart = async (req, res) => {
         // console.log('usercartitems', userCart);
         var firstCartItem = cartData[0];
         const cartTotal = firstCartItem.total
+        console.log('carttotal',cartTotal)
         console.log('cartdata',cartData)
-        res.render('./user/cart',{cartTotal});
+        res.render('./user/cart',{cartTotal,eachProductPrice});
     } catch (error) {
         console.log(error);
     }
@@ -129,7 +130,7 @@ const addToCart = async (req, res) => {
     try {
 
         const productId = req.body.productId ;
-        const quantity = req.body.quantity;
+        const quantity = req.body.quantity
 
         if (!productId || !quantity) {
             return res.status(400).json({ success: false, message: 'Product ID and quantity are required' });

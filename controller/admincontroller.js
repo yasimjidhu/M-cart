@@ -7,11 +7,13 @@ const admin = require("../Router/adminRouter");
 const category = require("../model/category");
 const brands = require("../model/brands");
 const orders = require('../model/orders')
+const cartModel = require('../model/cart')
 const { reset } = require("nodemon");
 const sharp = require('sharp')
 const fs = require('fs').promises;
 const path = require('path');
 const { log } = require("console");
+const cart = require("../Router/cartRouter");
 
 
 // Admin creadentials
@@ -47,8 +49,6 @@ const todashboard =  (req, res) => {
 // get daily sales
 const dailySales = async (req, res) => {
   try {
-    console.log('dailySales called');
-
     // Set the start and end of the current day
     const currentDate = new Date();
     const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
@@ -59,28 +59,30 @@ const dailySales = async (req, res) => {
       {
         $match: {
           deliveryDate: { $gte: startOfDay, $lte: endOfDay },
-          status: 'Paid'
+          status: 'Paid' // Assuming you want to consider only 'Paid' orders
         }
       },
       {
         $group: {
-          _id: { $dayOfMonth: '$deliveryDate' }, // Grouping by day of the month
-          totalSales: { $sum: '$totalAmount' }
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$deliveryDate' } } // Grouping by day
+          },
+          totalSales: { $sum: '$totalAmount' } // Calculate total sales for each day
         }
       },
       {
-        $sort: { _id: 1 } // Sort by day of the month
-      }
-    ]);
+        $sort: { _id: 1 } // Sort by day
+}
+    ])
+    console.log('dailySales',dailySales)
 
-    console.log('dailySales', dailySales);
     res.status(200).json({ success: true, dailySalesData: dailySales });
-
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, error: 'An error occurred while fetching daily sales data' });
   }
 };
+
 
 
 
@@ -583,24 +585,29 @@ const deleteProduct = async (req, res) => {
   const id = req.params.productid;
 
   const product = await getProductById(id);
+  console.log('product id is',id)
+  console.log('product',product)
 
   try {
-    if (!product) {
-      res.render("./admin/products", { err: "Product not found" });
-      res.status(404);
-    } else {
-      await products.findByIdAndDelete(id);
-      res.redirect("/admin/products");
-    }
+
+    await products.findByIdAndDelete(id);
+    const result = await cartModel.updateMany(
+      {}, // Empty filter matches all documents
+      {$pull:{products:{productId:new mongoose.Types.ObjectId(id)}}}
+      );
+      
+      if(result && result.modifiedCount > 0){
+        console.log('cart item deleted from user carts')
+        return res.redirect('/admin/products')
+        }
+        console.log('Product was not found in any user carts');
+        return res.redirect('/admin/products')
   } catch (error) {
-    const productData = products.find();
-    res.render("./admin/products", {
-      err: "Error occured while deleting",
-      products: productData,
-    });
-    res.status(500);
+    res.redirect("/admin/products")
   }
 };
+
+
 
 // Customers get
 const toCustomers = async (req, res) => {

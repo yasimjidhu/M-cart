@@ -6,6 +6,7 @@
 
 <div class="container mt-4">
         <div class="row">
+            <% if(brandProducts && brandProducts.length>0){ %>
             <% brandProducts.forEach((brand) => { %>
                 <div class="col-3 ">
                     <div class="card mb-4 ">
@@ -14,11 +15,16 @@
                         <div class="card-body">
                             <h5 class="card-title"><%= brand.productName %></h5>
                             <p class="card-text" style="color: red;">Price: $<%= brand.price %></p>
-                            <!-- Additional product details if needed -->
                         </div>
                     </div>
                 </div>
                 <% }); %>
+                <%}else { %>
+                    <div class="col-lg-12" style="display: flex;flex-direction: column;align-items: center;">
+                        <img src="/images/theme/noData.jpg" alt="" width="58%">
+                        <h3 class="text-danger mb-3">No Products found under this Brand</h3>
+                    </div>
+                <% } %>
         </div>
 
 </div>

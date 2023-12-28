@@ -5,8 +5,8 @@
 <%- include('../admin/partials/nav') %>
 
 <div class="container-fluid dashboard p-0">
-    <div class="row">
-        <div class="col-lg-2">
+    <div class="row m-0">
+        <div class="col-lg-2 p-0">
             <%-include('../admin/partials/sidebar') %>
         </div>
         <div class="col-lg-9 d-flex flex-column">
@@ -18,13 +18,14 @@
             <div class="">
                 <canvas id="myChart" width="600" height="200"></canvas>
                 <div class="col-lg-12 d-flex justify-content-between mt-5">
-                    <div class="col-lg-5 bg-white topSelling">
-                       <h6 class="mt-3">Inventory Status</h6>
-                       <canvas id="InventoryStatus" width="600" height="300"></canvas>
+                    <div class="col-lg-5 topSelling">
+                       <h6 class="mt-3 text-center">Inventory Status</h6>
+                       <canvas id="InventoryStatus" width="500" height="300"></canvas>
+                       <p class="text-danger mt-3">NB:<span class="text-dark inventoryMsg">IF you can't see the product's status in the chart and you can see the product names on the top , it's quantity is <span class="zero"> 0</span>, take necessary actions</span></p>
                     </div>
-                    <div class="col-lg-5 bg-white topSelling">
-                        <h6 class="mt-3">Top selling Products</h6>
-                        <canvas id="topSellingChart" width="600" height="300"></canvas>
+                    <div class="col-lg-5 topSelling">
+                        <h6 class="mt-3 text-center">Top selling Products</h6>
+                        <canvas id="topSellingChart" width="500" height="300"></canvas>
                     </div>
                 </div>
             </div>
@@ -34,77 +35,71 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function(){
-    let myChart; // Declare myChart variable outside the event listener
-    
-    // Function to update daily sales data
-    function updateDailySales() {
-    fetch('/admin/daily-salesData')
+  let myChart; // Declare myChart variable outside the event listener
+
+function updateDailySales() {
+  fetch('/admin/daily-salesData')
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            const salesData = Array(7).fill(0); // Initialize an array for each day of the week
+      if (data.success) {
+        
+        const salesData = data.dailySalesData.map(dayData => dayData.totalSales); // Extract totalSales for each day
+        const dayLabels = data.dailySalesData.map(dayData => dayData._id); // Extract dates as labels
+        // Update the chart with daily sales data and labels for the days
+        myChart.data.labels = dayLabels;
+        myChart.data.datasets[0].data = salesData;
+        myChart.data.datasets[0].label = 'Daily Sales';
+        myChart.data.datasets[0].type = 'bar';
+        myChart.update();
 
-            data.dailySalesData.forEach(dayData => {
-                // Extract the date from the given dayData._id
-                const date = new Date(dayData._id);
-                
-                // Get the day of the week (0-6) from the date
-                const dayOfWeek = date.getDay();
-                // alert('dayofweek'+JSON.stringify(dayOfWeek))
-
-                // Increment salesData array at the respective index (based on dayOfWeek) with the totalSales value
-                salesData[dayOfWeek] = dayData.totalSales;
-            });
-
-            // Update the chart with daily sales data and labels for the days of the week
-            myChart.data.labels = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-            myChart.data.datasets[0].data = salesData;
-            myChart.data.datasets[0].label = 'Daily Sales';
-            myChart.update();
-
-            console.log('Daily sales data:', salesData);
-        } else {
-            alert('An error occurred while fetching daily sales data');
-        }
-    }).catch(error => console.error('Error fetching data:', error));
+        console.log('Daily sales data:', salesData);
+      } else {
+        alert('An error occurred while fetching daily sales data');
+      }
+    })
+    .catch(error => console.error('Error fetching data:', error));
 }
 
+updateDailySales();
 
-    // Initial call to update daily sales data when the admin enters the dashboard page
-    updateDailySales();
-
-    // Button event listener to update the chart with daily sales data when the "Daily" button is clicked
     const dailyButton = document.querySelector('#dailyBtn');
     dailyButton.addEventListener('click', updateDailySales);
 
-    // Function to update weekly sales data
-    function updateWeeklySales() {
-        fetch('/admin/weekly-salesData')
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const salesData = Array.from({ length: 4 }, () => 0); // Assuming 4 weeks in a month for example
 
-                data.weeklyData.forEach(weekData => {
-                    // Update salesData array at the respective index (based on _id) with the totalSales value
-                    salesData[weekData._id - 1] = weekData.totalSales;
-                });
+// Function to update weekly sales data
+function updateWeeklySales() {
+  fetch('/admin/weekly-salesData')
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        const salesData = Array.from({ length: 4 }, () => 0); // Assuming 4 weeks in a month for example
 
-                // Update the chart with weekly sales data and labels for the weeks
-                const weekLabels = Array.from({ length: 4 }, (_, i) => `Week ${i + 1}`); // Update the length according to your data
+        data.weeklyData.forEach(weekData => {
+          // Assuming the _id contains the week number (e.g., 1, 2, 3, 4)
+          const weekNumber = weekData._id - 1; // Subtract 1 to get the array index
+          // alert(weekNumber)
 
-                myChart.data.labels = weekLabels;
-                myChart.data.datasets[0].data = salesData;
-                myChart.data.datasets[0].label = 'Weekly Sales';
+          // Update salesData array at the respective index with the totalSales value
+          salesData[weekNumber] = weekData.totalSales;
+        });
 
-                myChart.update();
+        // Update the chart with weekly sales data and labels for the weeks
+        const weekLabels = Array.from({ length: 4 }, (_, i) => `Week ${i + 1}`); // Update the length according to your data
 
-                console.log('Weekly sales data:', salesData);
-            } else {
-                alert('An error occurred while fetching weekly sales data');
-            }
-        }).catch(error => console.error('Error fetching data:', error));
-    }
+        myChart.data.labels = weekLabels;
+        myChart.data.datasets[0].data = salesData;
+        myChart.data.datasets[0].label = 'Weekly Sales';
+
+        myChart.update();
+
+        console.log('Weekly sales data:', salesData);
+      } else {
+        alert('An error occurred while fetching weekly sales data');
+      }
+    })
+    .catch(error => console.error('Error fetching data:', error));
+}
+
 
     // Button event listener to update the chart with weekly sales data when the "Weekly" button is clicked
     const weeklyButton = document.querySelector('#weeklyBtn');
@@ -209,10 +204,10 @@ function getBestSellingProducts() {
               label: 'Quantity',
               data: quantities,
               backgroundColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
                 'rgba(255, 206, 86, 1)',
                 'rgba(75, 192, 192, 1)',
+                'rgba(255, 99, 132, 1)',
+                'rgba(54, 162, 235, 1)',
                 'rgba(153, 102, 255, 1)',
                 'rgba(255, 159, 64, 1)'
                 // Add more colors if needed
@@ -261,13 +256,13 @@ function getInventoryStatus(){
               label: 'Quantity',
               data: quantity,
               backgroundColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(255, 159, 64, 1)'
-                // Add more colors if needed
+                  'rgba(0, 102, 204, 1)',   // Darker blue
+                  'rgba(204, 0, 0, 1)',     // Darker red
+                  'rgba(255, 128, 0, 1)',   // Darker orange
+                  'rgba(0, 128, 128, 1)',   // Darker teal
+                  'rgba(204, 153, 0, 1)',   // Darker yellow
+                  'rgba(102, 0, 204, 1)'    // Darker purple
+                  // Add more dark colors if needed
               ],
               borderColor: [
                 'rgba(255, 99, 132, 1)',
@@ -308,7 +303,7 @@ function toGetLatestOrders(){
     .then(response => response.json())
     .then(data =>{
         if(data.success){
-            alert('latest orders got'+JSON.stringify(data))
+            // alert('latest orders got'+JSON.stringify(data))
         }
     })
 }
