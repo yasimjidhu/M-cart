@@ -15,6 +15,7 @@
                 <button type="button" class="btn btn-success salesbtn btn-sm" id="weeklyBtn">Weekly</button>
                 <button type="button" class="btn btn-warning salesbtn btn-sm" id="yearlyBtn">yearly</button>
             </div>
+            <button class="btn" style="width:10%; color: black;" onclick="getSalesReport()"><i class="fa fa-download"></i> Download</button>
             <div class="">
                 <canvas id="myChart" width="600" height="200"></canvas>
                 <div class="col-lg-12 d-flex justify-content-between mt-5">
@@ -303,6 +304,7 @@ function toGetLatestOrders(){
     .then(response => response.json())
     .then(data =>{
         if(data.success){
+
             // alert('latest orders got'+JSON.stringify(data))
         }
     })
@@ -310,9 +312,40 @@ function toGetLatestOrders(){
 
 toGetLatestOrders()
 
-
-
 })
+
+async function getSalesReport(){
+  try{
+    const response = await fetch('/admin/downloadSalesReport',{
+      method:'GET',
+    });
+    if(response.ok){
+      // create a blob from the response
+      const blob = await response.blob();
+
+      //create a temporarily URL for the blob
+      const url = window.URL.createObjectURL(blob);
+
+      // create an anchor element to trigger the download
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'sales-report.xlsx'; //set the file name here
+      document.body.appendChild(a)
+      a.click();
+
+      // cleanup 
+      window.URL.revokeObjectURL(url)
+      document.body.removeChild(a)
+
+    }else{
+      alert('failed')
+      console.error('Failed to download sales report');
+    }
+  }catch(err){
+    alert('catch worked')
+    console.error('Error generating sales report', err);
+  }
+}
 
 
 

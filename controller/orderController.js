@@ -39,10 +39,6 @@ const placeOrder = async (req, res) => {
         // Calculate the grand total
         const grandTotal = totalPrice;
 
-        // const amountInRupees=Math.floor(grandTotal)
-
-        // const amountInPaisa = Math.round(amountInRupees * 100);
-        // console.log('amountInPaisa',amountInPaisa)
 
         // Get products from cart aggregate (assuming cart and products collections exist)
         const aggregateData = await cart.aggregate([
@@ -146,6 +142,7 @@ const placeOrder = async (req, res) => {
             console.log('razorPayorder',razorpayOrder)
 
             res.status(201).json({
+                title:'Order Confirmtion',
                 success: true,
                 message: 'Razorpay order created successfully',
                 data: {
@@ -157,7 +154,7 @@ const placeOrder = async (req, res) => {
             });
             console.log('razorpay order created and saved',)
         } else {
-            res.status(201).json({ success: true, message: 'Order created successfully', data: savedOrder });
+            res.status(201).json({ success: true,title:'Order Confirmtion', message: 'Order created successfully', data: savedOrder });
         }
     } catch (error) {
         console.error('Error:', error);
@@ -273,13 +270,8 @@ const toUserOrders = async (req, res) => {
       }
     ]);
     
-    userOrders.forEach(order => {
-      order.products.forEach((product, index) => {
-        console.log(`Order ID: ${order._id}, Product ${index + 1} Quantity: ${product.quantity}, Total Cost: ${product.totalCost}`);
-      });
-    });
     
-    res.render('./user/userOrders', { userOrders });
+    res.render('./user/userOrders', { userOrders,title:'My Orders' });
   };
   
   
@@ -381,8 +373,7 @@ const CancelledOrders = async (req,res)=>{
         ]).exec()
 
         const brandData = await brand.find()
-        console.log('userCancelledOrders',userCancelledOrders)
-        res.render('./user/myCancellations',{userCancelledOrders,brandData})
+        res.render('./user/myCancellations',{userCancelledOrders,brandData,title:'My Cancellation'})
         
     } catch (error) {
         console.error(error)
@@ -393,24 +384,35 @@ const CancelledOrders = async (req,res)=>{
 
 // admin order details view 
 const toAdminDetailedOrders = async (req,res)=>{
-    console.log('called')
     const orderId = req.params.orderId
 
     try{
         const orderFound = await orders.findById(orderId)
-        console.log('orderfound',orderFound)
-
-
 
         if(!orderFound){
             return res.status(401).json({message:'order not found',success:false})
         }
 
-        
         const userOrderWithProducts = await orders.aggregate([
             {
                 $match: {
                     _id: new mongoose.Types.ObjectId(orderId)
+                }
+            },
+            {
+                $lookup:{
+                    from:'addresses',
+                    localField:'userId',
+                    foreignField:'userId',
+                    as:'addressInfo'
+                }
+            },
+            {
+                $unwind:'$addressInfo'
+            },
+            {
+                $addFields:{
+                    'addressinfoaddress':'$addressInfo.address'
                 }
             },
             {
@@ -443,14 +445,7 @@ const toAdminDetailedOrders = async (req,res)=>{
                     'userId': 1,
                     'status':1,
                     'address':1,
-                }
-            },
-            {
-                $lookup: {
-                    from: 'addresses',
-                    localField: 'userId',
-                    foreignField: 'userId',
-                    as: 'userAddress'
+                    'addressinfoaddress':1
                 }
             },
             {
@@ -476,20 +471,21 @@ const toAdminDetailedOrders = async (req,res)=>{
                     'userOrderedProducts.totalAmount': 1,
                     'userAddress': 1,
                     'userProfileImage': 1,
-                    'status':1
+                    'status':1,
+                    'addressinfoaddress':1
                 }
             }
+            
         ]);
-
+        console.log('userOrderWithProducts',userOrderWithProducts)
+        userOrderWithProducts.forEach(data =>{
+            data.addressinfoaddress.forEach(item =>{
+                console.log('item',item.fullName)
+            })
+        })
         
+        res.render('./admin/orderDetails',{orderFound,userOrderWithProducts, title:'Order Details'})
 
-
-        console.log('userOrderWithProducts is',userOrderWithProducts)
-        console.log('orderfound',orderFound)
-   
-        res.render('./admin/orderDetails',{orderFound,userOrderWithProducts})
-
-       
     }catch(err){
         console.log(err)
     }

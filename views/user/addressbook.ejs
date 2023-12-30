@@ -86,7 +86,6 @@
             if (response.ok) {
                 const data = await response.json();
                 document.getElementById(addressId).style.display="none"
-                // window.location.reload()
                 console.log(data.message);
             } else {
                 console.error('Failed to delete address');

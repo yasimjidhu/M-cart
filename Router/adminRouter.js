@@ -5,6 +5,7 @@ const adminController = require("../controller/admincontroller");
 const adminauth = require("../middleware/adminAuth");
 const products = require("../model/productschema");
 const category = require("../model/category");
+const Excel = require('exceljs')
 
 // Import multer and set up the storage for file uploads
 const multer = require("multer");
@@ -149,6 +150,9 @@ admin.post(
 // Orders
 admin.get("/orders", adminController.toOrders);
 admin.put("/updateOrderStatus", adminController.updateOrderStatus);
+
+// download excel sales report
+admin.get('/downloadSalesReport',adminController.downloadSales)
 
 admin.use((req, res) => {
   try {

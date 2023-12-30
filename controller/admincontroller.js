@@ -14,6 +14,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const { log } = require("console");
 const cart = require("../Router/cartRouter");
+const Excel = require('exceljs')
 
 
 // Admin creadentials
@@ -109,7 +110,7 @@ const weeklySales = async (req, res) => {
       { $sort: { '_id': 1 } } // Sort by day of the week
     ]);
 
-    console.log('weekly sales', weeklySales);
+    // console.log('weekly sales', weeklySales);
     res.status(200).json({ success: true, weeklyData: weeklySales });
   } catch (err) {
     console.log(err);
@@ -121,7 +122,7 @@ const weeklySales = async (req, res) => {
 // get Yearly sales
 const yearlySales = async (req, res) => {
   try {
-    console.log('yearly sales called')
+    // console.log('yearly sales called')
     // Get unique years from the deliveryDate in the orders collection
     const uniqueYears = await orders.aggregate([
       {
@@ -165,7 +166,7 @@ const yearlySales = async (req, res) => {
       });
     }
 
-    console.log('Yearly sales data:', yearlySalesData);
+    // console.log('Yearly sales data:', yearlySalesData);
     res.status(200).json({ success: true,  yearlySalesData });
   } catch (err) {
     console.log(err);
@@ -220,7 +221,7 @@ const bestSellingProducts = async (req, res) => {
       }
     ]);
 
-    console.log('best selling products are', bestSellingProducts);
+    // console.log('best selling products are', bestSellingProducts);
     res.status(200).json({ success: true, bestSellingProducts });
   } catch (err) {
     console.log(err);
@@ -259,7 +260,7 @@ const getInventoryStatus = async (req,res)=>{
       }
     ])
 
-    console.log('inventoryproducts are',inventoryStatus)
+    // console.log('inventoryproducts are',inventoryStatus)
     res.status(200).json({success:true,inventoryStatus})
 
   }catch(err){
@@ -320,7 +321,7 @@ const getLatestOrders = async (req,res)=>{
     ]);
 
 
-    console.log('latest order',latestOrders)
+    // console.log('latest order',latestOrders)
     res.status(200).json({success:true,latestOrders})
   } catch (error) {
     console.error(error)
@@ -384,7 +385,8 @@ const addproducts = async (req, res) => {
     if (existing) {
       return res.redirect(`/admin/add-product?error=this product already exist`)
     }
-    
+    const croppedImage = req.body.croppedImage
+    console.log('croppedimage',croppedImage)
     const specifications = req.body.specifications;
     const allimages = [];
 
@@ -814,12 +816,8 @@ const deleteCategory = async (req, res) => {
 
   try {
     await category.findByIdAndDelete(categoryID);
-
-    const categories = await category.find();
-    res.render("./admin/categorymgt", {
-      msg: "Category deleted successfully",
-      categories,
-    });
+    console.log('called and deleted')
+    res.redirect(`/admin/category?msg=category deleted successfully`);
   } catch (error) {
     const categories = await category.find();
     console.error(error);
@@ -856,6 +854,7 @@ const toProducts = async (req, res) => {
     const brand = await brands.find();
 
     res.render("./admin/products", {
+      title:'Products',
       productsData,
       categories,
       brand,
@@ -1144,7 +1143,7 @@ const toOrders = async(req,res)=>{
     ]).exec()
     
     
-    res.render('./admin/order',{UserData,allOrders})
+    res.render('./admin/order',{UserData,allOrders,title:'Orders'})
 
 }
 
@@ -1172,6 +1171,64 @@ const updateOrderStatus = async (req,res)=>{
       return res.status(500).json({message:'internal sever error'})
     }
 }
+
+
+// download sales report
+const downloadSales = async (req, res) => {
+  try {
+    // Set the start and end of the current day
+    console.log('called in ')
+    const currentDate = new Date();
+    const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
+    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
+
+    // Daily sales aggregation pipeline
+    const dailySales = await orders.aggregate([
+      {
+        $match: {
+          deliveryDate: { $gte: startOfDay, $lte: endOfDay },
+          status: 'Paid' // Assuming you want to consider only 'Paid' orders
+        }
+      },
+      {
+        $group: {
+          _id: {
+            $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$deliveryDate' } } // Grouping by day
+          },
+          totalSales: { $sum: '$totalAmount' } // Calculate total sales for each day
+        }
+      },
+      {
+        $sort: { _id: 1 } // Sort by day
+      }
+    ]);
+
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    // Add headers
+    worksheet.addRow(['Date', 'Total Sales']);
+
+    // Add data to the worksheet
+    dailySales.forEach(sale => {
+      worksheet.addRow([sale._id, sale.totalSales]);
+    });
+
+    // Set content type and disposition for file download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="sales-report.xlsx"');
+
+    // Write the workbook data to the response
+    await workbook.xlsx.write(res);
+    res.status(200).end();
+    console.log('downloaded')
+  } catch (err) {
+    console.error('Error generating sales report', err);
+    res.status(500).send('Error generating sales report');
+  }
+};
+
+
 
 // Admin logout
 const toLogout = (req, res) => {
@@ -1223,5 +1280,6 @@ module.exports = {
   unblockBrand,
   toOrders,
   updateOrderStatus,
-  deleteProductImage  
+  deleteProductImage,
+  downloadSales  
 };

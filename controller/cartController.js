@@ -60,7 +60,7 @@ const toCart = async (req, res) => {
         ]).exec()
 
         if(cartData.length<=0){
-            return res.render('./user/emptyCart')
+            return res.render('./user/emptyCart',{title:'Cart'})
         }
 
         const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
@@ -70,9 +70,7 @@ const toCart = async (req, res) => {
         // console.log('usercartitems', userCart);
         var firstCartItem = cartData[0];
         const cartTotal = firstCartItem.total
-        console.log('carttotal',cartTotal)
-        console.log('cartdata',cartData)
-        res.render('./user/cart',{cartTotal,eachProductPrice});
+        res.render('./user/cart',{cartTotal,eachProductPrice,title:'Cart'});
     } catch (error) {
         console.log(error);
     }
@@ -270,7 +268,7 @@ const toCheckout = async (req, res) => {
   
       const total = flattenedCartItems.reduce((acc, currentItem) => acc + currentItem.price, 0);
   
-      res.render('./user/checkout', { userCartData, userAddress, total , quantity, totalPrice})
+      res.render('./user/checkout', { userCartData, userAddress, total , quantity, totalPrice,title:'Checkout'})
     } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');

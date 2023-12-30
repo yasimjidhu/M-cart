@@ -21,12 +21,14 @@
       <div class="container mt-3">
         <div class="row">
           <div class="col-sm-3 col-md-4 col-lg-2">
-            <% if(categoryNames && categoryNames.length > 0){ %>
+            <% if(categories && categories.length > 0){ %>
               <ul class="category">
-                <% for(let i=0; i<categoryNames.length; i++){ %>
-                  <li><a href="#"><%=categoryNames[i] %></a></li>
-                <% } %>
+                <% categories.forEach(data =>{ %>
+                  <li><a href="/allproductview/<%=data._id%>"><%=data.CategoryName %></a></li>
+                <% }) %>
               </ul>
+            <% }else{%>
+              <p>No Category Found</p>
             <% } %>  
           </div>
           <div class="col-sm-5 col-md-4 col-lg-5 d-flex banner-main" style="background-color: black">

@@ -20,10 +20,6 @@
                     <div class="col-12 px-2">
                       <div class="card shadow" style="border-radius: 10px;">
                         <div class="card-body p-4">
-                          <div class="d-flex justify-content-between align-items-center mb-4">
-                            <!-- <p class="lead fw-normal mb-0" style="color: #51d7e0;">Receipt</p> -->
-                            <!-- <p class="small text-dark mb-0">Receipt Voucher : 1KAU9-84UIL</p> -->
-                          </div>
                           <div class="card shadow-0 border mb-4">
                             <div class="card-body">
                                 <% if (userOrderWithProducts && userOrderWithProducts.length > 0) { %>
@@ -63,14 +59,35 @@
                                 <% } %>
                               </div>
                           </div>
-                          
-        
-                        
-                          
-                            <!-- <p class="text-dark mb-0"><span class="fw-bold me-4">Delivery Charges</span> Free</p> -->
+                        </div>
+                        <div class="col-lg-12">
+                          <h3 class="text-center text-success mb-4">USER ADDRESS</h3>
+                          <% if (userOrderWithProducts && userOrderWithProducts.length > 0) { %>
+                            <% userOrderWithProducts[0].addressinfoaddress.forEach(item => { %>
+                              <div class="row">
+                                <div class="col-lg-6" style="padding: 0px 28px;">
+                                  <h6><span class="order-span1 text-dark">Full Name:</span> <%= item.fullName.toUpperCase()%></h6>
+                                  <h6><span class="order-span1">PhoneNumber:</span> <%= item.phoneNumber %></h6>
+                                  <h6><span class="order-span1">Email:</span> <%= item.email %></h6>
+                                  <h6><span class="order-span1">Country:</span> <%= item.country %></h6>
+                                  <h6><span class="order-span1">PinCode:</span> <%= item.pinCode %></h6>
+                                  <h6><span class="order-span1">State:</span> <%= item.state %></h6>
+                                </div>
+                                <div class="col-lg-6" style="padding: 0px 28px;">
+                                  <h6><span class="order-span1">District:</span> <%= item.district %></h6>
+                                  <h6><span class="order-span1">City:</span> <%= item.city %></h6>
+                                  <h6><span class="order-span1">Area:</span> <%= item.area %></h6>
+                                  <h6><span class="order-span1">Street:</span> <%= item.street %></h6>
+                                  <h6><span class="order-span1">Building:</span> <%= item.building %></h6>
+                                  <h6><span class="order-span1">House Number:</span> <%= item.houseNumber %></h6>
+                                  <!-- Add other details here for the second column -->
+                                </div>
+                              </div>
+                            <% }) %>
+                          <% } %>
                         </div>
                         <div class="card-footer border-0 "
-                          style="background-color: #001524;padding: 7px; border-bottom-left-radius: 15px; border-bottom-right-radius: 10px; margin-bottom: 10px;">
+                          style="background-color: #001524;padding: 7px; border-bottom-left-radius: 15px; border-bottom-right-radius: 10px; margin-bottom: 10px; margin-top: 40px;">
                           <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">Total : <%=orderFound.totalAmount %></h5>
                         </div>
                       </div>
@@ -94,13 +111,13 @@
                             </div>
                         </div>
                         <div class="col-7 p-0">
-                            <% if (order.userAddress && order.userAddress.length > 0) { %>
-                                <% const address = order.userAddress[0].address[0]; %>
-                                <p class="text-white tag"> <span class="order-span">Full Name:</span> <%= address.fullName %></p>
-                                <p class="text-white tag"> <span class="order-span">Email:</span> <%= address.email %></p>
-                                <p class="text-white tag"> <span class="order-span">Mobile: </span><%= address.phoneNumber %></p>
-                                <p class="text-white tag"> <span class="order-span">PinCode:</span><%= address.pinCode %></p>
-                                <!-- Other fields -->
+                            <% if (order.addressinfoaddress && order.addressinfoaddress.length > 0) { %>
+                              <% order.addressinfoaddress.forEach(item =>{ %>
+                                <p class="text-white tag"> <span class="order-span">Full Name:</span> <%= item.fullName %></p>
+                                <p class="text-white tag"> <span class="order-span">Email:</span> <%= item.email %></p>
+                                <p class="text-white tag"> <span class="order-span">Mobile: </span><%= item.phoneNumber %></p>
+                                <p class="text-white tag"> <span class="order-span">PinCode:</span><%= item.pinCode %></p>
+                                <% }) %>
                             <% } %>
                         </div>
                     <% } %>

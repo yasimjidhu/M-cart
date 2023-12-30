@@ -2,6 +2,7 @@ const express = require('express')
 const order = express.Router()
 const orderController = require('../controller/orderController')
 const userAuth = require('../middleware/userAuth')
+const adminAuth = require('../middleware/adminAuth')
 require('dotenv').config()
 
 order.post('/placeOrder', userAuth.verifyUser, orderController.placeOrder)
@@ -14,6 +15,6 @@ order.post('/verify-payment', userAuth.verifyUser, orderController.verifyPayment
 
 
 order.get('/cancelledOrders', userAuth.verifyUser, orderController.CancelledOrders)
-order.get('/viewDetails/:orderId', userAuth.verifyUser, orderController.toAdminDetailedOrders)
+order.get('/viewDetails/:orderId', adminAuth.verifyAdmin, orderController.toAdminDetailedOrders)
 module.exports = order
 

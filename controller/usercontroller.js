@@ -46,6 +46,7 @@ const toHome = async (req, res) => {
       const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
       const brandData = await brands.find();
 
+      const categories = await category.find()
       
 
       res.render("./user/userhome", {
@@ -56,7 +57,9 @@ const toHome = async (req, res) => {
         Category: premiumCategory,
         flashSales: flashsalesProducts,
         flashSalesId:flashsales?flashsales._id:null,
-        bestSellerData: bestSellerProducts
+        bestSellerData: bestSellerProducts,
+        categories
+
       });
     
   } catch (error) {
@@ -295,8 +298,6 @@ const userlog = async (req, res) => {
 
       const categories = await category.find()
 
-      const categoryNames = categories.map(value => value.CategoryName)
-      console.log('categories',categoryNames)
         let cartItemsCount = 0
         // function for cart items cart
         const userEmail = req.session.email
@@ -323,7 +324,7 @@ const userlog = async (req, res) => {
         bestSellerData:bestSellerProducts,
         isAuthenticated,
         cartItemsCount,
-        categoryNames
+        categories
       });
     } else {
       res.redirect("/");
@@ -420,12 +421,12 @@ async function filterByBrand(req, res) {
 
 const toViewAll = async (req, res) => {
   const categoryId = req.params.categoryId;
-  console.log(".......................", categoryId);
+  // console.log(".......................", categoryId);
 
   try {
     const isAuthenticated = req.session.user ? true : false;
     const productData = await products.find({ category: categoryId });
-    console.log("Category:", productData);
+    // console.log("Category:", productData);
 
     if (productData) {
       res.render("./user/viewall", { productData ,isAuthenticated});

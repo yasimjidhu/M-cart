@@ -17,97 +17,106 @@
     
 
 </div>
+<div class="container-fluid p-0">
 
-  <div class="container-fluid p-0">
-    
-    <div class="test">
-      <div class="row m-0 p-0">
-        <div class="col-2 p-0">
-            <%-include('../admin/partials/sidebar') %>
+  <div class="test">
+    <div class="row m-0 p-0">
+      <div class="col-2 p-0">
+        <%-include('../admin/partials/sidebar') %>
+      </div>
+
+      <div class="col-10 px-3">
+        <div class="button-div d-flex justify-content-end">
+          <button class="add-btn">
+            <a href="/admin/add-product" style="color: rgb(255, 255, 255); text-decoration: none;">Add Product</a>
+          </button>
         </div>
-        
-        <div class="col-10 px-3">
-            <div class="button-div d-flex justify-content-end">
-                <button class="add-btn">
-                    <a href="/admin/add-product" style="color: rgb(255, 255, 255); text-decoration: none;">Add Product</a>
-                </button>
-            </div>
-            <%if(locals.error){%>
-              <p style="color: red; text-align: center;" id="error"><%=error%></p>
-            <%}%>
+        <%if(locals.error){%>
+          <p style="color: red; text-align: center;" id="error">
+            <%=error%>
+          </p>
+          <%}%>
             <%if(locals.msg){%>
-              <p style="color:green; text-align: center;" id="msg"><%=msg%></p>
-            <%}%>
+              <p style="color:green; text-align: center;" id="msg">
+                <%=msg%>
+              </p>
+              <%}%>
 
-            
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>No</th>
-                  <th>Name</th>
-                  <th>Category</th>
-                  <th>Price</th>
-                  <th>Stock</th>
-                  <th>Brand</th>
-                  <th>Images</th>
-                  <th>Edit</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                <% productsData.forEach((product, index) => { %>
-                <tr>
-                  <td><%= index + 1 %></td>
-                  <td><%= product.productName %></td>
-                  <td>
-                    <% categories.forEach(category => { %>
-                      <% if (category._id.toString() === product.category.toString()) { %>
-                        <%= category.CategoryName %>
-                      <% } %>
-                    <% }); %>
-                  </td>
-                  <td>$<%= product.price %></td>
-                  <td><%= product.stock %></td>
-                  <td>
-    
-                        <%=product.brand.brandName%>
 
-                    
-                  </td>
-                  
-                  
-                  <td>
-                    <!-- Display the main product image if available -->
-                        <img style="width: 50px; height: 50px;"
-                            src="/uploads/<%= product.image[4]%>"
-                            alt="Main Product Image"
-                            class="product-image"
-                        />
+                <div class="table-responsive">
+                  <table class="table table-striped">
+                    <thead>
+                      <tr>
+                        <th>No</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Price</th>
+                        <th>Stock</th>
+                        <th>Brand</th>
+                        <th>Images</th>
+                        <th>Edit</th>
+                        <th>Delete</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <% productsData.forEach((product, index)=> { %>
+                        <tr id="product_<%=product._id %>">
+                          <td>
+                            <%= index + 1 %>
+                          </td>
+                          <td>
+                            <%= product.productName %>
+                          </td>
+                          <td>
+                            <% categories.forEach(category=> { %>
+                              <% if (category._id.toString()===product.category.toString()) { %>
+                                <%= category.CategoryName %>
+                                  <% } %>
+                                    <% }); %>
+                          </td>
+                          <td>$<%= product.price %>
+                          </td>
+                          <td>
+                            <%= product.stock %>
+                          </td>
+                          <td>
 
-                </td>
-                <td>
-                  <a href="/admin/edit-product/<%= product._id %>">
-                  <i class="fa-solid fa-pen-to-square" style="color: #000000;"></i>
-                  </a>
-              </td>
-              <td>
-                <form action="/admin/delete-product/<%=product._id %>" method="post" onsubmit="return confirmDelete('<%= product._id %>')">
-                  <input type="hidden" name="productId" value="<%= product._id %>">
-                  <button type="submit" style="border: none; background-color: transparent; cursor: pointer;">
-                    <i class="fa-solid fa-trash" style="color: #000000;"></i>
-                  </button>
-                </form>
-              </td>
-                </tr>
-                <% }); %>
-              </tbody>
-            </table>
-          </div>
-        </div>
+                            <%=product.brand.brandName%>
+
+
+                          </td>
+
+
+                          <td>
+                            <!-- Display the main product image if available -->
+                            <img style="width: 50px; height: 50px;" src="/uploads/<%= product.image[4]%>"
+                              alt="Main Product Image" class="product-image" />
+
+                          </td>
+                          <td>
+                            <a href="/admin/edit-product/<%= product._id %>">
+                              <i class="fa-solid fa-pen-to-square" style="color: #000000;"></i>
+                            </a>
+                          </td>
+                          <td>
+                            <form action="/admin/delete-product/<%=product._id %>" method="post"
+                              onclick="return deleteProduct('<%= product._id %>')">
+                              <input type="hidden" name="productId" value="<%= product._id %>">
+                              <button type="button"
+                                style="border: none; background-color: transparent; cursor: pointer;">
+                                <i class="fa-solid fa-trash" style="color: #000000;"></i>
+                              </button>
+                            </form>
+                          </td>
+                        </tr>
+                        <% }); %>
+                    </tbody>
+                  </table>
+                </div>
       </div>
     </div>
   </div>
+</div>
   
   <div class="pagination">
     <% if(currentPage > 1) { %>
@@ -130,15 +139,51 @@
 
 
   <script>
-    function confirmDelete(productId) {
-      // Show a confirmation dialog
-      const confirmation = confirm("Are you sure you want to delete this product?");
-  
-      // If user confirms, proceed with the deletion
-      if (confirmation) {
-        return true;
+
+    
+   function confirmDelete(productId) {
+      return new Promise((resolve, reject) => {
+        Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to delete this product.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        resolve(true); // Resolve the Promise if confirmed
       } else {
-        return false;
+        reject(false); // Reject the Promise if canceled
+      }
+    });
+  });
+}
+
+    // function for delete the product
+    async function deleteProduct(productId){
+      try {
+        const confirmed = await confirmDelete(productId)
+        if(confirmed){
+          const response = await fetch(`/admin/delete-product/${productId}`,{
+            method:'POST',
+            headers:{
+              'Content-Type':'application/json'
+            },
+          })
+          if(response.ok){
+            const tableRow = document.getElementById(`product_${productId}`)
+            if(tableRow){
+              tableRow.remove()
+            }else{
+            }
+          }else{
+            console.log('not ok')
+          }
+        }
+      } catch (error) {
+        console.log('error occured',error)
       }
     }
 

@@ -32,7 +32,7 @@ const  toProfile = async (req, res) => {
             const firstAddress = userAddress[0]; // Assuming the first address
         
             console.log('lookuped data is ', firstAddress); 
-            res.status(200).render('./user/profile', { firstAddress, userData });
+            res.status(200).render('./user/profile', { firstAddress, userData,title:'Profile' });
         
        
     } catch (error) {
@@ -93,7 +93,7 @@ const toAddressBook = async (req, res) => {
             const alladdress = await address.find({ userId: userId }, { _id: 0, address: 1 });
             console.log('all address',alladdress)
             const error = req.query.msg
-            res.render('./user/addressBook', { alladdress,error });
+            res.render('./user/addressBook', { alladdress,error,title:'AddressBook' });
         } else {
             res.render('./user/addressBook', { alladdress: [] }); // Render with empty address array if user not found
         }
@@ -105,7 +105,7 @@ const toAddressBook = async (req, res) => {
 
 // to Add address
 const toAddAddress = (req,res)=>{
-    res.render('./user/addAddressBook')
+    res.render('./user/addAddressBook',{title:'Add Address'})
 }
 
 // add Address Post 
@@ -200,7 +200,7 @@ const toEditAddress = async (req, res) => {
         
 
         // Access the matched address object within existingAddress.address[0]
-        res.render('./user/editAddress', { existingAddress });
+        res.render('./user/editAddress', { existingAddress ,title:'Edit Address'});
 
     } catch (err) {
         console.error(err);

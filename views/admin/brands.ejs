@@ -17,29 +17,24 @@
     
 
 </div>
-
   <div class="container-fluid p-0">
-    
     <div class="test">
       <div class="row m-0">
         <div class="col-2 p-0">
             <%-include('../admin/partials/sidebar') %>
-        </div>
-        
+        </div>     
         <div class="col-10 ">
             <div class="button-div d-flex justify-content-end">
                 <button class="add-btn">
                     <a href="/admin/add-brand" style="color: rgb(255, 255, 255); text-decoration: none;">Add Brand</a>
                 </button>
-            </div>
-            
+            </div>       
             <%if(locals.err ||locals.nullError){%>
               <p id="err" style="color: red; text-align: center;"><%=err||nullError%></p>
             <%}%>
             <%if(locals.msg){%>
               <p id="msg" style="color: green; text-align: center;"><%=msg%></p>
-            <%}%>
-            
+            <%}%>     
           <div class="table-responsive">
             <table class="table table-striped">
               <thead>
@@ -71,7 +66,6 @@
                             alt="Main brand Image"
                             class="brand-image"
                         />
-
                 </td>
                 <td>
                   <a href="/admin/edit-brand/<%= brand._id %>">
@@ -107,7 +101,6 @@
       </div>
     </div>
   </div>
-
   <div class="pagination">
     <% if(currentPage > 1) { %>
       <a class=" next-btn text-white" href="/admin/brands?page=<%=currentPage - 1 %>">Previous</a>
