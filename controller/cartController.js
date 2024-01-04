@@ -8,6 +8,7 @@ const users = require('../model/userSchema')
 const cartHelpers = require('../helpers/cartHelpers')
 const { default: mongoose, set } = require('mongoose')
 const { ObjectId } = require('mongoose');
+const coupon = require('../model/coupon')
 // const { ObjectId } = require('mongodb')
 
 
@@ -64,13 +65,16 @@ const toCart = async (req, res) => {
         }
 
         const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
-        console.log('eachProductPrice',eachProductPrice)
-        
+        console.log(eachProductPrice)
+        // var firstCartItem = cartData[0];
+        // const cartTotal = firstCartItem.total
 
-        // console.log('usercartitems', userCart);
-        var firstCartItem = cartData[0];
-        const cartTotal = firstCartItem.total
-        res.render('./user/cart',{cartTotal,eachProductPrice,title:'Cart'});
+        const finalPrice = eachProductPrice.reduce((acc,current)=>{
+            return acc + current.total
+        },0);
+
+        req.session.finalPrice = finalPrice
+        res.render('./user/cart',{finalPrice,eachProductPrice,title:'Cart'});
     } catch (error) {
         console.log(error);
     }
@@ -99,7 +103,6 @@ const cartProducts = async (req, res) => {
         }
 
         const cartId = cartItemsForUser._id
-        console.log('cartID',cartId)
 
         // Extracting product ids and quantities from the user's cart
         const productDetails = cartItemsForUser.products.map(product => ({
@@ -221,8 +224,10 @@ const toCheckout = async (req, res) => {
     try {
       const quantity = req.query.quantity;
       const totalPrice = req.query.total;
-      console.log('hey quantity',quantity)
-      console.log('hey totalPrice',totalPrice)
+      
+      const finalTotal = req.session.finalTotal
+      console.log('finalTotal',finalTotal)
+
       const userEmail = req.session.email;
       const user = await users.findOne({ email: userEmail });
   
@@ -259,6 +264,8 @@ const toCheckout = async (req, res) => {
           }
         }
       ]).exec();
+
+      const finalPrice = req.session.finalPrice
   
       const cartItems = userCartData.map(cartItem => cartItem.userCartProducts);
       const flattenedCartItems = [].concat(...cartItems);
@@ -268,7 +275,7 @@ const toCheckout = async (req, res) => {
   
       const total = flattenedCartItems.reduce((acc, currentItem) => acc + currentItem.price, 0);
   
-      res.render('./user/checkout', { userCartData, userAddress, total , quantity, totalPrice,title:'Checkout'})
+      res.render('./user/checkout', { userCartData, userAddress, total , quantity, finalPrice,title:'Checkout'})
     } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');
@@ -279,9 +286,6 @@ const toCheckout = async (req, res) => {
   const updateQuantity = async (req,res)=>{
     try {
         const {cartId,productId,change} = req.body
-        console.log('cartId',cartId)
-        console.log('productId',productId)
-        console.log('change',change)
 
         const updatedCart = await cart.updateOne(
             {
@@ -309,6 +313,7 @@ const toCheckout = async (req, res) => {
     }
   }
 
+  
 
 
 module.exports = {
@@ -317,6 +322,6 @@ module.exports = {
     cartProducts,
     RemoveItem,
     toCheckout,
-    updateQuantity
+    updateQuantity,
     
 }

@@ -254,10 +254,8 @@ const indextologin = (req, res, next) => {
 const userLogin = async (req, res) => {
   try {
     const check = await User.findOne({ email: req.body.email });
-    console.log("body", req.body, check);
     if (check !== null) {
       const isMatch = await bcrypt.compare(req.body.password, check.password);
-      console.log(isMatch, " is match");
       if (isMatch) {
         if (check.status == true) {
           req.session.user = check.name;
@@ -456,20 +454,67 @@ const productSearch = async (req, res) => {
   }
 };
 
+// filter the products
 
-// fetch sample
+const getFilteredProducts = async (req, res) => {
+  try {
+    console.log(req.query)
+    const { priceRanges } = req.query; // Retrieve priceRanges from query parameters
+    console.log('priceRanges', priceRanges);
 
-const fetchingData =async (req,res)=>{
+    // Parse the priceRanges string into an array of price range objects
+    const priceRangeArray = priceRanges.split(',').map(range => {
+      const [min, max] = range.split('-').map(Number); // Split the range and convert values to numbers
+      return { price: { $gte: min, $lte: max } }; // Create MongoDB $gte and $lte criteria for the range
+    });
 
-  try{
+    // Construct the query to find products within the specified price ranges
+    const filteredProducts = await products.find({ $or: priceRangeArray });
 
-  const productData = await products.find()
-  res.json(productData)
-
-  }catch(error){
-    res.status(500).json({message:error.message})
+    res.status(200).json({ success: true, filteredProducts });
+  } catch (error) {
+    console.error('Error fetching filtered products:', error);
+    res.status(500).json({ success: false, error: 'Error fetching filtered products' });
   }
-}
+};
+
+// Backend route to filter products by brand
+const filterProductsByBrand = async (req, res) => {
+  const { brandRanges } = req.query;
+
+  try {
+    const brandArray = Array.isArray(brandRanges) ? brandRanges : [brandRanges];
+
+    const brandWiseData = await brands.aggregate([
+      {
+        $match: {
+          brandName: { $in: brandArray }
+        }
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: '_id',
+          foreignField: 'brand',
+          as: 'brandDetails'
+        }
+      },
+      {
+        $project: {
+          'brandDetails.productName': 1,
+          'brandDetails.image': 1,
+          'brandDetails.price': 1,
+          'brandDetails._id': 1
+        }
+      }
+    ]);
+
+    res.status(200).json({ success: true, brandWiseData });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, error: 'Internal server error' });
+  }
+};
 
 const toProfile = (req,res)=>{
   res.render('./user/profile')
@@ -492,6 +537,7 @@ module.exports = {
   filterByBrand,
   toViewAll,
   productSearch,
-  fetchingData,
-  toProfile
+  toProfile,
+  getFilteredProducts,
+  filterProductsByBrand
 };

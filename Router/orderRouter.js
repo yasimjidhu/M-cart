@@ -10,11 +10,14 @@ order.get('/orderSuccess', userAuth.verifyUser, orderController.orderSuccess)
 order.get('/toUserOrders', userAuth.verifyUser, orderController.toUserOrders)
 order.put('/cancelOrder/:orderId', userAuth.verifyUser, orderController.cancelOrder)
 order.get('/order-progress/:orderId', userAuth.verifyUser, orderController.getOrderStatus)
-
 order.post('/verify-payment', userAuth.verifyUser, orderController.verifyPayment)
 
 
 order.get('/cancelledOrders', userAuth.verifyUser, orderController.CancelledOrders)
 order.get('/viewDetails/:orderId', adminAuth.verifyAdmin, orderController.toAdminDetailedOrders)
+
+// apply coupons
+order.post('/applyCoupon',userAuth.verifyUser,orderController.applyCoupon)
+
 module.exports = order
 

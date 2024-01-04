@@ -8,6 +8,7 @@ const countries = require('countries-list')
 const pincode = require('india-pincode-lookup')
 const { ObjectId } = require('mongodb');
 const { use } = require('passport')
+const coupon = require('../model/coupon')
 
 
 
@@ -15,7 +16,6 @@ const { use } = require('passport')
 const  toProfile = async (req, res) => {
     const userEmail = req.session.email
     const userData = await users.findOne({email:userEmail})
-    console.log('userdata is',userData)
     const userId = userData._id
     
     try {
@@ -31,7 +31,7 @@ const  toProfile = async (req, res) => {
 
             const firstAddress = userAddress[0]; // Assuming the first address
         
-            console.log('lookuped data is ', firstAddress); 
+
             res.status(200).render('./user/profile', { firstAddress, userData,title:'Profile' });
         
        
@@ -51,10 +51,10 @@ const updateProfile = async (req, res) => {
 
             if (!acceptedImageTypes.includes(req.file.mimetype)) {
                 // Invalid image file type
-                console.log('Invalid image');
+
                 return res.status(400).json({ error: 'Invalid image file type' });
             }
-            console.log('Valid image');
+
             // Proceed to update profile
             const updatedProfile = await users.findOneAndUpdate(
                 { email: req.session.email },
@@ -88,10 +88,9 @@ const toAddressBook = async (req, res) => {
 
         if (user) {
             const userId = user._id;
-            console.log('userid',userId)
 
             const alladdress = await address.find({ userId: userId }, { _id: 0, address: 1 });
-            console.log('all address',alladdress)
+   
             const error = req.query.msg
             res.render('./user/addressBook', { alladdress,error,title:'AddressBook' });
         } else {
@@ -152,7 +151,7 @@ const addAddress = async (req, res) => {
                 address: [newAddressData]
             });
             await newAddress.save();
-            console.log('Address added successfully');
+  
             return res.status(201).json({ success: true });
         } else {
             if(existingAddress.address.length<3){
@@ -160,10 +159,10 @@ const addAddress = async (req, res) => {
                     { userId },
                     { $push: { address: newAddressData } }
                 );
-                console.log('Address added successfully');
+             
                 return res.status(201).json({ success: true });
             }else{
-                console.log('limit reached')
+            
                 return res.json({ success: false,message:"Maximum limit reached",limit:true});
 
                 // return res.status(400).json({message:'Maximum address limit reached',success:false})
@@ -241,7 +240,6 @@ const editAddress = async (req,res)=>{
         if(!updatedAddress){
             return res.status(404).json({success:false,message:'Address not found'})
         }
-        console.log('address updated')
         res.status(200).json({success:true,message:'Address Updated Successfully',updatedAddress})
 
     } catch (err) {
@@ -310,7 +308,6 @@ const getLocation = async (req, res) => {
         })
 
         if(userLocationDetails.length>0){
-            console.log('userlocationdetails',userLocationDetails[4])
             res.json(userLocationDetails[4]);
         }else{
             console.log('error')
@@ -329,15 +326,14 @@ const ResetPassword = async (req,res)=>{
     const userEmail = req.session.email
 
     try {
-        console.log('reqbody',req.body)
         
         const {currentPassword,newPassword,confirmNewPassword} = req.body
         if(currentPassword===''||newPassword===''||confirmNewPassword===''){
-            console.log('no req body')
+    
             return res.status(404).json({message:'please fill all the fields',nullBody:true})
         }
         const userData = await users.findOne({email:userEmail})
-        console.log('user data is',userData)
+
         const userCurrentPass = userData.password
 
         const currentPasswordMatched = await bcrypt.compare(currentPassword,userCurrentPass)
@@ -357,10 +353,10 @@ const ResetPassword = async (req,res)=>{
             {new:true}
         )
         if(updatedUserPass){
-            console.log('password reset successfully',updatedUserPass)
+
             return res.status(200).json({message:'Password reset successfully',success:true})
         }else{
-            console.log('user not found or password not updated')
+            
             return res.status(404).json({message:'user not found or password not updated',success:false})
         }
         }
@@ -379,12 +375,10 @@ const toCrop = (req,res)=>{
 const cropImage = (req,res)=>{
     const croppedData = req.body
 
-    console.log('cropped data',croppedData)
     res.status(200).json({success:true})
 }
 
 const editUserInfo = async (req,res,next)=>{
-    console.log('>>>>>>>>>>>>>>>>>>>>>>>>.')
     const userEmail = req.session.email
     const user = await users.findOne({email:userEmail})
     const userId = user._id
@@ -426,6 +420,16 @@ const editUserInfo = async (req,res,next)=>{
     }
 }
 
+// user coupons
+const toUserCoupons = async (req,res)=>{
+
+    try {
+        const allCoupons = await coupon.find()
+        res.render('./user/userCoupons.ejs',{allCoupons})
+    } catch (error) {
+        console.error(error)
+    }
+}
 
 
 module.exports = {
@@ -442,5 +446,6 @@ module.exports = {
     ResetPassword,
     toCrop,
     cropImage,
-    editUserInfo
+    editUserInfo,
+    toUserCoupons
 }

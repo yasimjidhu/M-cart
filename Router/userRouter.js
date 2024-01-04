@@ -50,7 +50,9 @@ router.get('/brands/filterbybrand',user.filterByBrand)
 router.get('/allproductview/:categoryId',user.toViewAll)
 router.post('/products-search',user.productSearch)
 
-
+// filter products
+router.get('/filteredProducts',user.getFilteredProducts)
+router.get('/filterProductsByBrand',user.filterProductsByBrand)
 
 
 

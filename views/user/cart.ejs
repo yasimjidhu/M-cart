@@ -32,10 +32,10 @@
       </div>
       <div class="row w-100 mt-5 ml-1  coupon-div d-flex justify-content-start align-items-center">
         <div class="col-lg-3  d-flex justify-content-start align-items-center">
-            <input class="coupon-input form-cont" type="text" placeholder="Coupon code" name="coupon">
+            <input class="coupon-input form-cont" type="text" placeholder="Coupon code" name="code" id="couponCode">
         </div>
         <div class="col-lg-5">
-            <button class="coupon-btn ">Apply Coupon</button>
+            <button class="coupon-btn" type="button" onclick="applyCoupon()">Apply Coupon</button>
         </div>
         <div class="col-lg-4">
             <div class="row h-100">
@@ -43,9 +43,9 @@
                    <div class="col-lg-12 txt-div  mt-1">
                     <h5 class="text-white">Cart Total</h5>
                     <br>
-                    <p class="bordered text-white" id="fullTotal">Sub Total: <span id="subCartTotal" class="float-right"><%=locals.cartTotal%></span></p>
+                    <p class="bordered text-white" id="fullTotal">Sub Total: <span id="subCartTotal" class="float-right"><%=locals.finalPrice%></span></p>
                     <p class="bordered text-white">Shipping <span class="float-right">Free</span></p>
-                    <p class="text-white">Total <span class="float-right" id="wholeTotal" ><%=locals.cartTotal%></span></p>
+                    <p class="text-white">Total <span class="float-right" id="wholeTotal" ><%=locals.finalPrice%></span></p>
                     <div class="checkout-div ">
                       <a href="#" class="checkout-btn" style="text-decoration: none; color: black;">Process To Checkout</a>
                     </div>
@@ -174,7 +174,7 @@
 
           // Subtotal cell
           const subtotalTd = document.createElement('td');
-          subtotalTd.textContent = '<%=cartTotal%>';
+          subtotalTd.textContent = '<%=finalPrice%>';
           subtotalTd.classList.add('productSubtotal');
           tr.appendChild(subtotalTd);
 
@@ -331,6 +331,43 @@ function deleteAlert() {
     });
   });
 }
+
+
+function showSweetAlert(icon, title, text) {
+    Swal.fire({
+        icon: icon,
+        title: title,
+        text: text,
+        showConfirmButton:true
+    });
+}
+
+
+
+async function applyCoupon() {
+    const couponCode = document.getElementById('couponCode').value;
+
+    try {
+        const response = await fetch('/order/applyCoupon', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ couponCode: couponCode }) // Sending as JSON object
+        });
+
+        if (!response.ok) {
+            const errorMessage = await response.json();
+            showSweetAlert('error', 'Failed to apply coupon', errorMessage.message);
+            throw new Error('Failed to apply coupon');
+        } else {
+            showSweetAlert('success', 'Applied the coupon', '');
+        }
+    } catch (err) {
+        console.error(err);
+    }
+}
+
 </script>
 
 

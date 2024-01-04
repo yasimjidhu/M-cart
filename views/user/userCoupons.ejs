@@ -1,0 +1,78 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+<!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+<style>
+    .card {
+        box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+    }
+</style>
+
+<div class="container-fluid m-0 p-0">
+    <div class="row m-0 p-0">
+        <div class="col-lg-2 p-0">
+            <%-include('../user/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10">
+            <div class="row">
+                <% if(allCoupons && allCoupons.length>0){ %>
+                    <% allCoupons.forEach(item =>{ %>
+                        <div class="col-lg-4 m-3">
+                            <div class="card mt-3" style="width: 18rem;">
+                                <div class="card-body text-center">
+                                    <h4 class="card-title mb-4 text-info"><%=item.couponName %></h4>
+                                    <p class="mb-3"><span class="mr-3 text-dark">Coupon code:</span><%= item.code %></p>
+                                    <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">Minimum Amount:</span><%= item.minimumAmount %></h6>
+                                    <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">Discount Amount:</span><%= item.discountAmount %></h6>
+                                    <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">End Date:</span><%= item.endDate.toLocaleDateString('en-US') %></h6>
+                                    <button class="btn btn-success" onclick="copyCouponCode('<%=item.code%>')">Copy Coupon Code</button>
+                                    <div id="alertContainer"></div>
+                                </div>
+                            </div>
+                        </div>
+                    <% }) %>
+                <% } %>
+             </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+function copyCouponCode(couponCode) {
+    navigator.clipboard.writeText(couponCode)
+        .then(() => {
+            // Success message when the text is copied
+            console.log('Coupon code copied to clipboard:', couponCode);
+            const alertContainer = document.getElementById('alertContainer');
+            const successAlert = document.createElement('div');
+            successAlert.classList.add('alert', 'alert-success', 'mt-3');
+            successAlert.innerHTML = `
+                code copied to clipboard: ${couponCode}
+            `;
+            alertContainer.appendChild(successAlert);
+            // Automatically dismiss the alert after a certain time (e.g., 3 seconds)
+            setTimeout(() => {
+                successAlert.remove();
+            }, 1000);
+        })
+        .catch(err => {
+            // Error handling if the copy operation fails
+            console.error('Failed to copy:', err);
+            const alertContainer = document.getElementById('alertContainer');
+            const errorAlert = document.createElement('div');
+            errorAlert.classList.add('alert', 'alert-danger', 'mt-3');
+            errorAlert.innerHTML = `
+                <strong>Error!</strong> Failed to copy the coupon code
+            `;
+            alertContainer.appendChild(errorAlert);
+            // Automatically dismiss the alert after a certain time (e.g., 3 seconds)
+            setTimeout(() => {
+                errorAlert.remove();
+            }, 3000);
+        });
+}
+</script>

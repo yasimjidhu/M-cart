@@ -152,8 +152,30 @@ admin.get("/orders", adminController.toOrders);
 admin.put("/updateOrderStatus", adminController.updateOrderStatus);
 
 // download excel sales report
-admin.get('/downloadSalesReport',adminController.downloadSales)
+admin.get('/downloadDailySalesReport',adminController.downloadDailySales)
 
+
+// coupon
+admin.get('/toCoupons',adminController.toCoupons)
+admin.post('/addCoupon',adminController.createCoupon)
+admin.get('/getCoupon/:couponId',adminController.getSingleCoupon)
+admin.post('/editCoupon',adminController.editCoupon)
+admin.delete('/deleteCoupon/:couponId',adminController.deleteCoupon)
+
+
+admin.get('/toProductOffer',adminauth.verifyAdmin,adminController.toProductOffer)
+admin.post('/addProductOffer',adminauth.verifyAdmin,adminController.createProductOffer)
+admin.get('/getProductOffer/:offerId',adminauth.verifyAdmin,adminController.getSingleProductOffer)
+admin.delete('/deleteProductOffer/:offerId',adminauth.verifyAdmin,adminController.deleteProductOffer)
+admin.post('/editOfferProduct',adminauth.verifyAdmin,adminController.editproductOffer)
+
+
+
+
+
+
+
+// error handling middleware
 admin.use((req, res) => {
   try {
     res.status(404).render("./user/404");

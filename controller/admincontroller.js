@@ -8,13 +8,15 @@ const category = require("../model/category");
 const brands = require("../model/brands");
 const orders = require('../model/orders')
 const cartModel = require('../model/cart')
+const coupon = require('../model/coupon')
+const productOffer = require('../model/productOffer')
 const { reset } = require("nodemon");
 const sharp = require('sharp')
 const fs = require('fs').promises;
 const path = require('path');
 const { log } = require("console");
 const cart = require("../Router/cartRouter");
-const Excel = require('exceljs')
+const Excel = require('exceljs');
 
 
 // Admin creadentials
@@ -122,7 +124,6 @@ const weeklySales = async (req, res) => {
 // get Yearly sales
 const yearlySales = async (req, res) => {
   try {
-    // console.log('yearly sales called')
     // Get unique years from the deliveryDate in the orders collection
     const uniqueYears = await orders.aggregate([
       {
@@ -1174,45 +1175,81 @@ const updateOrderStatus = async (req,res)=>{
 
 
 // download sales report
-const downloadSales = async (req, res) => {
+const downloadDailySales = async (req, res) => {
   try {
     // Set the start and end of the current day
-    console.log('called in ')
     const currentDate = new Date();
-    const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
+    const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 6, 0, 0, 0, 0); // Adjust the number of days as needed
     const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
-
-    // Daily sales aggregation pipeline
-    const dailySales = await orders.aggregate([
+    // Aggregate sales for the past week
+    const dailySaleData = await orders.aggregate([
       {
         $match: {
-          deliveryDate: { $gte: startOfDay, $lte: endOfDay },
-          status: 'Paid' // Assuming you want to consider only 'Paid' orders
+          deliveryDate: { $gte: startOfWeek, $lte: endOfDay },
+          status: 'Paid'
+        }
+      },
+      {
+        $unwind: '$products'
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'dailyproducts'
         }
       },
       {
         $group: {
           _id: {
-            $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$deliveryDate' } } // Grouping by day
+            $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$deliveryDate' } }
           },
-          totalSales: { $sum: '$totalAmount' } // Calculate total sales for each day
+          totalSales: { $sum: '$totalAmount' },
+          dailyproducts: { $push: '$dailyproducts' }, // Accumulate dailyproducts array for each grouped date
+          userId:{$push:'$userId'},
+          paymentMode:{$push:'$paymentmode'},
+          totalAmount:{$push:'$totalAmount'},
+          orderId:{$push:'$_id'}
         }
       },
       {
-        $sort: { _id: 1 } // Sort by day
+        $sort: { _id: 1 }
+      },
+      {
+        $project:{
+          _id: 1,
+          totalSales: 1,
+          dailyproducts: 1,
+          userId:1,
+          paymentMode:1,
+          totalAmount:1,
+          orderId:1
+        }
       }
     ]);
+
 
     const workbook = new Excel.Workbook();
     const worksheet = workbook.addWorksheet('Sales Report');
 
     // Add headers
-    worksheet.addRow(['Date', 'Total Sales']);
+    worksheet.addRow(['Date','OrderID','Product Name','Total Amount','Payment Method']);
 
     // Add data to the worksheet
-    dailySales.forEach(sale => {
-      worksheet.addRow([sale._id, sale.totalSales]);
+    dailySaleData.forEach(daySale => {
+      daySale.dailyproducts.forEach(innerArray => {
+        innerArray.forEach(product => {
+          daySale.paymentMode.forEach(mode =>{
+            daySale.totalAmount.forEach(amount=>{
+              worksheet.addRow([daySale._id, product.productName,daySale.totalSales,amount,mode]);
+            })
+          })
+        });
+      });
     });
+
+    console.log('daily sales has downloaded',dailySaleData)
 
     // Set content type and disposition for file download
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
@@ -1221,13 +1258,400 @@ const downloadSales = async (req, res) => {
     // Write the workbook data to the response
     await workbook.xlsx.write(res);
     res.status(200).end();
-    console.log('downloaded')
   } catch (err) {
     console.error('Error generating sales report', err);
     res.status(500).send('Error generating sales report');
   }
 };
 
+const downloadWeeklySales = async(req,res)=>{
+  try{
+    const today = new Date();
+    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay(), 0, 0, 0, 0);
+    const endOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + 6, 23, 59, 59, 999);
+
+    const weeklySalesData = await orders.aggregate([
+      {
+        $match: {
+          deliveryDate: { $gte: startOfWeek, $lte: endOfWeek },
+          status: 'Paid'
+        }
+      },
+      {
+        $unwind: '$products'
+      },
+      {
+        $lookup: {
+          from: 'products',
+          localField: 'products.productId',
+          foreignField: '_id',
+          as: 'weeklyproducts'
+        }
+      },
+      {
+        $group: {
+          _id: { $dayOfWeek: '$deliveryDate' }, // Grouping by day of the week (Sunday = 1, Monday = 2, ..., Saturday = 7)
+          totalSales: { $sum: '$totalAmount' },
+          weeklyProducts:{$push:'$weeklyproducts'},
+          userId:{push:'$userId'},
+          paymentMode:{$push:'$paymentmode'},
+          totalAmount:{$push:'$totalAmount'},
+          orderId:{$push:'$_id'}
+        }
+      },
+      { $sort: { '_id': 1 } }, // Sort by day of the week
+      {
+        $project:{
+          _id: 1,
+          totalSales: 1,
+          weeklyProducts: 1,
+          userId:1,
+          paymentMode:1,
+          totalAmount:1,
+          orderId:1
+        }
+      }
+    ]);
+
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Sales Report');
+
+    // Add headers
+    worksheet.addRow(['Date','OrderID','Product Name','Total Amount','Payment Method']);
+
+    // Add data to the worksheet
+    weeklySalesData.forEach(daySale => {
+      daySale.dailyproducts.forEach(innerArray => {
+        innerArray.forEach(product => {
+          daySale.paymentMode.forEach(mode =>{
+            daySale.totalAmount.forEach(amount=>{
+              worksheet.addRow([daySale._id, product.productName,daySale.totalSales,amount,mode]);
+            })
+          })
+        });
+      });
+    });
+
+    // Set content type and disposition for file download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="sales-report.xlsx"');
+
+    // Write the workbook data to the response
+    await workbook.xlsx.write(res);
+  }catch(err){
+    console.error(err)
+  }
+}
+
+
+
+// download yearly sales
+const downloadYearlySales = async (req, res) => {
+  try {
+    // Fetch yearly sales data from your database
+       // Get unique years from the deliveryDate in the orders collection
+       const uniqueYears = await orders.aggregate([
+        {
+          $group: {
+            _id: { $year: '$deliveryDate' } // Grouping by year from deliveryDate
+          }
+        },
+        {
+          $sort: { '_id': 1 } // Sort the data by year
+        }
+      ]);
+  
+      const yearlySalesData = [];
+  
+      // For each unique year, calculate total sales
+      for (const year of uniqueYears) {
+        const yearVal = year._id;
+  
+        // Aggregate pipeline to calculate yearly sales for each unique year
+        const yearlySalesAggregate = await orders.aggregate([
+          {
+            $match: {
+              deliveryDate: {
+                $gte: new Date(`${yearVal}-01-01T00:00:00.000Z`), // Start of the year
+                $lte: new Date(`${yearVal}-12-31T23:59:59.999Z`) // End of the year
+              },
+              status: 'Paid'
+            }
+          },
+          {
+            $group: {
+              _id: null, // Grouping all results together for the whole year
+              totalSales: { $sum: '$totalAmount' }
+            }
+          }
+        ]);
+  
+        yearlySalesData.push({
+          year: yearVal,
+          sales: yearlySalesAggregate.length > 0 ? yearlySalesAggregate[0].totalSales : 0
+        });
+      }
+
+    const workbook = new Excel.Workbook();
+    const worksheet = workbook.addWorksheet('Yearly Sales Report');
+
+    // Add headers to the worksheet
+    worksheet.addRow(['Year', 'Total Sales']);
+
+    // Add yearly sales data to the worksheet
+    yearlySalesData.forEach(yearData => {
+      worksheet.addRow([yearData.year, yearData.totalSales]);
+    });
+
+    // Set content type and disposition for file download
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', 'attachment; filename="yearly-sales-report.xlsx"');
+
+    // Write the workbook data to the response
+    await workbook.xlsx.write(res);
+  } catch (err) {
+    console.error('Error generating yearly sales report', err);
+    res.status(500).send('Error generating yearly sales report');
+  }
+};
+
+
+// coupon 
+const toCoupons =async (req,res)=>{
+
+  const allCoupons = await coupon.find()
+  res.render('./admin/coupon.ejs',{allCoupons})
+}
+
+// Add coupon
+const createCoupon = async (req,res)=>{
+
+  try {
+    const {couponName,code,minimumAmount,discountAmount,startDate,endDate,maxUsage} = req.body
+
+    const couponExist = await coupon.findOne({couponName:couponName})
+
+    if(couponExist){
+      res.status(400).json({success:false,message:'This coupon is already exist'})
+    }
+
+    const newCoupon = new coupon({
+      couponName,
+      code,
+      minimumAmount,
+      discountAmount,
+      startDate,
+      endDate,
+      maxUsage
+    })
+
+
+     // Save the new coupon to the database
+    await newCoupon.save()
+
+    res.status(201).json({ message: 'Coupon created successfully', coupon: newCoupon });
+  } catch (error) {
+    res.status(500).json({ message: 'Failed to create coupon', error: error.message });
+    console.error(error)
+  }
+}
+
+// get the specific coupon with the id 
+const getSingleCoupon = async (req,res)=>{
+  const couponId = req.params.couponId
+
+  try {
+
+    const singleCoupon = await coupon.findOne({_id:couponId})
+    console.log(singleCoupon)
+    res.status(200).json({success:true,singleCoupon})
+
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({message:'internal server error'})
+  }
+}
+
+// edit Coupon 
+const editCoupon = async (req, res) => {
+  const { couponId, couponName, code, minimumAmount, discountAmount, startDate, endDate, maxUsage } = req.body;
+
+  try {
+      // Check if the coupon exists
+      const existingCoupon = await coupon.findById(couponId);
+      
+      if (!existingCoupon) {
+          console.log('coupon not found')
+          return res.status(404).json({ message: 'Coupon not found' });
+      }
+
+      // startDate and endDate are properties in req.body
+      const startDateFromBody = req.body.startDate;
+      const endDateFromBody = req.body.endDate;
+
+      // Update the coupon details
+      existingCoupon.couponName = couponName;
+      existingCoupon.code = code;
+      existingCoupon.minimumAmount = minimumAmount;
+      existingCoupon.discountAmount = discountAmount;
+      existingCoupon.startDate = startDateFromBody ? startDateFromBody :existingCoupon.startDate ;
+      existingCoupon.endDate = endDateFromBody ? endDateFromBody :existingCoupon.endDate  ;
+      existingCoupon.maxUsage = maxUsage;
+
+      // Save the updated coupon
+      await existingCoupon.save();
+      console.log('edited')
+
+      return res.status(200).json({ message: 'Coupon updated successfully' });
+  } catch (error) {
+      return res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+// Delete the coupon
+const deleteCoupon = async (req, res) => {
+  const couponId = req.params.couponId; 
+
+  try {
+      // Find the coupon by ID and delete it
+      const deletedCoupon = await coupon.findByIdAndDelete(couponId);
+
+      if (!deletedCoupon) {
+          return res.status(404).json({ message: 'Coupon not found' });
+      }
+
+      // Return a success message
+      return res.status(200).json({ message: 'Coupon deleted successfully' });
+  } catch (error) {
+      // Handle errors
+      console.error('Error deleting coupon:', error);
+      return res.status(500).json({ message: 'Failed to delete coupon' });
+  }
+};
+
+
+// to product offer
+const toProductOffer = async (req,res)=>{
+    try{
+
+      const allProducts = await products.find()
+      const allProductOffers = await productOffer.find()
+      res.render('./admin/productOffer.ejs',{allProducts,allProductOffers})
+
+    }catch(err){
+      console.log(err)
+    }
+}
+
+
+// Add product Offer
+const createProductOffer = async (req, res) => {
+  console.log('createProductOffer called');
+
+  const { productId, productName, OfferPercentage, startDate, endDate } = req.body;
+
+  try {
+      // Ensure all required fields are present in the request body
+      if (!productId || !productName || !OfferPercentage || !startDate || !endDate) {
+          return res.status(400).json({ message: 'Please provide all necessary fields' });
+      }
+
+      // You may want to check if productId is valid or exists in the database here
+      const productFound = await products.findOne({_id:productId})
+
+      if(!productFound){
+        return res.status(404).json({success:false,message:'The product not found in the database'})
+      }
+      const newProductOffer = new productOffer({
+          productId: productId,
+          productName: productName, 
+          OfferPercentage: OfferPercentage,
+          addedDate: startDate,
+          endDate: endDate
+      });
+
+      await newProductOffer.save();
+      console.log('saves offerproducts')
+
+      res.status(201).json({ message: 'Product offer created successfully', productOffer: newProductOffer });
+  } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Failed to create product offer', error: err.message });
+  }
+};
+
+
+// Get single productOfer for editing purpose
+const getSingleProductOffer = async (req,res)=>{
+  const productOfferId = req.params.offerId
+
+  try{
+    const singleProductOffer = await productOffer.findOne({_id:productOfferId})
+    if(!singleProductOffer){
+      return res.status(404).json({message:'product offer not found'})
+    }
+    res.status(200).json({success:true,singleProductOffer})
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
+// edit the product offer
+const editproductOffer = async (req,res)=>{
+  console.log(req.body)
+  const {productOfferId,productId,productName,OfferPercentage,startDate,endDate} = req.body
+
+
+  try{
+
+    // Check if the coupon exists
+    const existingOffer = await productOffer.findById(productOfferId)
+
+    if(!existingOffer){
+      console.log('productoffer not found')
+      return res.status(404).json({message:'No offer found for this product'})
+    }
+
+    // startDate and endDate are properties in req.body
+    const startDateFromBody = startDate;
+    const endDateFromBody = endDate;
+
+    existingOffer.productId = productId;
+    existingOffer.productName = productName;
+    existingOffer.OfferPercentage = OfferPercentage;
+    existingOffer.addedDate = startDateFromBody ? startDateFromBody : existingOffer.addedDate;
+    existingOffer.endDate = endDateFromBody ? endDateFromBody : existingOffer.endDate;
+
+    //save the updated product offer
+    await existingOffer.save()
+    console.log('offer edited')
+
+    return res.status(200).json({message:'Product offer Updated'})
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({message:'Internal server error'})
+  }
+
+}
+
+// remove the product offer 
+const deleteProductOffer = async (req,res)=>{
+  console.log('deletion reached')
+  const productOfferId = req.params.offerId
+
+  try {
+    
+    const deleted = await productOffer.findByIdAndDelete(productOfferId)
+
+    if(!deleted){
+      return res.status(404).json({message:'Product offer not found'})
+    }
+    res.status(200).json({success:true})
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 
 // Admin logout
@@ -1281,5 +1705,17 @@ module.exports = {
   toOrders,
   updateOrderStatus,
   deleteProductImage,
-  downloadSales  
+  downloadDailySales,
+  downloadWeeklySales,
+  toCoupons,
+  createCoupon,
+  getSingleCoupon,
+  editCoupon,
+  deleteCoupon,
+  toProductOffer,
+  createProductOffer,
+  getSingleProductOffer,
+  deleteProductOffer,
+  editproductOffer
+  
 };

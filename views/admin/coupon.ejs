@@ -1,0 +1,410 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+    <!--Navbar-->
+    <%-include('../admin/partials/nav') %>
+
+        <style>
+            .card {
+                box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.5);
+            }
+        </style>
+
+        <div class="container-fluid p-0">
+            <div class="row m-0">
+                <div class="col-lg-2 p-0">
+                    <%-include('../admin/partials/sidebar') %>
+                </div>
+                <div class="col-lg-10">
+                    <h3 class="mt-4">Coupons</h3>
+                    <!---add coupon button-->
+                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Coupon</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add Coupon</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="" id="addCouponForm">
+                                        <div class="form-group">
+                                            <label for="exampleInputEmail1">Coupon Name</label>
+                                            <input type="text" class="form-control" id="couponName" name="couponName" placeholder="Diwali offer">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="couponCode">Coupon Code</label>
+                                            <input type="text" class="form-control" id="couponCode" name="code" placeholder="#Diwali212">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="discountAmount">Minimum Amount</label>
+                                            <input type="number" min="0" class="form-control" id="minimumAmount" name="minimumAmount" placeholder="2000">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="discountAmount">Discount Amount</label>
+                                            <input type="number" min="0" class="form-control" id="discountAmount" name="discountAmount" placeholder="2000">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="startDate">Start Date</label>
+                                            <input type="date" class="form-control" id="startDate" name="startDate" placeholder="5-1-2023">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="endDate">End Date</label>
+                                            <input type="date" class="form-control" id="endDate" name="endDate" placeholder="10-1-2023">
+                                          </div>
+                                          <div class="form-group">
+                                            <label for="maxUsage">maxUsage</label>
+                                            <input type="number" class="form-control" id="maxUsage" name="maxUsage" placeholder="3">
+                                          </div>
+                                          <button type="submit" style="display: none;" id="hiddenSubmitBtn"></button>
+                                        
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary" id="addCouponBtn">Add Coupon</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                    <% if(allCoupons && allCoupons.length>0){ %>
+                        <% allCoupons.forEach(item =>{ %>
+                            <div class="col-lg-3 m-3">
+                                <div class="card mt-3" style="width: 18rem;">
+                                    <div class="card-body text-center">
+                                        <h4 class="card-title mb-4"><%=item.couponName %></h4>
+                                        <p class="mb-3"><span class="mr-3 text-dark">Coupon code:</span><%= item.code %></p>
+                                        <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">Minimum Amount:</span><%= item.minimumAmount %></h6>
+                                        <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">Discount Amount:</span><%= item.discountAmount %></h6>
+                                        <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">Start Date:</span><%= item.startDate.toLocaleDateString('en-US') %></h6>
+                                        <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">End Date:</span><%= item.endDate.toLocaleDateString('en-US') %></h6>
+                                        <h6 class="card-subtitle mb-4"><span class="mr-3 text-dark">Max Usage:</span><%= item.maxUsage %></h6>
+                                        <div class="d-flex justify-content-around">
+                                            <!---Edit coupon button-->
+                                            <button type="button" class="btn btn-primary editCouponBtn" data-bs-toggle="modal"  data-coupon-id="<%= item._id %>" data-bs-target="#editCouponModal">Edit</button>
+                                            <button type="button" class="btn btn-danger px-2 py-1" onclick="confirmDeleteCoupon('<%=item._id %>')">Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }) %>
+                    <% } %>
+                 </div>
+                 <!-- Edit coupon Modal -->
+                <div class="modal fade" id="editCouponModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="exampleModalLabel">Edit Coupon</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <form action="" id="EditCouponForm">
+                                    <div class="form-group">
+                                        <label for="exampleInputEmail1">Coupon Name</label>
+                                        <input type="text" class="form-control" id="EditcouponName" name="couponName"
+                                            placeholder="Diwali offer">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="couponCode">Coupon Code</label>
+                                        <input type="text" class="form-control" id="EditcouponCode" name="code" placeholder="#Diwali212">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="discountAmount">Minimum Amount</label>
+                                        <input type="number" min="0" class="form-control" id="EditminimumAmount" name="minimumAmount"
+                                            placeholder="2000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="discountAmount">Discount Amount</label>
+                                        <input type="number" min="0" class="form-control" id="EditdiscountAmount" name="discountAmount"
+                                            placeholder="2000">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="startDate">Start Date</label>
+                                        <input type="date" class="form-control" id="EditstartDate" name="startDate" placeholder="5-1-2023">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="endDate">End Date</label>
+                                        <input type="date" class="form-control" id="EditendDate" name="endDate" placeholder="10-1-2023">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="EditmaxUsage">maxUsage</label>
+                                        <input type="number" class="form-control" id="EditmaxUsage" name="EditmaxUsage" placeholder="3">
+                                    </div>
+                                    <input type="hidden" id="EditCouponId">
+                                    <button type="submit" style="display: none;" id="hiddenEditSubmitBtn"></button>
+                
+                                </form>
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="EditCouponBtn">Edit Coupon</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+            // function to add the coupon
+            document.getElementById('addCouponBtn').addEventListener('click', async function (event) {
+                event.preventDefault()
+
+                // Trigger the form submission by simulating a click on the hidden submit button
+                document.getElementById('hiddenSubmitBtn').click();
+  
+                // input validation
+                function isEmpty(value) {
+                    const trimmed = value.trim()
+                    return trimmed === ""
+                }
+
+                function validName(value) {
+                    const regex = /^[A-Za-z'-]+(?:\s[A-Za-z'-]+)*$/
+                    return regex.test(value)
+                }
+                function validNumber(value) {
+                    const regex = /^\d+$/;
+                    return regex.test(value);
+                }
+
+                const couponName = document.getElementById('couponName').value;
+                const code = document.getElementById('couponCode').value;
+                const minimumAmount = document.getElementById('minimumAmount').value;
+                const discountAmount = document.getElementById('discountAmount').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+                const maxUsage = document.getElementById('maxUsage').value;
+
+                //validate form fields
+                if (isEmpty(couponName) || !validName(couponName)) {
+                    showErrorAlert('please enter a vaid coupon name')
+                    return
+                }
+                if (isEmpty(code)) {
+                    showErrorAlert('please enter a vaid coupon code')
+                    return
+                }
+                if (isEmpty(minimumAmount) || !validNumber(minimumAmount)) {
+                    showErrorAlert('please enter a vaid minimum amount')
+                    return
+                }
+                if (isEmpty(discountAmount) || !validNumber(discountAmount)) {
+                    showErrorAlert('please enter a vaid discount amount')
+                    return
+                }
+                if (isEmpty(startDate)) {
+                    showErrorAlert('please enter a vaid startDate')
+                    return
+                }
+                if (isEmpty(endDate)) {
+                    showErrorAlert('please enter a vaid endDate')
+                    return
+                }
+                if (isEmpty(maxUsage) || !validNumber(maxUsage)) {
+                    showErrorAlert('please enter a vaid maxUsage')
+                    return
+                }
+
+                // function for showing the alert message
+                function showErrorAlert(message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Input',
+                        text: message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+
+                // else the form is valid the next function will work
+                const couponData = {
+                    couponName,
+                    code,
+                    minimumAmount,
+                    discountAmount,
+                    startDate,
+                    endDate,
+                    maxUsage,
+                }
+
+                // call a fetch to send the coupon to the bcakend
+                const response = await fetch('/admin/addCoupon', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(couponData)
+                });
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to Add coupon',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added',
+                        text: 'coupon added successflly',
+                        showConfirmButton: false,
+                        timer: 2000
+                    }).then(()=>{
+                        window.location.reload()
+                    })
+                }
+            })
+
+
+    document.querySelectorAll('.editCouponBtn').forEach(button => {
+        button.addEventListener('click', async function () {
+        const couponId = this.getAttribute('data-coupon-id');
+
+        // Fetch coupon details using the couponId from the backend
+        const response = await fetch(`/admin/getCoupon/${couponId}`, {
+            method: 'GET',
+        });
+
+        if (response.ok) {
+            const couponData = await response.json();
+ 
+            // Populate the edit modal fields with coupon details
+            document.getElementById('EditcouponName').value = couponData.singleCoupon.couponName;
+            document.getElementById('EditcouponCode').value = couponData.singleCoupon.code;
+            document.getElementById('EditminimumAmount').value = couponData.singleCoupon.minimumAmount;
+            document.getElementById('EditdiscountAmount').value = couponData.singleCoupon.discountAmount;
+            document.getElementById('EditstartDate').value = couponData.singleCoupon.startDate;
+            document.getElementById('EditendDate').value = couponData.singleCoupon.endDate;
+            document.getElementById('EditmaxUsage').value = couponData.singleCoupon.maxUsage;
+
+             // Store the coupon ID in a hidden field in the edit modal form
+             document.getElementById('EditCouponId').value = couponId;
+
+            // Display the edit modal
+            const editModal = new bootstrap.Modal(document.getElementById('editCouponModal'));
+            editModal.show();
+        } else {
+            console.error('Failed to fetch data');
+        }
+    });
+});
+
+document.getElementById('EditCouponBtn').addEventListener('click', async function (event) {
+    event.preventDefault();
+
+    // Get the coupon ID from the hidden field in the edit modal form
+    const couponId = document.getElementById('EditCouponId').value;
+
+    // Fetch the form input values
+    const couponName = document.getElementById('EditcouponName').value;
+    const code = document.getElementById('EditcouponCode').value;
+    const minimumAmount = document.getElementById('EditminimumAmount').value;
+    const discountAmount = document.getElementById('EditdiscountAmount').value;
+    const startDate = document.getElementById('EditstartDate').value;
+    const endDate = document.getElementById('EditendDate').value;
+    const maxUsage = document.getElementById('EditmaxUsage').value;
+
+    // Create the coupon data object
+    const couponData = {
+        couponId,
+        couponName,
+        code,
+        minimumAmount,
+        discountAmount,
+        startDate,
+        endDate,
+        maxUsage,
+    }
+
+    // Call a fetch to send the coupon to the backend
+    const response = await fetch('/admin/editCoupon', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(couponData)
+    });
+
+    if (!response.ok) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to Edit coupon',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    } else {
+        // Show success alert
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Coupon Edited successfully',
+            showConfirmButton: false,
+            timer: 2000
+        }).then((result) => {
+            // Reload the page after the alert is closed
+            if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+                window.location.reload();
+            }
+        });
+    }
+});
+
+
+// Function to confirm and delete the coupon
+async function confirmDeleteCoupon(couponId) {
+    const swalResult = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (swalResult.isConfirmed) {
+        // If user confirms, proceed to delete the coupon
+        deleteCoupon(couponId);
+    } else {
+        // If user cancels, show a message
+        Swal.fire('Cancelled', 'Your coupon is safe :)', 'info');
+    }
+}
+
+// Function to actually delete the coupon
+async function deleteCoupon(couponId) {
+    try {
+        const response = await fetch(`/admin/deleteCoupon/${couponId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            Swal.fire('Failed', 'Failed to delete the coupon', 'error');
+        } else {
+            Swal.fire('Deleted', 'The coupon has been deleted', 'success')
+            .then(()=>{
+                window.location.reload()
+            })
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'An error occurred while deleting the coupon', 'error');
+    }
+}
+
+
+</script>

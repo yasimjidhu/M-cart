@@ -35,8 +35,9 @@ account.get('/fetch-location',userAuth.profileAuth, accountController.getLocatio
 account.post('/reset-password', userAuth.profileAuth, accountController.ResetPassword)
 account.post('/edit-UserInfo', userAuth.profileAuth, accountController.editUserInfo)
 
+// user coupons
+account.get('/toUserCoupons',userAuth.profileAuth,accountController.toUserCoupons)
 
-account.get('/crop', accountController.toCrop)
-account.post('/cropImage', accountController.cropImage)
+
 module.exports = account;
 

@@ -13,6 +13,8 @@ const { use } = require('passport')
 const order = require('../Router/orderRouter')
 const errorHandler = require('../middleware/errorMiddleware')
 const Cart = require('../model/cart')
+const coupon = require('../model/coupon')
+const cartHelpers = require('../helpers/cartHelpers')
 const crypto = require('crypto')
 const Razorpay = require('razorpay')
 require('dotenv').config()
@@ -521,6 +523,63 @@ const getOrderStatus = async (req,res)=>{
 }
 
 
+// apply the coupon 
+const applyCoupon = async (req, res) => {
+
+    try {
+        const { couponCode } = req.body; 
+
+        if(!couponCode){
+            return res.status(404).json({ message: 'Please provide a valid coupon code' });
+        }
+
+        const user = await users.findOne({ email: req.session.email });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const userId = user._id;
+
+        const couponFound = await coupon.findOne({ code: couponCode });
+        if (!couponFound) {
+            return res.status(404).json({ message: 'Coupon not found' });
+        }
+
+         // Check if the coupon can still be used based on its maxUsage limit
+        if(couponFound.usages >= couponFound.maxUsage){
+            return res.status(400).json({message:'Coupon usage limit exceeded'})
+        }
+        const totalPrice = await cartHelpers.totalCartAmount(userId);
+
+        // checking if the user's total amount meet's the minimum required for the coupon
+        if(totalPrice < couponFound.minimumAmount){
+            return res.status(400).json({message:'Total amount does not meet the coupon requirements'})
+        }
+
+        const currentDate = new Date();
+        if (currentDate < couponFound.startDate || currentDate > couponFound.endDate) {
+            return res.status(400).json({ message: 'Coupon is not valid at the current date' });
+        }
+
+        // reduce the discount amount from the user's total amount
+        const discountedAmount = Math.min(couponFound.discountAmount,totalPrice)
+        const finalTotal = totalPrice - discountedAmount
+
+        req.session.finalTotal = finalTotal
+        // Update the coupon usage count and push the current timestamp to usageTime
+        couponFound.usages++;
+        couponFound.usageTime.push(Date.now())  // Push the current timestamp
+
+        await couponFound.save()
+
+        res.status(200).json({ success: true,discountedAmount, finalTotal });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+
 
 module.exports = {
     placeOrder,
@@ -530,7 +589,8 @@ module.exports = {
     getOrderStatus,
     CancelledOrders,
     toAdminDetailedOrders,
-    verifyPayment
+    verifyPayment,
+    applyCoupon
 
 }
  

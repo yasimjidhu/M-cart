@@ -156,11 +156,11 @@
           </div>
           <div class="col-lg-12">
             <h6 class="bordered">Subtotal <span class="float-right">
-                <%=totalPrice%>
+                <%=finalPrice%>
               </span></h6>
             <h6 class="bordered">Shipping <span id="displayedShippingPrice" class="float-right">0</span></h6>
             <h6 class="bordered">Total <span id="displayedTotalPrice" class="float-right">
-                <%=totalPrice %>
+                <%=finalPrice %>
               </span></h6>
           </div>
           <div class="col-lg-12">
@@ -204,7 +204,7 @@
           <p>Type:<span class="ml-1">Paid</span></p>
           <p>Shipping charge:<span class="ml-1 text-danger">150</span></p>
           <input type="hidden" name="quantity" value="<%=quantity%>" id="allQuantity">
-          <input type="hidden" name="totalPrice" value="<%=totalPrice%>" id="totalPrice">
+          <input type="hidden" name="totalPrice" value="<%=finalPrice%>" id="totalPrice">
         </div>
       </div>
       <!-- </form> -->
@@ -485,7 +485,7 @@
         // Function to update displayed total price based on the selected method and cart total
         function updateTotalPrice() {
           const selectedShipping = document.querySelector('input[name="shippingMethod"]:checked');
-          const cartTotal = parseFloat('<%=totalPrice%>');
+          const cartTotal = parseFloat('<%=finalPrice%>');
 
 
           if (selectedShipping) {
@@ -547,7 +547,7 @@
 
           // Get quantity and total price from the DOM elements
           const quantity = document.getElementById('allQuantity').value;
-          const cartTotal = parseFloat('<%=totalPrice%>');
+          const cartTotal = parseFloat('<%=finalPrice%>');
 
           // Calculate total price including shipping charges
           const shippingCharge = shippingCharges[selectedShippingType];

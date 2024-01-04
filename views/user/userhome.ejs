@@ -1,355 +1,534 @@
 <!--header-->
 
 <%-include('../user/partials/header') %>
-
-  <!--Navbar-->
-
   <%-include('../user/partials/navbar') %>
-    <style>
-      /* Add this CSS to your stylesheet to set a fixed size for the images */
-      .product-image {
-        width: 100%;
-        height: 200px;
-        /* Adjust the height to your desired value */
-        object-fit: cover;
-        /* Ensures the image covers the entire container */
-      }
-    </style>
-
-    <body>
-
-      <div class="container mt-3">
-        <div class="row">
-          <div class="col-sm-3 col-md-4 col-lg-2">
-            <% if(categories && categories.length > 0){ %>
-              <ul class="category">
-                <% categories.forEach(data =>{ %>
-                  <li><a href="/allproductview/<%=data._id%>"><%=data.CategoryName %></a></li>
-                <% }) %>
-              </ul>
-            <% }else{%>
-              <p>No Category Found</p>
-            <% } %>  
-          </div>
-          <div class="col-sm-5 col-md-4 col-lg-5 d-flex banner-main" style="background-color: black">
-            <div class="left">
-              <div class="left-logo ">
-                <img src="/svg/apple logo.svg" alt="" />
-                <h5>iPhone 14</h5>
-              </div>
-              <h3>
-                Up to 10% <br />
-                off Voucher
-              </h3>
-              <h6>Shop Now <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i></h6>
-
+    <div class="page">
+      <div class="row m-0">
+        <div class="col-2 filter-sidebar p-0">
+          <h6 class="text-white text-center mt-4 heading">Filter The Products</h6>
+          <div class="col-lg-12 filter-div">
+            <div class="inner">
+              <% if(brand && brand.length>0){ %>
+                <% brand.forEach((brands,index)=> {%>
+                  <div class="form-check">
+                    <input class="form-check-input brandCheckbox" type="checkbox" name="brands"
+                      value="<%=brands.brandName %>" style="cursor: pointer;">
+                    <label class="form-check-label " for="<%=brands.brandName %>">
+                      <%=brands.brandName %>
+                    </label>
+                  </div>
+                  <% }) %>
+                    <% } %>
             </div>
           </div>
-          <div class="col-sm-4 col-md-4 col-lg-5 d-flex" style="background-color: black">
-            <div class="right d-flex justify-content-center align-items-center">
-              <img width="100%" src="/svg/iphone banner.svg" alt="" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Inside your EJS template -->
-      <section>
-        <div class="container">
-          <div class="row">
-            <div class="premium">
-              <div class="premium-text">
-                <div class="square"></div>
-                <h6>Premium Segment</h6>
+          <div class="col-lg-12 filter-div mt-4">
+            <h6 class="text-center heading">Price Wise</h6>
+            <div class="inner">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="priceRanges" value="0-10000" class="priceCheckbox"
+                  style="cursor: pointer;">
+                <label class="form-check-label" for="">Under 10000</label>
               </div>
-              <div class="pre-head1">
-                <h3>Latest Premium Collections</h3>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="priceRanges" value="10000-25000"
+                  class="priceCheckbox" style="cursor: pointer;">
+                <label class="form-check-label" for="">10000-25000</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="priceRanges" value="25000-50000"
+                  class="priceCheckbox" style="cursor: pointer;">
+                <label class="form-check-label" for="">25000-50000</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="priceRanges" value="50000-100000"
+                  class="priceCheckbox" style="cursor: pointer;">
+                <label class="form-check-label" for="">50000-100000</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="priceRanges" value="100000-200000"
+                  class="priceCheckbox" style="cursor: pointer;">
+                <label class="form-check-label" for="">Above 100000</label>
               </div>
             </div>
           </div>
-        </div>
-      </section>
-      <div class="container">
-        <div class="row">
-          <% data.forEach(function(x) { %>
-            <div class="col-sm-12 col-md-4 col-lg-3">
-              <div class="iphone" style="position: relative;">
-                <!-- Create a link around the image with the product ID as a query parameter -->
-                <a href="/productview/<%= x._id %>">
-                  <img class="product-image" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>" />
-
-                </a>
-                <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
-
+          <div class="col-lg-12 filter-div mt-4">
+            <h6 class="text-center heading">Battery Wise</h6>
+            <div class="inner">
+              <div class="form-check">
+                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value="2000-2999"
+                  style="cursor: pointer;">
+                <label class="form-check-label" for="">2000-2999</label>
               </div>
-              <div class="details">
-                <!-- Display product information dynamically -->
-                <h6>
-                  <%= x.productName %>
-                </h6>
-                <p>$<%= x.price %>
-                </p>
-                <a class="btn" style="background-color:#001524; color: white; width: 100%;" data-productId="<%=x._id %>"
-                  onclick="addToCart(event)">Add To Cart</a>
+              <div class="form-check">
+                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value="3000-3999"
+                  style="cursor: pointer;">
+                <label class="form-check-label" for="">3000-3999</label>
               </div>
-            </div>
-            <% }); %>
-        </div>
-      </div>
-
-
-      <div class="view-all">
-        <form action="/allproductview/<%= Category._id %>" method="get">
-          <button type="submit">View All Products</button>
-        </form>
-      </div>
-
-
-
-
-      <section>
-        <div class="container">
-          <div class="row">
-            <div class="premium">
-              <div class="premium-text">
-                <div class="square"></div>
-                <h6>Categories</h6>
+              <div class="form-check">
+                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value=">4000-4999"
+                  style="cursor: pointer;">
+                <label class="form-check-label" for="">4000-4999</label>
               </div>
-              <div class="pre-head2">
-                <h3>Browse By Brands</h3>
+              <div class="form-check">
+                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value=">Above 5000"
+                  style="cursor: pointer;">
+                <label class="form-check-label" for="">Above 5000</label>
               </div>
             </div>
           </div>
         </div>
-      </section>
+        <div class="col-10">
+          <div id="filteredProducts" style="width: 100%;">
 
-      <div class="container">
-        <div class="row">
-          <% brand.forEach((brands)=> { %>
-            <div class="col-sm-6 col-md-3 col-lg-2">
-              <div class="rectangle">
-                <a id="brand-logo" href="/brand-wise/<%=brands._id%>">
-                  <img src="/uploads/<%= brands.image %>" alt="<%= brands.productName %>" class="brand-logo ">
-                </a>
+          </div>
+          <!--Navbar-->
+          <div class="container mt-3">
+            <div class="row categroy-li">
+              <div class="col-sm-3 col-md-4 col-lg-2">
+                <% if(categories && categories.length> 0){ %>
+                  <ul class="category">
+                    <% categories.forEach(data=>{ %>
+                      <li><a href="/allproductview/<%=data._id%>">
+                          <%=data.CategoryName %>
+                        </a></li>
+                      <% }) %>
+                  </ul>
+                  <% }else{%>
+                    <p>No Category Found</p>
+                    <% } %>
               </div>
-            </div>
-            <% }); %>
-        </div>
-      </div>
+              <div class="col-sm-5 col-md-4 col-lg-5 d-flex banner-main" style="background-color: black">
+                <div class="left">
+                  <div class="left-logo ">
+                    <img src="/svg/apple logo.svg" alt="" />
+                    <h5>iPhone 14</h5>
+                  </div>
+                  <h3>
+                    Up to 10% <br />
+                    off Voucher
+                  </h3>
+                  <h6>Shop Now <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i></h6>
 
-      <section>
-        <div class="container">
-          <div class="row">
-            <div class="premium">
-              <div class="premium-text">
-                <div class="square"></div>
-                <h6>Today's</h6>
+                </div>
               </div>
-              <div class="flash">
-                <h3>Flash sales</h3>
-
+              <div class="col-sm-4 col-md-4 col-lg-5 d-flex banner-Main" style="background-color: black">
+                <div class="right d-flex justify-content-center align-items-center">
+                  <img width="100%" src="/svg/iphone banner.svg" alt="" />
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      </section>
 
-      <div class="container mt-4">
-        <div class="row">
-          <% flashSales.forEach(product=> { %>
-            <div class="col-sm-12 col-md-4 col-lg-3">
-              <div class="iphone">
-                <a href="/productview/<%= product._id %>"><img class="product-images"
-                    src="/uploads/<%= product.image[4] %>" alt="<%= product.name %>" /></a>
-                <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
+          <!-- Inside your EJS template -->
+          <section>
+            <div class="container">
+              <div class="row">
+                <div class="premium">
+                  <div class="premium-text">
+                    <div class="square"></div>
+                    <h6>Premium Segment</h6>
+                  </div>
+                  <div class="pre-head1">
+                    <h3>Latest Premium Collections</h3>
+                  </div>
+                </div>
               </div>
-              <div class="details">
-                <h6 class="mt-4" style="font-size: 20px;">
-                  <%= product.productName.toUpperCase() %>
-                </h6>
-                <p style="font-size: 20px;">$<%= product.price.toLocaleString() %>
-                </p>
-              </div>
-              <a class="btn" style="background-color:#001524; color: white; width: 100%;"
-                data-productId="<%=product._id %>" onclick="addToCart(event)">Add To Cart</a>
             </div>
-            <% }); %>
-        </div>
-      </div>
-
-      <div class="view-all">
-        <form action="/allproductview/<%= locals.flashSalesId %>" method="get">
-          <button type="submit">View All Products</button>
-        </form>
-      </div>
-
-
-      <section>
-        <div class=" mt-5">
+          </section>
           <div class="container">
-            <div class="row m-0" style="background-color: black;border-radius: 17px;">
-              <div class="col-md-6 d-flex justify-content-center align-items-center">
-                <div class="inner-div">
-                  <p>All-Rounder</p>
-                  <h2>EXPERIENCE THE <br>SUPER RETINA <br> XDR DISPLAY</h2>
-                  <div class="contain d-flex justify-content-start">
-                    <div id="circles">
-                      <p>Hours</p>
+            <div class="row premium-phones">
+              <% data.forEach(function(x) { %>
+                <div class="col-sm-12 col-md-4 col-lg-3">
+                  <div class="iphone" style="position: relative;">
+                    <!-- Create a link around the image with the product ID as a query parameter -->
+                    <a href="/productview/<%= x._id %>">
+                      <img class="product-image" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>" />
+
+                    </a>
+                    <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
+
+                  </div>
+                  <div class="details">
+                    <!-- Display product information dynamically -->
+                    <h6>
+                      <%= x.productName %>
+                    </h6>
+                    <p>$<%= x.price %>
+                    </p>
+                    <a class="btn" style="background-color:#001524; color: white; width: 100%;"
+                      data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
+                  </div>
+                </div>
+                <% }); %>
+            </div>
+          </div>
+
+
+          <div class="view-all">
+            <form action="/allproductview/<%= Category._id %>" method="get">
+              <button type="submit">View All Products</button>
+            </form>
+          </div>
+
+
+
+
+          <section>
+            <div class="container">
+              <div class="row">
+                <div class="premium">
+                  <div class="premium-text">
+                    <div class="square"></div>
+                    <h6>Categories</h6>
+                  </div>
+                  <div class="pre-head2">
+                    <h3>Browse By Brands</h3>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="container">
+            <div class="row brand-wiseDiv">
+              <% brand.forEach((brands)=> { %>
+                <div class="col-sm-6 col-md-3 col-lg-2">
+                  <div class="rectangle">
+                    <a id="brand-logo" href="/brand-wise/<%=brands._id%>">
+                      <img src="/uploads/<%= brands.image %>" alt="<%= brands.productName %>" class="brand-logo ">
+                    </a>
+                  </div>
+                </div>
+                <% }); %>
+            </div>
+          </div>
+
+          <section>
+            <div class="container">
+              <div class="row">
+                <div class="premium">
+                  <div class="premium-text">
+                    <div class="square"></div>
+                    <h6>Today's</h6>
+                  </div>
+                  <div class="flash">
+                    <h3>Flash sales</h3>
+
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <div class="container mt-4">
+            <div class="row">
+              <% flashSales.forEach(product=> { %>
+                <div class="col-sm-12 col-md-4 col-lg-3">
+                  <div class="iphone">
+                    <a href="/productview/<%= product._id %>"><img class="product-images"
+                        src="/uploads/<%= product.image[4] %>" alt="<%= product.name %>" /></a>
+                    <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
+                  </div>
+                  <div class="details">
+                    <h6 class="mt-4" style="font-size: 20px;">
+                      <%= product.productName.toUpperCase() %>
+                    </h6>
+                    <p style="font-size: 20px;">$<%= product.price.toLocaleString() %>
+                    </p>
+                  </div>
+                  <a class="btn" style="background-color:#001524; color: white; width: 100%;"
+                    data-productId="<%=product._id %>" onclick="addToCart(event)">Add To Cart</a>
+                </div>
+                <% }); %>
+            </div>
+          </div>
+
+          <div class="view-all">
+            <form action="/allproductview/<%= locals.flashSalesId %>" method="get">
+              <button type="submit">View All Products</button>
+            </form>
+          </div>
+
+
+          <section>
+            <div class=" mt-5">
+              <div class="container">
+                <div class="row m-0" style="background-color: black;border-radius: 17px;">
+                  <div class="col-md-6 d-flex justify-content-center align-items-center">
+                    <div class="inner-div">
+                      <p>All-Rounder</p>
+                      <h2>EXPERIENCE THE <br>SUPER RETINA <br> XDR DISPLAY</h2>
+                      <div class="contain d-flex justify-content-start">
+                        <div id="circles">
+                          <p>Hours</p>
+                        </div>
+                        <div id="circles">
+                          <p>Hours</p>
+                        </div>
+                        <div id="circles">
+                          <p>Hours</p>
+                        </div>
+                        <div id="circles">
+                          <p>Hours</p>
+                        </div>
+                      </div>
                     </div>
-                    <div id="circles">
-                      <p>Hours</p>
-                    </div>
-                    <div id="circles">
-                      <p>Hours</p>
-                    </div>
-                    <div id="circles">
-                      <p>Hours</p>
+                  </div>
+                  <div class="col-md-6">
+                    <div class="inner-div2">
+                      <img src="" alt="">
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="col-md-6">
-                <div class="inner-div2">
-                 <img src="" alt="">
+              <div class="view-all2">
+                <button type="submit">View All Products</button>
+              </div>
+            </div>
+
+          </section>
+
+          <section>
+            <div class="container">
+              <div class="row">
+                <div class="premium">
+                  <div class="premium-text">
+                    <div class="square"></div>
+                    <h6>Latest</h6>
+                  </div>
+                  <div class="pre-head1">
+                    <h3>Best Seller</h3>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="view-all2">
-            <button type="submit">View All Products</button>
-          </div>
-        </div>
+          </section>
 
-      </section>
-
-      <section>
-        <div class="container">
-          <div class="row">
-            <div class="premium">
-              <div class="premium-text">
-                <div class="square"></div>
-                <h6>Latest</h6>
-              </div>
-              <div class="pre-head1">
-                <h3>Best Seller</h3>
-              </div>
+          <div class="container">
+            <div class="row">
+              <% bestSellerData.forEach(product=>{%>
+                <div class="col-sm-12 col-md-4 col-lg-3">
+                  <div class="iphone">
+                    <a href="/productview/<%=product._id %>"><img class="product-images"
+                        src="/uploads/<%=product.image[4]%>" alt=""></a>
+                  </div>
+                  <div class="details">
+                    <h6 class="mt-4" style="font-size: 20px;">
+                      <%= product.productName.toUpperCase() %>
+                    </h6>
+                    <p style="font-size: 20px;">$<%= product.price.toLocaleString() %>
+                    </p>
+                  </div>
+                  <a class="btn" style="background-color:#001524; color: white; width: 100%;"
+                    data-productId="<%=product._id %>" onclick="addToCart(event)">Add To Cart</a>
+                </div>
+                <%})%>
             </div>
           </div>
-        </div>
-      </section>
 
-      <div class="container">
-        <div class="row">
-          <% bestSellerData.forEach(product=>{%>
-            <div class="col-sm-12 col-md-4 col-lg-3">
-              <div class="iphone">
-                <a href="/productview/<%=product._id %>"><img class="product-images"
-                    src="/uploads/<%=product.image[4]%>" alt=""></a>
+          <div class="view-all">
+            <form action="/allproductview/<%= locals.bestSellerId %>" method="get">
+              <button type="submit" class="mb-5">View All Products</button>
+            </form>
+          </div>
+
+          <section>
+            <div class="container mt-5">
+              <div class="row">
+                <div class="round-icon">
+                  <div class="foot-icon"><img src="/svg/delivery.svg" alt=""></div>
+                  <div class="foot-icon"><img src="/svg/service.svg" alt=""></div>
+                  <div class="foot-icon"><img src="/svg/secure.svg" alt=""></div>
+                </div>
+                <div class="trade-mark">
+                  <div class="td1">
+                    <h4>FREE AND FAST DELIVERY</h4>
+                    <p>free delivery for all orders over $140</p>
+                  </div>
+                  <div class="td1">
+                    <h4>24/7 CUTOMER SERVICE</h4>
+                    <p>friendly 24/7 cutomer support</p>
+                  </div>
+                  <div class="td1">
+                    <h4>MONEY BACK GUARANTEE</h4>
+                    <p>we return money within 30 days </p>
+                  </div>
+                </div>
               </div>
-              <div class="details">
-                <h6 class="mt-4" style="font-size: 20px;">
-                  <%= product.productName.toUpperCase() %>
-                </h6>
-                <p style="font-size: 20px;">$<%= product.price.toLocaleString() %>
-                </p>
-              </div>
-              <a class="btn" style="background-color:#001524; color: white; width: 100%;"
-                data-productId="<%=product._id %>" onclick="addToCart(event)">Add To Cart</a>
             </div>
-            <%})%>
+          </section>
         </div>
       </div>
+    </div>
 
-      <div class="view-all">
-        <form action="/allproductview/<%= locals.bestSellerId %>" method="get">
-          <button type="submit" class="mb-5">View All Products</button>
-        </form>
-      </div>
+    <%-include('./partials/footer.ejs') %>
 
-      <section>
-        <div class="container mt-5">
-          <div class="row">
-            <div class="round-icon">
-              <div class="foot-icon"><img src="/svg/delivery.svg" alt=""></div>
-              <div class="foot-icon"><img src="/svg/service.svg" alt=""></div>
-              <div class="foot-icon"><img src="/svg/secure.svg" alt=""></div>
-            </div>
-            <div class="trade-mark">
-              <div class="td1">
-                <h4>FREE AND FAST DELIVERY</h4>
-                <p>free delivery for all orders over $140</p>
-              </div>
-              <div class="td1">
-                <h4>24/7 CUTOMER SERVICE</h4>
-                <p>friendly 24/7 cutomer support</p>
-              </div>
-              <div class="td1">
-                <h4>MONEY BACK GUARANTEE</h4>
-                <p>we return money within 30 days </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      </body>
+      <script>
 
-      <%-include('./partials/footer.ejs') %>
+        // function to add a product to the cart
+        function addToCart(event) {
+          event.preventDefault()
+          var productId = event.target.getAttribute('data-productId')
+          var quantity = 1
+          const data = { productId, quantity }
 
-
-
-
-        <!-- Include Bootstrap 5 JavaScript -->
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.5.0/dist/js/bootstrap.min.js"></script>
-        <!-- <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> -->
-
-        <script src="/js/timer.js"></script>
-        <!-- <script src="/js/brand.js"></script> -->
-    </body>
-
-    </html>
-    </body>
-
-    </html>
-
-
-    <script>
-
-      // function to add a product to the cart
-      function addToCart(event) {
-        event.preventDefault()
-        var productId = event.target.getAttribute('data-productId')
-        var quantity = 1
-        const data = { productId, quantity }
-
-        fetch('/cart/add-cart', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-          .then(response => response.json())
-          .then(data => {
-            if (data.success) {
+          fetch('/cart/add-cart', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                Swal.fire({
+                  icon: 'success',
+                  title: 'success',
+                  text: 'Product added to cart',
+                  showConfirmButton: false,
+                  timer: 1500
+                });
+              } else {
+                throw new Error(data.message || 'Failed to add product to cart');
+              }
+            })
+            .catch(err => {
+              console.error(err)
               Swal.fire({
-                icon: 'success',
-                title: 'success',
-                text: 'Product added to cart',
-                showConfirmButton: false,
-                timer: 1500
+                icon: 'error',
+                title: 'Oops',
+                text: error.message || 'Something went wrong',
+                timer: 2000
               });
-            } else {
-              throw new Error(data.message || 'Failed to add product to cart');
-            }
-          })
-          .catch(err => {
-            console.error(err)
-            Swal.fire({
-              icon: 'error',
-              title: 'Oops',
-              text: error.message || 'Something went wrong',
-              timer: 2000
-            });
-          })
-      }
+            })
+        }
 
-    </script>
+
+        // Function to hide non-filtered content
+const hideNonFilteredContent = () => {
+  const nonFilteredElements = document.querySelectorAll('.page > .container, .view-all, section, .round-icon, .trade-mark ,.banner-main,.premium-phones, .brand-wiseDiv,.categroy-li,.left,.banner-Main');
+  nonFilteredElements.forEach(element => {
+    element.style.display = 'none'; // Hide non-filtered elements
+  });
+};
+
+// Function to show previously hidden elements
+const showHiddenContent = () => {
+  const hiddenElements = document.querySelectorAll('.page > .container, .view-all, section, .round-icon, .trade-mark ,.banner-main,.premium-phones, .brand-wiseDiv,.categroy-li,.left,.banner-Main');
+  hiddenElements.forEach(element => {
+    element.style.display = ''; // Display previously hidden elements
+  });
+};
+
+// Function to show filtered products
+const showFilteredProducts = () => {
+  const filteredProductsDiv = document.getElementById('filteredProducts');
+  filteredProductsDiv.style.display = 'block'; // Show filtered products
+};
+
+// Function to filter the products by brand
+const filterProductsByBrand = async () => {
+  const brandCheckbox = document.querySelectorAll('input[name="brands"]:checked');
+  const brandRanges = Array.from(brandCheckbox, checkbox => checkbox.value);
+  const params = new URLSearchParams();
+  brandRanges.forEach(value => {
+    params.append('brandRanges', value);
+  });
+
+  try {
+    const response = await fetch(`/filterProductsByBrand?${params.toString()}`);
+    const data = await response.json();
+
+    hideNonFilteredContent();
+    showFilteredProducts();
+    const filteredProductsdiv = document.getElementById('filteredProducts');
+    filteredProductsdiv.innerHTML = '';
+
+    if (data.brandWiseData.length <= 0) {
+      const imgdv = document.createElement('div');
+      imgdv.classList.add('col-lg-12', 'm-0', 'p-0');
+      imgdv.style.display = 'flex';
+      imgdv.style.flexDirection = 'column';
+      imgdv.style.justifyContent = 'center'; // Center horizontally
+      imgdv.style.alignItems = 'center'; // Center vertically
+
+      const nullimg = document.createElement('img');
+      nullimg.src = '/images/theme/noData.jpg';
+      nullimg.classList.add('empty-product');
+      nullimg.style.width = '60%'; // Adjust the width as needed
+
+      const h1 = document.createElement('h1');
+      h1.innerHTML = 'No products found under this Brands';
+
+      imgdv.appendChild(nullimg);
+      imgdv.appendChild(h1);
+      filteredProductsdiv.appendChild(imgdv);
+    }
+
+    //create a row container for the cards
+    let rowDiv;
+    data.brandWiseData.forEach((brand, index) => {
+      brand.brandDetails.forEach(item => {
+        if (index % 4 === 0) {
+          rowDiv = document.createElement('div');
+          rowDiv.classList.add('row', 'mb-3');
+          filteredProductsdiv.appendChild(rowDiv);
+        }
+
+        //create a column for each product card
+        const cardDiv = document.createElement('div');
+        cardDiv.classList.add('col-lg-3', 'mt-4');
+
+        cardDiv.innerHTML = `
+          <div class="card mb-3">
+            <a href="/productview/${item._id}"><img class="card-img-top" src="/uploads/${item.image[4]}" alt="${item.productName}"/></a>
+            <div class="card-body">
+              <h5 class="card-title" style="color: #bd5c05;">${item.productName}</h5>
+              <p class="card-text">$${item.price}</p>
+            </div>
+          </div>
+        `;
+
+        //Append the card column to the row
+        rowDiv.appendChild(cardDiv);
+      });
+    });
+  } catch (error) {
+    console.error('Error filtering products by brand:', error);
+  }
+};
+
+// Function to handle change event on brand checkboxes
+const handleBrandCheckboxChange = () => {
+  const brandCheckboxes = document.querySelectorAll('input[name="brands"]');
+  brandCheckboxes.forEach(checkbox => {
+    checkbox.addEventListener('change', () => {
+      filterProductsByBrand(); // Call the function to filter products by brand
+      // Check if any brand checkbox is unchecked
+      const unchecked = Array.from(brandCheckboxes).every(checkbox => !checkbox.checked);
+      if (unchecked) {
+        showHiddenContent(); // Show previously hidden elements
+      }
+    });
+  });
+};
+
+// Call the function to handle brand checkbox changes
+handleBrandCheckboxChange();
+
+// Attach change event listeners to checkboxes for price and brand
+const priceCheckboxes = document.querySelectorAll('input[name="priceRanges"]');
+const brandCheckboxes = document.querySelectorAll('input[name="brands"]');
+
+priceCheckboxes.forEach(checkbox => {
+  checkbox.addEventListener('change', filterProductsByPrice);
+});
+
+brandCheckboxes.forEach(checkbox => {
+  checkbox.addEventListener('change', filterProductsByBrand);
+});
+
+
+      </script>

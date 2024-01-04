@@ -1,0 +1,410 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+    <!--Navbar-->
+    <%-include('../admin/partials/nav') %>
+
+        <div class="container-fluid p-0">
+            <div class="row m-0 p-0">
+                <div class="col-lg-2 p-0">
+                    <%-include('../admin/partials/sidebar') %>
+                </div>
+                <div class="col-lg-10">
+                    <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal"
+                        data-bs-target="#addProductOffer">Add Product offer</button>
+                    <!-- Modal -->
+                    <div class="modal fade" id="addProductOffer" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add Product offer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="" id="addProductOffer">
+                                        <div class="form-group">
+                                            <label for="country">Select The product</label>
+                                            <select id="productOffer" class="form-control" name="country" placeholder="india">
+                                                <% if(allProducts && allProducts.length > 0){ %>
+                                                    <% allProducts.forEach(value => { %>
+                                                        <option id="productOption" value="<%= value.productName %>" data-product-id="<%= value._id %>"><%= value.productName %></option>
+                                                    <% }) %>
+                                                <% } %>
+                                            </select> 
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="OfferPercentage">Offer Percentage</label>
+                                            <input type="number" min="0" class="form-control" id="OfferPercentage" name="OfferPercentage"
+                                                placeholder="3">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="startDate">Start Date</label>
+                                            <input type="date" class="form-control" id="startDate" name="startDate"
+                                                placeholder="5-1-2023">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="endDate">End Date</label>
+                                            <input type="date" class="form-control" id="endDate" name="endDate"
+                                                placeholder="10-1-2023">
+                                        </div>
+                                        <button type="submit" style="display: none;" id="hiddenSubmitBtn"></button>
+
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary" id="addProductOfferBtn">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <% if(allProductOffers && allProductOffers.length > 0 ){ %>
+                    <table class="mt-3 table table-striped">
+                        <thead>
+                            <tr>
+                                <th scope="col">Sl No</th>
+                                <th scope="col">Product Name</th>
+                                <th scope="col">Offer Percentage</th>
+                                <th scope="col">Start Date</th>
+                                <th scope="col">End Date</th>
+                                <th scope="col">Edit</th>
+                                <th scope="col">Delete</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                                <% allProductOffers.forEach((value,index) =>{ %>
+                                    <tr>
+                                        <th scope="row"><%=index+1 %></th>
+                                        <td><%=value.productName %></td>
+                                        <td><%= value.OfferPercentage.toFixed(2) %></td>
+                                        <td><%=value.addedDate.toLocaleDateString('en-US') %></td>
+                                        <td><%=value.endDate.toLocaleDateString('en-US')%></td>
+                                        <td><button type="button" class="btn btn-primary editCouponBtn" data-productOffer-id="<%=value._id %>" data-bs-toggle="modal"  data-bs-target="#editProductOffer">Edit</button></td> 
+                                        <td><button type="button" class="btn btn-danger px-2 py-1" onclick="confirmDeleteProductOffer('<%=value._id %>')">Delete</button></td>
+                                        <td><input id="productOfferID" type="hidden" value="<%=value._id %>"></td>
+
+                                    </tr>
+                                <% }) %>
+                            </tbody>
+                        </table>
+                        <% }else { %>
+                            <div class="col-lg-12 m-0 p-0" style="display: flex;flex-direction: column;align-items: center;">
+                                <img src="/images/theme/noData.jpg" alt="" width="55%">
+                                <h3 class="text-danger">No product Offers are found</h3>
+                            </div>
+                        <% } %>
+
+                    <!--Edit productOffer modal-->
+                    <div class="modal fade" id="editProductOffer" tabindex="-1" aria-labelledby="exampleModalLabel"
+                        aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel">Add Product offer</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                        aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <form action="" id="addProductOffer">
+                                        <div class="form-group">
+                                            <label for="country">Select The product</label>
+                                            <select id="EditproductOffer" class="form-control" name="country" placeholder="india">
+                                                <% if(allProducts && allProducts.length > 0){ %>
+                                                    <% allProducts.forEach(value => { %>
+                                                        <option id="productsOption" value="<%= value._id %>" data-productName="<%=value.productName %>" data-product-id="<%= value._id %>"><%= value.productName %></option>
+                                                    <% }) %>
+                                                <% } %>
+                                            </select> 
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="OfferPercentage">Offer Percentage</label>
+                                            <input type="number" min="0" class="form-control" id="EditOfferPercentage" name="OfferPercentage"
+                                                placeholder="3">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="startDate">Start Date</label>
+                                            <input type="date" class="form-control" id="EditstartDate" name="startDate"
+                                                placeholder="5-1-2023">
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="endDate">End Date</label>
+                                            <input type="date" class="form-control" id="EditendDate" name="endDate"
+                                                placeholder="10-1-2023">
+                                        </div>
+                                        <button type="submit" style="display: none;" id="hiddenSubmitBtn"></button>
+
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-bs-dismiss="modal">Close</button>
+                                    <button type="submit" class="btn btn-primary" id="EditProductOfferBtn">Submit</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+<script>
+
+
+
+    document.getElementById('addProductOfferBtn').addEventListener('click',async function(event){
+        event.preventDefault()
+
+        document.getElementById('hiddenSubmitBtn').click()
+
+
+                // input validation
+                function isEmpty(value) {
+                    const trimmed = value.trim()
+                    return trimmed === ""
+                }
+
+                function validName(value) {
+                    const regex = /^[A-Za-z'-]+(?:\s[A-Za-z'-]+)*$/
+                    return regex.test(value)
+                }
+                function validNumber(value) {
+                    const regex = /^\d+$/;
+                    return regex.test(value);
+                }
+
+                // Get the selected option element
+                const selectedOption = document.getElementById('productOffer').querySelector('option:checked');
+
+                // Get the value of the 'data-product-id' attribute
+                const productId = selectedOption.getAttribute('data-product-id');
+                const productName = selectedOption.value;
+                const OfferPercentage = document.getElementById('OfferPercentage').value;
+                const startDate = document.getElementById('startDate').value;
+                const endDate = document.getElementById('endDate').value;
+
+                //validate form fields
+                if (isEmpty(productName)) {
+                    showErrorAlert('please enter a vaid coupon code')
+                    return
+                }
+                if (isEmpty(OfferPercentage) || !validNumber(OfferPercentage)) {
+                    showErrorAlert('please enter a vaid OfferPercentage ')
+                    return
+                }
+                
+                if (isEmpty(startDate)) {
+                    showErrorAlert('please enter a vaid startDate')
+                    return
+                }
+                if (isEmpty(endDate)) {
+                    showErrorAlert('please enter a vaid endDate')
+                    return
+                }
+                
+
+                // function for showing the alert message
+                function showErrorAlert(message) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Invalid Input',
+                        text: message,
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+                }
+
+                // else the form is valid the next function will work
+                const productOfferData = {
+                    productId,
+                    productName,
+                    OfferPercentage,
+                    startDate,
+                    endDate,
+                }
+
+                // call a fetch to send the coupon to the bcakend
+                const response = await fetch('/admin/addProductOffer', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(productOfferData)
+                });
+
+                if (!response.ok) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to Add coupon',
+                        showConfirmButton: false,
+                        timer: 2000
+                    });
+
+                } else {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Added',
+                        text: 'product Offer added successflly',
+                        showConfirmButton: false,
+                    }).then(()=>{
+                        window.location.reload()
+                    })
+                }
+            })
+
+
+            // Populating data to the edit modal
+            
+    document.querySelectorAll('.editCouponBtn').forEach(button => {
+        button.addEventListener('click', async function () {
+        const productOfferId = this.getAttribute('data-productOffer-id');
+
+        // Fetch coupon details using the couponId from the backend
+        const response = await fetch(`/admin/getProductOffer/${productOfferId}`, {
+            method: 'GET',
+        });
+
+        if (response.ok) {
+            const offerData = await response.json();
+            // Populate the edit modal fields with coupon details
+            document.getElementById('EditOfferPercentage').value = offerData.singleProductOffer.OfferPercentage;
+            document.getElementById('EditstartDate').value = offerData.singleProductOffer.startDate;
+            document.getElementById('EditendDate').value = offerData.singleProductOffer.endDate;
+
+
+            // Get the product name from the fetched data
+            const productName = offerData.singleProductOffer.productName;
+
+            // Select the default option based on the fetched product name
+            const productOptions = document.getElementById('productsOption').options;
+            for (let i = 0; i < productOptions.length; i++) {
+                if (productOptions[i].value === productName) {
+                    productOptions[i].selected = true;
+                    break;
+                }
+            }
+
+
+             // Store the coupon ID in a hidden field in the edit modal form
+             document.getElementById('EditCouponId').value = productOfferId;
+
+            // Display the edit modal
+            const editModal = new bootstrap.Modal(document.getElementById('editCouponModal'));
+            editModal.show();
+        } else {
+            console.error('Failed to fetch data');
+        }
+    });
+});
+
+
+// Edit the productOffer
+document.getElementById('EditProductOfferBtn').addEventListener('click', async function (event) {
+    event.preventDefault();
+
+    // Get the selected option element
+    const productOfferId = document.getElementById('productOfferID').value
+    const selectedOption = document.getElementById('EditproductOffer').querySelector('option:checked');
+    const productId = selectedOption.getAttribute('data-product-id');
+    const productName = selectedOption.getAttribute('data-productName')
+    const OfferPercentage = document.getElementById('EditOfferPercentage').value;
+    const startDate = document.getElementById('EditstartDate').value;
+    const endDate = document.getElementById('EditendDate').value;
+
+    // Create the coupon data object
+    const productOfferData = {
+        productOfferId,
+        productId,
+        productName,
+        OfferPercentage,
+        startDate,
+        endDate,
+    }
+
+    // Call a fetch to send the coupon to the backend
+    const response = await fetch('/admin/editOfferProduct', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(productOfferData)
+    });
+
+    if (!response.ok) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to Edit coupon',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    } else {
+        // Show success alert
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'Coupon Edited successfully',
+            showConfirmButton: false,
+            timer: 2000
+        }).then((result) => {
+            // Reload the page after the alert is closed
+            if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+                window.location.reload();
+            }
+        });
+    }
+});
+
+
+
+
+
+
+// function for remove the product offer
+async function confirmDeleteProductOffer(offerId) {
+    const swalResult = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    });
+
+    if (swalResult.isConfirmed) {
+        // If user confirms, proceed to delete the coupon
+        deleteProductOffer(offerId);
+    } else {
+        // If user cancels, show a message
+        Swal.fire('Cancelled', 'Your coupon is safe :)', 'info');
+    }
+}
+
+// function for remove the offer from db
+async function deleteProductOffer(offerId){
+    try {
+        const response = await fetch(`/admin/deleteProductOffer/${offerId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            Swal.fire('Failed', 'Failed to delete the coupon', 'error');
+        } else {
+            Swal.fire('Deleted', 'The coupon has been deleted', 'success')
+            .then(()=>{
+                window.location.reload()
+            })
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'An error occurred while deleting the coupon', 'error');
+    }
+}
+</script>
