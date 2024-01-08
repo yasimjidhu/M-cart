@@ -9,6 +9,7 @@ const pincode = require('india-pincode-lookup')
 const { ObjectId } = require('mongodb');
 const { use } = require('passport')
 const coupon = require('../model/coupon')
+const offerhelper = require('../helpers/offer')
 
 
 
@@ -29,10 +30,9 @@ const  toProfile = async (req, res) => {
             { $limit: 1 }
         ]).exec()
 
-            const firstAddress = userAddress[0]; // Assuming the first address
+        const firstAddress = userAddress[0]; // Assuming the first address
         
-
-            res.status(200).render('./user/profile', { firstAddress, userData,title:'Profile' });
+        res.status(200).render('./user/profile', { firstAddress, userData,title:'Profile' });
         
        
     } catch (error) {

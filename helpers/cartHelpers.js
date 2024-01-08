@@ -2,6 +2,8 @@ const cart = require('../model/cart')
 const product = require('../model/productschema')
 const productOffer = require('../model/productOffer')
 const express = require('express')
+const { ObjectId } = require('mongoose').Types;
+const mongoose = require('mongoose')
 
 const priceOfEachItem = async (user) => {
     const EachAmount = await cart.aggregate([
@@ -81,9 +83,82 @@ const totalCartAmount = async (user) => {
     }
 };
 
+// actual product price
+const actualPriceAfterOffer = async (productId) => {
+    try {
+        const offerPrice = await productOffer.aggregate([
+            {
+                $match: {
+                    productId: new mongoose.Types.ObjectId(productId),
+                }
+            },
+            {
+                $lookup: {
+                    from: 'products',
+                    localField: 'productId',
+                    foreignField: '_id',
+                    as: 'productsWithOffers'
+                }
+            },
+            {
+                $unwind: '$productsWithOffers'
+            },
+            {
+                $addFields: {
+                    originalPrice: '$productsWithOffers.price',
+                    offerPercentage: '$OfferPercentage' // Assuming 'OfferPercentage' is the correct field name in 'productOffer'
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    originalPrice: 1,
+                    offerPercentage: 1,
+                    productsWithOffers: 1
+                }
+            },
+            {
+                $addFields: {
+                    discountedAmount: {
+                        $subtract: [
+                            '$originalPrice',
+                            { $multiply: ['$originalPrice', { $divide: ['$offerPercentage', 100] }] }
+                        ]
+                    }
+                }
+            },
+            {
+                $project:{
+                    _id:0,
+                    discountedAmount:1,
+                    offerPercentage:1
+                }
+            }
+        ]);
+
+        if (offerPrice.length > 0) {
+            return offerPrice;
+        } else {
+            return null; // Handle case when no offer is found for the given product
+        }
+    } catch (err) {
+        console.log(err);
+        throw err;
+    }
+};
+
+// function for find discounted amount
+function calculateDiscountedPrice(originalPrice, discountPercentage) {
+    const discountAmount = (originalPrice * discountPercentage) / 100;
+    const discountedPrice = originalPrice - discountAmount;
+    return discountAmount;
+}
+
 
 
 module.exports ={
     priceOfEachItem,
-    totalCartAmount
+    totalCartAmount,
+    actualPriceAfterOffer,
+    calculateDiscountedPrice
 }

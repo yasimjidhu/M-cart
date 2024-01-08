@@ -162,17 +162,22 @@ admin.get('/getCoupon/:couponId',adminController.getSingleCoupon)
 admin.post('/editCoupon',adminController.editCoupon)
 admin.delete('/deleteCoupon/:couponId',adminController.deleteCoupon)
 
-
+// Product Offer
 admin.get('/toProductOffer',adminauth.verifyAdmin,adminController.toProductOffer)
 admin.post('/addProductOffer',adminauth.verifyAdmin,adminController.createProductOffer)
 admin.get('/getProductOffer/:offerId',adminauth.verifyAdmin,adminController.getSingleProductOffer)
 admin.delete('/deleteProductOffer/:offerId',adminauth.verifyAdmin,adminController.deleteProductOffer)
 admin.post('/editOfferProduct',adminauth.verifyAdmin,adminController.editproductOffer)
 
+// Category Offer
+admin.get('/toCategoryOffer',adminauth.verifyAdmin,adminController.toCategoryOffer)
+admin.post('/addCategoryOffer',adminauth.verifyAdmin,adminController.addCategoryOffer)
+admin.get('/getCategoryOfferData/:offerId',adminauth.verifyAdmin,adminController.getSingleCategoryOffer)
+admin.post('/editCategoryOffer',adminauth.verifyAdmin,adminController.editCategoryOffer)
+admin.delete('/deleteCategoryOffer/:offerId',adminauth.verifyAdmin,adminController.deleteCategoryOffer)
 
-
-
-
+// referal offers
+admin.get('/toReferal',adminauth.verifyAdmin,adminController.toReferal)
 
 
 // error handling middleware

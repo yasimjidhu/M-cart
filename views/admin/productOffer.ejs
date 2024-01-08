@@ -86,7 +86,6 @@
                                         <td><button type="button" class="btn btn-primary editCouponBtn" data-productOffer-id="<%=value._id %>" data-bs-toggle="modal"  data-bs-target="#editProductOffer">Edit</button></td> 
                                         <td><button type="button" class="btn btn-danger px-2 py-1" onclick="confirmDeleteProductOffer('<%=value._id %>')">Delete</button></td>
                                         <td><input id="productOfferID" type="hidden" value="<%=value._id %>"></td>
-
                                     </tr>
                                 <% }) %>
                             </tbody>
@@ -237,24 +236,28 @@
                 });
 
                 if (!response.ok) {
+                    const responseData = await response.json(); // Parse response data as JSON
+                    const errorMessage = responseData.message || 'Failed to add product offer. Please try again later.';
+                    
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Failed to Add coupon',
-                        showConfirmButton: false,
-                        timer: 2000
+                        text: errorMessage,
+                        showConfirmButton: true,
                     });
-
-                } else {
+                    } else {
                     Swal.fire({
                         icon: 'success',
                         title: 'Added',
-                        text: 'product Offer added successflly',
+                        text: 'Product offer added successfully',
                         showConfirmButton: false,
-                    }).then(()=>{
-                        window.location.reload()
-                    })
-                }
+                    }).then(() => {
+                        // Delay before reloading the page (e.g., 2 seconds)
+                        setTimeout(() => {
+                        window.location.reload();
+                        }, 3000); // 2000 milliseconds = 2 seconds
+                    });
+                    }
             })
 
 
@@ -383,7 +386,7 @@ async function confirmDeleteProductOffer(offerId) {
         deleteProductOffer(offerId);
     } else {
         // If user cancels, show a message
-        Swal.fire('Cancelled', 'Your coupon is safe :)', 'info');
+        Swal.fire('Cancelled', 'Your offer is safe :)', 'info');
     }
 }
 
@@ -395,9 +398,9 @@ async function deleteProductOffer(offerId){
         });
 
         if (!response.ok) {
-            Swal.fire('Failed', 'Failed to delete the coupon', 'error');
+            Swal.fire('Failed', 'Failed to delete the offer', 'error');
         } else {
-            Swal.fire('Deleted', 'The coupon has been deleted', 'success')
+            Swal.fire('Deleted', 'The offer has been deleted', 'success')
             .then(()=>{
                 window.location.reload()
             })

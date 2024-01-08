@@ -10,6 +10,7 @@ const orders = require('../model/orders')
 const cartModel = require('../model/cart')
 const coupon = require('../model/coupon')
 const productOffer = require('../model/productOffer')
+const categroryOffer = require('../model/categoryOffer')
 const { reset } = require("nodemon");
 const sharp = require('sharp')
 const fs = require('fs').promises;
@@ -17,6 +18,8 @@ const path = require('path');
 const { log } = require("console");
 const cart = require("../Router/cartRouter");
 const Excel = require('exceljs');
+const categoryOffer = require("../model/categoryOffer");
+const cartHelpers = require('../helpers/cartHelpers')
 
 
 // Admin creadentials
@@ -1556,6 +1559,9 @@ const createProductOffer = async (req, res) => {
           return res.status(400).json({ message: 'Please provide all necessary fields' });
       }
 
+      if (endDate < startDate) {
+        return res.status(400).json({ message: 'End date should be later than the start date' });
+      }
       // You may want to check if productId is valid or exists in the database here
       const productFound = await products.findOne({_id:productId})
 
@@ -1567,11 +1573,20 @@ const createProductOffer = async (req, res) => {
           productName: productName, 
           OfferPercentage: OfferPercentage,
           addedDate: startDate,
-          endDate: endDate
+          endDate: endDate,
       });
 
       await newProductOffer.save();
-      console.log('saves offerproducts')
+
+      const discountedAmount = await cartHelpers.calculateDiscountedPrice(productFound.price,OfferPercentage)
+      console.log('discountedAmount',discountedAmount)
+
+      if(discountedAmount){
+      productFound.discountedPrice = discountedAmount
+      productFound.offerType = 'productOffer'
+      await productFound.save()
+    }
+    console.log('product offer updated')
 
       res.status(201).json({ message: 'Product offer created successfully', productOffer: newProductOffer });
   } catch (err) {
@@ -1667,6 +1682,156 @@ const toLogout = (req, res) => {
   });
 };
 
+// to Category Offer
+const toCategoryOffer = async (req,res)=>{
+
+  try{
+
+    const allCategories = await category.find()
+    const allCategryOffers = await categoryOffer.find()
+  
+    res.render('./admin/categoryOffer.ejs',{allCategories,allCategryOffers})
+  }catch(err){
+    console.log(err)
+  }
+}
+
+// Add category offer
+const addCategoryOffer = async (req,res)=>{
+
+  try{
+    const {categoryId,CategoryName,OfferPercentage,startDate,endDate} = req.body
+
+    if(!categoryId || !CategoryName || !OfferPercentage || !startDate || !endDate){
+      return res.status(400).json({message:'Please provide all necessary field'})
+    }
+
+    if (endDate < startDate) {
+      return res.status(400).json({ message: 'End date should be later than the start date' });
+    }
+
+    // check the category is exist in the database 
+    const categoryFound = await category.findById(categoryId)
+    
+    if(!categoryFound){
+      return res.status(404).json({message:'categrory not found'})
+    }
+
+    
+    
+    // else the data is valid and exist in the database
+    const newCategoryOffer = new categoryOffer({
+      categoryId:categoryId,
+      categoryName:CategoryName,
+      OfferPercentage:OfferPercentage,
+      addedDate:startDate,
+      endDate:endDate
+    });
+    await newCategoryOffer.save()
+    
+    const withoutProductOffer = await products.find(
+      { 
+        category: categoryId, // Your query criteria
+        offerType: { $ne: 'productOffer' } // The condition for offerType not equal to 'productOffer'
+      }
+    );
+    
+    const productIds = withoutProductOffer.map(product => product._id )
+    console.log('productIds',productIds)
+
+
+    // Update offerType in products collection to 'categoryOffer'
+    const updateProducts = await products.updateMany(
+      { _id: { $in: productIds } }, // Filter criteria: Not in productIds array
+      { $set: { offerType: 'categoryOffer' } } 
+    );
+
+
+    return res.status(200).json({message:'category offer added successfully',categroryOffers:newCategoryOffer})
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({ message: 'Failed to create category offer', Error: err.message });
+  }
+}
+
+// Get Single category offer
+const getSingleCategoryOffer = async (req,res)=>{
+  const categroyOfferId = req.params.offerId
+  console.log('categoryofferid',categroyOfferId)
+  try{
+    const categoryOfferFound = await categoryOffer.findById(categroyOfferId)
+
+    if(!categoryOfferFound){
+      return res.status(404).json({message:'No Category Offer Found'})
+    }
+    return res.status(200).json({success:true,categoryOfferFound})
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
+// Edit category Offer
+const editCategoryOffer = async (req,res)=>{
+  const {categoryOfferID,categoryId,categoryName,OfferPercentage,startDate,endDate} = req.body
+
+  try{
+
+    // Check if the offer exists
+    const existingOffer = await categoryOffer.findById(categoryOfferID)
+
+    if(!existingOffer){
+      console.log('category offer not found')
+      return res.status(404).json({message:'No offer found for this category'})
+    }
+
+    // startDate and endDate are properties in req.body
+    const startDateFromBody = startDate;
+    const endDateFromBody = endDate;
+
+    existingOffer.categoryId = categoryId;
+    existingOffer.categoryName = categoryName;
+    existingOffer.OfferPercentage = OfferPercentage;
+    existingOffer.addedDate = startDateFromBody ? startDateFromBody : existingOffer.addedDate;
+    existingOffer.endDate = endDateFromBody ? endDateFromBody : existingOffer.endDate;
+
+    //save the updated category offer
+    await existingOffer.save()
+    console.log('offer edited')
+
+    return res.status(200).json({message:'Product offer Updated'})
+
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({message:'Internal server error'})
+  }
+}
+
+// remove the category offer 
+const deleteCategoryOffer = async (req,res)=>{
+  console.log('deletion reached')
+  const categoryOfferId = req.params.offerId
+
+  try {
+    
+    const deleted = await categoryOffer.findByIdAndDelete(categoryOfferId)
+
+    if(!deleted){
+      return res.status(404).json({message:'category offer not found'})
+    }
+    res.status(200).json({success:true})
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+
+
+// to Referal management
+const toReferal = (req,res)=>{
+  res.render('./admin/referal.ejs')
+}
+
 module.exports = {
   loginAdmin,
   tologin,
@@ -1716,6 +1881,12 @@ module.exports = {
   createProductOffer,
   getSingleProductOffer,
   deleteProductOffer,
-  editproductOffer
+  editproductOffer,
+  toCategoryOffer,
+  addCategoryOffer,
+  getSingleCategoryOffer,
+  editCategoryOffer,
+  deleteCategoryOffer,
+  toReferal
   
 };

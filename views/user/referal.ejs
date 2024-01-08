@@ -1,0 +1,103 @@
+<!--------header---------->
+<%- include('../user/partials/header') %> 
+
+<!--------navbar---------->
+<%- include('../user/partials/navbar') %>
+
+<style>
+
+
+    h1 {
+        text-align: center;
+    }
+
+    .referral-description {
+        margin-bottom: 20px;
+    }
+    li{
+        margin-left: 50px;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../user/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10 ">
+            <div class="description" style="display: flex;">
+                <div class="referral-description">
+                <h1>Referral Program</h1>
+                <h4>Overview</h4>
+                <p>Our referral program rewards both you and your friends! Refer a friend to our platform, and the referer
+                    receive benefits when the successfull registration of new user</p>
+
+                <h4>Offer Details</h4>
+                <ul>
+                    <li><strong>Referrer Benefits:</strong> As a referrer, when your friend register to this platform,
+                        you'll receive an amount  on your wallet.</li>
+                </ul>
+
+                <h4>How it Works</h4>
+                <ol>
+                    <li>Share your unique referral code or link with friends.</li>
+                    <li>Your friend signs up or makes a purchase using your referral code/link.</li>
+                    <li>You will get credited an reward to your wallet</li>
+                </ol>
+
+                <h4>Terms and Conditions</h4>
+                <ul>
+                    <li>The referral reward is valid only for new users who haven't previously made a purchase on our
+                        platform.</li>
+                    <li>The referal reward will only get after the successfull registration of the new user</li>
+                    <li>Referral rewards are valid for 30 days from the date of issuance.</li>
+                    <!-- Add more terms and conditions here -->
+                </ul>
+
+                <h4>Additional Notes</h4>
+                <ul>
+                    <li>You can refer multiple friends and earn rewards for each successful referral.</li>
+                    <li>Referral discounts cannot be combined with other ongoing promotions.</li>
+                    <!-- Add more additional notes here -->
+                </ul>
+                <div style="display: flex;position: relative;">
+                    <h5 class="text-primary">Get Your Referral Link</h5>
+                    <a href="#" id="referralLink" style="display: none;"><%= referalLink %></a>
+                    <i class="fa-regular fa-clipboard" onclick="copyReferralLink()" style="color: #000000;position: absolute;left: 230px;bottom: 12px;cursor: pointer;"></i>
+                </div>
+                <div class="notification" id="notification">
+                    <span class="notification-text" id="notificationText"></span>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+</div>
+
+<script>
+
+      
+function copyReferralLink() {
+    const referralLink = document.getElementById('referralLink');
+    const textArea = document.createElement('textarea');
+    textArea.value = referralLink.textContent;
+    document.body.appendChild(textArea);
+    textArea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textArea);
+
+    const notification = document.getElementById('notification');
+    const notificationText = document.getElementById('notificationText');
+
+    // Change notification text and display it
+    notificationText.innerText = 'Referral link copied to clipboard';
+    notification.style.display = 'block';
+
+    // Hide the notification after 2 seconds
+    setTimeout(function () {
+        notification.style.display = 'none';
+    }, 2000);
+}
+
+</script>

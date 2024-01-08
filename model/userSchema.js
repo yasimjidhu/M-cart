@@ -39,7 +39,8 @@ const userSchema = mongoose.Schema({
     },
     phoneNumber:{
         type:Number
-    }
+    },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'users' }, 
     
 });
 

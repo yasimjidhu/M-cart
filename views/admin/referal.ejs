@@ -1,0 +1,133 @@
+
+<!--header-->
+
+<%- include('../user/partials/header') %>
+
+    <!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10 p-0">
+            <button type="button" class="btn btn-primary m-3" data-bs-toggle="modal" data-bs-target="#exampleModal">Add Referal offer</button>
+              <!-- Modal -->
+              <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel"
+              aria-hidden="true">
+              <div class="modal-dialog">
+                  <div class="modal-content">
+                      <div class="modal-header">
+                          <h5 class="modal-title" id="exampleModalLabel">Add Referal Offer</h5>
+                          <button type="button" class="btn-close" data-bs-dismiss="modal"aria-label="Close"></button>
+                      </div>
+                      <div class="modal-body">
+                        <form action="" id="addReferralOfferForm">
+                          <div class="form-group">
+                            <label for="offerName">Offer Name</label>
+                            <input type="text" class="form-control" id="offerName" name="offerName" placeholder="Referral Program">
+                          </div>
+                          <div class="form-group">
+                            <label for="referralCode">Referral Code</label>
+                            <input type="text" class="form-control" id="referralCode" name="referralCode" placeholder="REF123">
+                          </div>
+                          <div class="form-group">
+                            <label for="rewardAmount">Reward Amount</label>
+                            <input type="number" min="0" class="form-control" id="rewardAmount" name="rewardAmount" placeholder="50">
+                          </div>
+                          <div class="form-group">
+                            <label for="validFrom">Valid From</label>
+                            <input type="date" class="form-control" id="validFrom" name="validFrom">
+                          </div>
+                          <div class="form-group">
+                            <label for="validUntil">Valid Until</label>
+                            <input type="date" class="form-control" id="validUntil" name="validUntil">
+                          </div>
+                          <div class="form-group">
+                            <label for="maxUsage">Max Usage per User</label>
+                            <input type="number" min="1" class="form-control" id="maxUsage" name="maxUsage" placeholder="5">
+                          </div>
+                          <button type="submit" style="display: none;" id="hiddenSubmitBtn"></button>
+                        </form>
+                      </div>
+                      
+                      <div class="modal-footer">
+                          <button type="button" class="btn btn-secondary"
+                              data-bs-dismiss="modal">Close</button>
+                          <button type="submit" class="btn btn-primary" id="addCouponBtn">Add Coupon</button>
+                      </div>
+                  </div>
+              </div>
+          </div>
+        </div>
+    </div>
+</div>
+
+
+  <!-- Add Bootstrap JS and Fetch polyfill for older browsers -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/fetch/3.0.0/fetch.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+  <script>
+    // Function to load existing referral offers on page load
+    document.addEventListener('DOMContentLoaded', () => {
+      loadReferralOffers();
+    });
+
+    // Function to fetch and display existing referral offers
+    function loadReferralOffers() {
+      fetch('/admin/referral-offers')
+        .then(response => response.text())
+        .then(data => {
+          document.getElementById('referralOffers').innerHTML = data;
+        })
+        .catch(error => {
+          console.error('Error loading referral offers:', error);
+        });
+    }
+
+    // Submit form to create/update referral offers
+    document.getElementById('referralOfferForm').addEventListener('submit', (event) => {
+      event.preventDefault();
+
+      const formData = {
+        offerName: document.getElementById('offerName').value,
+        rewardAmount: document.getElementById('rewardAmount').value,
+        conditions: document.getElementById('conditions').value
+      };
+
+      fetch('/admin/referral-offers', {
+          method: 'POST',
+          body: JSON.stringify(formData),
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(() => {
+          // Reload offers after successful creation/update
+          loadReferralOffers();
+          document.getElementById('referralOfferForm').reset();
+        })
+        .catch(error => {
+          console.error('Error creating/updating referral offer:', error);
+        });
+    });
+
+    // Function to delete referral offers
+    function deleteOffer(offerId) {
+      if (confirm('Are you sure you want to delete this offer?')) {
+        fetch(`/admin/referral-offers/${offerId}`, {
+            method: 'DELETE'
+          })
+          .then(() => {
+            // Reload offers after successful deletion
+            loadReferralOffers();
+          })
+          .catch(error => {
+            console.error('Error deleting referral offer:', error);
+          });
+      }
+    }
+  </script>
+

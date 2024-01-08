@@ -10,7 +10,7 @@
       height: auto; /* Maintain aspect ratio */
   }
 </style>
-</head>
+</head> 
 <body>
   <div class="container-fluid">
     <div class="row">
@@ -42,6 +42,7 @@
                             <!-- Display cancellation status or handle accordingly -->
                           <% } else { %>
                             <button id="cancelButton_<%= order._id %>" onclick="cancelOrder('<%= order._id %>')" class="btn btn-primary">Cancel order</button>
+                            <a href="/order/viewDetails/<%=order._id %>"><button  class="btn btn-success">View order</button></a>
                           <% } %>
                         </div>
                       </div>

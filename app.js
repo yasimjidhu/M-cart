@@ -30,6 +30,9 @@ app.use(session({
     secret:"secret",
     resave:false,
     saveUninitialized:true,
+    cookie: { 
+        maxAge: 24 * 60 * 60 * 1000 // Set the session expiry time in milliseconds (e.g., 1 day)
+      }
 }))
 
 //middleware
@@ -56,9 +59,6 @@ app.use('/cart',cartRouter)
 app.use('/account',accountRouter)
 app.use('/order',orderRouter)
 
-// Error middleware
-// app.use(errorMiddleware)
-
 
 // Error handling middleware
 app.use((err,req,res,next)=>{
@@ -67,10 +67,12 @@ app.use((err,req,res,next)=>{
 })
 
 
-
 const port = process.env.PORT||4000
 
 app.listen(port,()=>{
+    const {couponChecker,productOfferChecker} = require('./service/cronjob')
+    couponChecker()
+    productOfferChecker()
     console.log("server is running on http://localhost:3000 ");
 })
 

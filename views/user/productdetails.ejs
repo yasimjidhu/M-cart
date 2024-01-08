@@ -45,14 +45,19 @@
             </div>
             <div class="col-lg-6">
                 <h1><%= product.productName %></h1>
-                <p class="phone-price">$<%= product.price %></p>
-                <p><%= product.description %></p>
 
-                <form action="/cart/add-cart/<%=data[0]._id %>" id="addToCartForm" method="post">
-                    <button type="submit" class="btn btn-sub">Add to Cart</button>
-                    
-                </form>
+                <% if (percentage && actualOfferPrice) { %>
+                    <h5 class="text-dark"><%= percentage %><span class="">% Offer for this product</span></h5>
+                    <h4 class="text-danger" style="text-decoration: line-through;">₹<%= product.price %></h4>
+                    <h1 class="text-success">₹<%= actualOfferPrice %></h1>
+                <% } else { %>
+                    <h1 class="phone-price">₹<%= product.price %></h1>
+                <% } %>
                 
+                <p><%= product.description %></p>
+                <form action="/cart/add-cart/<%=data[0]._id %>" id="addToCartForm" method="post">
+                    <button type="submit" class="btn btn-sub">Add to Cart</button>   
+                </form>
             </div>
         </div>
     </div>

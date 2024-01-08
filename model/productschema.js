@@ -15,6 +15,9 @@ const productschema = mongoose.Schema({
         type:Number,
         min:0
     },
+    discountedPrice:{
+        type:Number
+    },
     stock:{
         type:Number,
         default:0
@@ -34,9 +37,12 @@ const productschema = mongoose.Schema({
         ref:'brands'
     },
     status:{
-        type:Boolean,
-        // default:true,    
+        type:Boolean,  
     },
+    offerType:{
+        type:String
+    },
+
    
 })
 

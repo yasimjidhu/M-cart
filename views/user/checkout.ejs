@@ -173,6 +173,9 @@
               <input type="radio" name="paymentMethod" id="razorPay" value="razorPay">
               <label for="cashOnDelivery">Razor Pay</label>
               <img class="float-right" src="/svg/razorpay.svg" alt="" width="100px">
+              <br>
+              <input type="radio" name="paymentMethod" id="walletPayment" value="walletPayment">
+              <label for="walletPayment">Pay with Wallet</label>
               <!-- <button id="rzp-button1">Pay</button> -->
               <button type="submit" class="btn btn-primary float-right mt-5 mb-3" id="placeOrderButton">Place
                 Order</button>
@@ -575,6 +578,7 @@
             });
 
             const result = await response.json();
+            alert(JSON.stringify(result))
 
             if (result.codSuccess) {
               window.location.href = '/order/orderSuccess';
@@ -587,11 +591,25 @@
                 }).then(() => {
                   window.location.href = '/cart/cart';
                 });
-            }else if (!result.data.online) {
-              alert('Online payment not required or unsuccessful');
-            } else if (result.data.online) {
-              razorPay(result);
-            } 
+            }else if (result.belowBalance===true) {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Insufficient Wallet Balance',
+                  text: result.message,
+                  showConfirmButton: true
+                })
+            }else if(result.walletpayment) {
+              window.location.href = '/order/orderSuccess';
+            }else if (result.data.online) {
+              razorPay(result);       
+            }else{
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Something went wrong',
+                  text: result.message,
+                  showConfirmButton: true
+                })
+            }
           } catch (err) {
             console.error('fetch error',err);
           }

@@ -108,7 +108,6 @@
                     off Voucher
                   </h3>
                   <h6>Shop Now <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i></h6>
-
                 </div>
               </div>
               <div class="col-sm-4 col-md-4 col-lg-5 d-flex banner-Main" style="background-color: black">
@@ -142,19 +141,17 @@
                   <div class="iphone" style="position: relative;">
                     <!-- Create a link around the image with the product ID as a query parameter -->
                     <a href="/productview/<%= x._id %>">
-                      <img class="product-image" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>" />
-
+                      <img class="product-image" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>"  />
                     </a>
-                    <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
-
+                    
                   </div>
                   <div class="details">
                     <!-- Display product information dynamically -->
-                    <h6>
+                    <h5 class="text-danger">
                       <%= x.productName %>
-                    </h6>
-                    <p>$<%= x.price %>
-                    </p>
+                    </h5>
+                    <h5 class="">$<%= x.price %>
+                    </h5>
                     <a class="btn" style="background-color:#001524; color: white; width: 100%;"
                       data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
                   </div>
@@ -230,7 +227,7 @@
                     <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
                   </div>
                   <div class="details">
-                    <h6 class="mt-4" style="font-size: 20px;">
+                    <h6 class="mt-4">
                       <%= product.productName.toUpperCase() %>
                     </h6>
                     <p style="font-size: 20px;">$<%= product.price.toLocaleString() %>
@@ -360,6 +357,9 @@
         </div>
       </div>
     </div>
+
+    
+
 
     <%-include('./partials/footer.ejs') %>
 

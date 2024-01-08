@@ -15,9 +15,12 @@ const productOfferSchema = new mongoose.Schema({
     OfferPercentage:{
         type:Number,
     },
+    discountedAmount:{
+        type:Number,
+    },
     endDate:{
         type:Date
-    }
+    },
 });
 
 // create a TTL index on the `expiryDate` field

@@ -18,6 +18,7 @@
                         <% } else { %>
                             <img src="/png/userNew.png" class="selected-image" alt="Default Image">
                         <% } %>
+                        
                     </div>
                         <form  enctype="multipart/form-data">
                             <input type="file" id="profileImageInput" name="profileImage" onchange="uploadprofilePic(event)">
@@ -33,7 +34,8 @@
                         <%}else{%>
                             <a href="/account/addAddress" style="text-decoration: none;"><p style="color: gray; cursor: pointer;" data-toggle="tooltip" data-placement="left" title="click to add address">Not available</p></a>
                         <%}%>
-                    </div>    
+                    </div>   
+                    
                 </div>
                 <div class="col-lg-12 profilePic mt-3">
                     <div class="d-flex justify-content-start align-items-center profile-options">
@@ -44,15 +46,13 @@
                         <img src="/png/shop.png" width="30px">
                         <a href="/cart/cart">Cart collection</a>
                     </div>
-                    <div class="d-flex justify-content-start align-items-center profile-options">
-                        <img src="/png/wishlist.png" width="30px">
-                        <a href="/cart">My wishlist</a>
-                    </div>
+                    
                 </div>
                 
             </div>
             <div class="col-lg-7 user-details">
                 <div class="input-head">
+                    
                     <h5>Edit Your profile</h5>
                 </div>
                 <div class="row">
@@ -116,9 +116,9 @@
 
 
 <script>
-    //  document.getElementById('editProfileImage').addEventListener('click', function() {
-    //     document.getElementById('profileImageInput').click();
-    // });
+  
+   
+
     function uploadprofilePic(event) {
     const fileInput = event.target;
 

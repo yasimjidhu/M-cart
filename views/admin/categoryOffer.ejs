@@ -1,0 +1,385 @@
+<!--header-->
+<%- include('../user/partials/header') %>
+
+<!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10">
+            <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#addCategoryOffer">Add Category offer</button>
+            <!-- Modal -->
+            <div class="modal fade" id="addCategoryOffer" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="exampleModalLabel">Add Category offer</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="" id="addCategoryOffer">
+                            <div class="form-group">
+                                <label for="category">Select The Category</label>
+                                <select id="categoryOffer" class="form-control" name="category" placeholder="Apple">
+                                    <% if(allCategories && allCategories.length > 0){ %>
+                                        <% allCategories.forEach(value => { %>
+                                            <option id="categoryOption" value="<%= value.CategoryName %>" data-category-id="<%= value._id %>"><%= value.CategoryName %></option>
+                                        <% }) %>
+                                    <% } %>
+                                </select> 
+                            </div>
+                            <div class="form-group">
+                                <label for="OfferPercentage">Offer Percentage</label>
+                                <input type="number" min="0" class="form-control" id="OfferPercentage" name="OfferPercentage"
+                                    placeholder="3">
+                            </div>
+                            <div class="form-group">
+                                <label for="startDate">Start Date</label>
+                                <input type="date" class="form-control" id="startDate" name="startDate"
+                                    placeholder="5-1-2023">
+                            </div>
+                            <div class="form-group">
+                                <label for="endDate">End Date</label>
+                                <input type="date" class="form-control" id="endDate" name="endDate"
+                                    placeholder="10-1-2023">
+                            </div>
+                            <button type="submit" style="display: none;" id="hiddenSubmitBtn"></button>
+
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary"
+                            data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary" id="addCategoryBtn">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- table-->
+        <% if(allCategryOffers && allCategryOffers.length > 0 ){ %>
+            <table class="mt-3 table table-striped">
+                <thead>
+                    <tr>
+                        <th scope="col">Sl No</th>
+                        <th scope="col">Category Name</th>
+                        <th scope="col">Offer Percentage</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                        <th scope="col">Edit</th>
+                        <th scope="col">Delete</th>
+                    </tr>
+                </thead>
+                <tbody>
+                        <% allCategryOffers.forEach((value,index) =>{ %>
+                            <tr>
+                                <th scope="row"><%=index+1 %></th>
+                                <td><%=value.categoryName %></td>
+                                <td><%=value.OfferPercentage.toFixed(2) %></td>
+                                <td><%=value.addedDate.toLocaleDateString('en-US') %></td>
+                                <td><%=value.endDate.toLocaleDateString('en-US')%></td>
+                                <td><button type="button" class="btn btn-primary editCategoryOfferBtn" data-categoryOffer-id="<%=value._id %>" data-bs-toggle="modal"  data-bs-target="#editCategoryOffer">Edit</button></td> 
+                                <td><button type="button" class="btn btn-danger px-2 py-1" onclick="confirmDeleteCategoryOffer('<%=value._id %>')">Delete</button></td>
+                                <td><input id="categoryOfferID" type="hidden" value="<%=value._id %>"></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+                <% }else { %>
+                    <div class="col-lg-12 m-0 p-0" style="display: flex;flex-direction: column;align-items: center;">
+                        <img src="/images/theme/noData.jpg" alt="" width="55%">
+                        <h3 class="text-danger">No Category Offers are found</h3>
+                    </div>
+                <% } %>
+
+                <!--Edit productOffer modal-->
+                <div class="modal fade" id="editCategoryOffer" tabindex="-1" aria-labelledby="exampleModalLabel"
+                aria-hidden="true">
+                <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="exampleModalLabel">Add Product offer</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <form action="" id="addProductOffer">
+                                <div class="form-group">
+                                    <label for="country">Select The product</label>
+                                    <select id="EditCategoryOffer" class="form-control" name="country" placeholder="india">
+                                        <% if(allCategories && allCategories.length > 0){ %>
+                                            <% allCategories.forEach(value => { %>
+                                                <option id="productsOption" value="<%= value._id %>" data-categoryName="<%=value.CategoryName %>" data-product-id="<%= value._id %>"><%= value.CategoryName%></option>
+                                            <% }) %>
+                                        <% } %>
+                                    </select> 
+                                </div>
+                                <div class="form-group">
+                                    <label for="OfferPercentage">Offer Percentage</label>
+                                    <input type="number" min="0" class="form-control" id="EditOfferPercentage" name="OfferPercentage"
+                                        placeholder="3">
+                                </div>
+                                <div class="form-group">
+                                    <label for="startDate">Start Date</label>
+                                    <input type="date" class="form-control" id="EditstartDate" name="startDate"
+                                        placeholder="5-1-2023">
+                                </div>
+                                <div class="form-group">
+                                    <label for="endDate">End Date</label>
+                                    <input type="date" class="form-control" id="EditendDate" name="endDate"
+                                        placeholder="10-1-2023">
+                                </div>
+                                <button type="submit" style="display: none;" id="hiddenSubmitBtn"></button>
+
+                            </form>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary"
+                                data-bs-dismiss="modal">Close</button>
+                            <button type="submit" class="btn btn-primary" id="submitEdit">Submit</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    
+    document.getElementById('addCategoryBtn').addEventListener('click',async function(event){
+        event.preventDefault()
+
+        document.getElementById('hiddenSubmitBtn').click()
+
+                // input validation
+                function isEmpty(value) {
+                    const trimmed = value.trim()
+                    return trimmed === ""
+                }
+
+                function validName(value) {
+                    const regex = /^[A-Za-z\s]+$/;
+                    return regex.test(value)
+                }
+                function validNumber(value) {
+                    const regex = /^\d+$/;
+                    return regex.test(value);
+                }
+
+                // Get the selected option element
+                const selectedOption = document.getElementById('categoryOffer').querySelector('option:checked');
+                const categoryId = selectedOption.getAttribute('data-category-id');
+                const CategoryName = selectedOption.value
+                const OfferPercentage = document.getElementById('OfferPercentage').value;
+                const startDate = document.getElementById('startDate').value
+                const endDate = document.getElementById('endDate').value
+
+                // validate form fields
+                if(isEmpty(CategoryName)||!validName(CategoryName)){
+                    showErrorAlert('please enter a valid category name')
+                    return
+                }
+                if(isEmpty(OfferPercentage)||!validNumber(OfferPercentage)){
+                    showErrorAlert('please provide the offer percentage')
+                    return
+                }
+                if(isEmpty(startDate)){
+                    showErrorAlert('please provide start date')
+                    return
+                }
+                if(isEmpty(endDate)){
+                    showErrorAlert('please provide end date')
+                    return
+                }
+
+                // function for showing the alert message
+                function showErrorAlert(message){
+                    Swal.fire({
+                        icon:'error',
+                        title:'Invalid input',
+                        text:message,
+                        showConfirmButton:true,
+                    });
+                }
+
+                // else the form is validd the next functio will work
+                const categoryOfferData = {
+                    categoryId,
+                    CategoryName,
+                    OfferPercentage,
+                    startDate,
+                    endDate
+                }
+                // Call a fetch to send the categroy offer to the backend
+                const response = await fetch('/admin/addCategoryOffer',{
+                    method:'POST',
+                    headers:{
+                        'Content-Type':'application/json'
+                    },
+                    body:JSON.stringify(categoryOfferData)
+                });
+
+                if(!response.ok){
+                    const responseData = await response.json() 
+                    Swal.fire({
+                        icon:'error',
+                        title:'Error',
+                        text:responseData.message,
+                        showConfirmButton:true,
+                    });
+                }else{
+                    Swal.fire({
+                        icon:'success',
+                        title:'added',
+                        text:'Categroy offer Added successfully',
+                        showConfirmButton:false,
+                        timer:2000
+                    }).then(()=>{
+                        window.location.reload()
+                    })
+                }
+    });
+
+    // function for populate the existing data to the editing modal
+    document.querySelectorAll('.editCategoryOfferBtn').forEach(button => {
+        button.addEventListener('click', async function () {
+        const categoryOfferId = this.getAttribute('data-categoryOffer-id');
+        const response = await fetch(`/admin/getCategoryOfferData/${categoryOfferId}`, {
+            method: 'GET'
+        });
+        if (response.ok) {
+            const categoryOfferData = await response.json();
+
+            // Populate the modal fields with the retrieved data
+            document.getElementById('EditOfferPercentage').value = categoryOfferData.categoryOfferFound.OfferPercentage;
+            document.getElementById('EditstartDate').value = categoryOfferData.categoryOfferFound.startDate;
+            document.getElementById('EditendDate').value = categoryOfferData.categoryOfferFound.endDate;
+
+            // Get the product name from the fetched data (replace this with your data structure)
+            const categoryName = categoryOfferData.categoryOfferFound.categoryName;
+
+            // Select the default option based on the fetched product name
+            const categoryOptions = document.getElementById('EditCategoryOffer').options;
+            for (let i = 0; i < categoryOptions.length; i++) {
+                if (categoryOptions[i].getAttribute('data-categoryName') === categoryName) {
+                    categoryOptions[i].selected = true;
+                    break;
+                }
+            }
+
+            // Show the edit modal after populating the data
+            const editModal = new bootstrap.Modal(document.getElementById('editCategoryOffer'));
+            editModal.show();
+        } else {
+            alert('Failed to fetch data');
+        }
+    });
+});
+
+
+
+// Edit the Categroy Offer
+document.getElementById('submitEdit').addEventListener('click', async function (event) {
+    event.preventDefault();
+
+    // Get the selected option element
+    const categoryOfferID = document.getElementById('categoryOfferID').value
+    const selectedOption = document.getElementById('EditCategoryOffer').querySelector('option:checked');
+    const categoryId = selectedOption.getAttribute('data-product-id');
+    const categoryName = selectedOption.getAttribute('data-categoryName')
+    const OfferPercentage = document.getElementById('EditOfferPercentage').value;
+    const startDate = document.getElementById('EditstartDate').value;
+    const endDate = document.getElementById('EditendDate').value;
+
+    // Create the coupon data object
+    const categoryOfferData = {
+        categoryOfferID,
+        categoryId,
+        categoryName,
+        OfferPercentage,
+        startDate,
+        endDate,
+    }
+
+    // Call a fetch to send the coupon to the backend
+    const response = await fetch('/admin/editCategoryOffer', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(categoryOfferData)
+    });
+
+    if (!response.ok) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Error',
+            text: 'Failed to Edit category offer',
+            showConfirmButton: false,
+            timer: 2000
+        });
+    } else {
+        // Show success alert
+        Swal.fire({
+            icon: 'success',
+            title: 'Success',
+            text: 'offer Edited successfully',
+            showConfirmButton: false,
+            timer: 2000
+        }).then((result) => {
+            // Reload the page after the alert is closed
+            if (result.isConfirmed || result.dismiss === Swal.DismissReason.timer) {
+                window.location.reload();
+            }
+        });
+    }
+});
+
+
+// function for remove the category offer
+async function confirmDeleteCategoryOffer(offerId){
+    const swalResult = await Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!',
+        cancelButtonText: 'Cancel'
+    });
+
+    if(swalResult.isConfirmed){
+        deleteCategoryOffer(offerId)
+    }else{
+        Swal.fire('Cancelled', 'Your offer is safe :)', 'info');
+    }
+}
+
+// function for remove the offer from db
+async function deleteCategoryOffer(offerId){
+    try {
+        const response = await fetch(`/admin/deleteCategoryOffer/${offerId}`, {
+            method: 'DELETE',
+        });
+
+        if (!response.ok) {
+            Swal.fire('Failed', 'Failed to delete the coupon', 'error');
+        } else {
+            Swal.fire('Deleted', 'The coupon has been deleted', 'success')
+            .then(()=>{
+                window.location.reload()
+            })
+        }
+    } catch (err) {
+        console.error(err);
+        Swal.fire('Error', 'An error occurred while deleting the coupon', 'error');
+    }
+}
+
+</script>

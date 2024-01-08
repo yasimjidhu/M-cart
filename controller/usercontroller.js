@@ -11,6 +11,14 @@ const brands = require("../model/brands");
 const category = require("../model/category");
 require("dotenv").config();
 const { VERIFYotp } = require('../controller/otpcontroller');
+const Users = require("../model/userSchema");
+const wallet = require('../model/wallet')
+const referal = require('../model/referal')
+const productOffer = require("../model/productOffer");
+const cartHelpers = require('../helpers/cartHelpers')
+const offerhelper = require('../helpers/offer');
+const { query } = require("express");
+const { default: mongoose } = require("mongoose");
 
 
 
@@ -76,51 +84,63 @@ const userSignup = async (req, res, next) => {
 
   try {
     const { name, email, password } = req.body;
-
+ 
+    const referedUser = req.session.referedUserId     
     if (!name || !email || !password) {
-      return res.render("./user/usersignup", { msg: "Fi ll out the fields" });
+      return res.render("./user/usersignup", { msg: "Fill out the fields" });
     }
-    const check = await User.findOne({ email: req.body.email });
 
-    if (check === null) {
-      const pass = await bcrypt.hash(req.body.password, 10);
+    const checkUser = await User.findOne({ email: email });
 
-      // Generate OTP
-      const otp = generateOTP();
-      const otpTimestamp = Date.now(); // Store the timestamp
-
-      const mailOptions = {
-        from: "jidhuyasim@gmail.com",
-        to: req.body.email,
-        subject: "Your OTP for signup",
-        text: `your OTP is ${otp}`,
-      };
-
-      transporter.sendMail(mailOptions, async (error, info) => {
-        if (error) {
-          return res.render("./user/usersignup", {
-            msg: "Failed to send otp via email",
-          });
-        } else {
-          // Store the user's email and OTP in the session for verification
-
-          req.session.email = req.body.email;
-          req.session.pass = pass;
-          req.session.name = req.body.name;
-          req.session.otp = otp;
-          req.session.otpTimestamp = otpTimestamp;
-          return res.redirect("/verify-otp");
-        }
-      });
-    } else {
+    if (checkUser) {
       req.session.err = "User already exists";
-      return res.render("./user/usersignup", { msg: "User Already exist" });
+      return res.render("./user/usersignup", { msg: "User Already exists" });
     }
+
+    let referredBy = null;
+
+    if (referedUser) {
+      const referrer = await User.findById(referedUser);
+      if (referrer) {
+        referredBy = referrer._id;
+      }
+    }
+
+    const pass = await bcrypt.hash(password, 10);
+
+    // Generate OTP
+    const otp = generateOTP();
+    const otpTimestamp = Date.now(); // Store the timestamp
+
+    const mailOptions = {
+      from: "jidhuyasim@gmail.com",
+      to: email,
+      subject: "Your OTP for signup",
+      text: `your OTP is ${otp}`,
+    };
+
+    transporter.sendMail(mailOptions, async (error, info) => {
+      if (error) {
+        return res.render("./user/usersignup", {
+          msg: "Failed to send otp via email",
+        });
+      } else {
+        // Store the user's email, OTP, and referral info in the session for verification
+        req.session.email = email;
+        req.session.pass = pass;
+        req.session.name = name;
+        req.session.otp = otp;
+        req.session.otpTimestamp = otpTimestamp;
+        req.session.referredBy = referredBy; // Store the referral information
+
+        return res.redirect("/verify-otp");
+      }
+    });
   } catch (error) {
     console.log(error);
-    req.session.err = "something went wrong";
+    req.session.err = "Something went wrong";
     res.render("./user/usersignup");
-    next(error) // Pass the error to the error handling middleware
+    next(error);
   }
 };
 
@@ -133,8 +153,6 @@ const verifyOtp = async (req, res) => {
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
     const storedOtp = req.session.otp;
     const storedTimestamp = req.session.otpTimestamp
-    console.log("Received OTP:", otp);
-    console.log("Stored OTP:", req.session.otp);
     const pass = req.session.pass;
     const isAuthenticated = req.session.user ? true : false;
 
@@ -143,18 +161,64 @@ const verifyOtp = async (req, res) => {
       const timeDifference = currentTime - storedTimestamp;
     
     if (otp ===  storedOtp && timeDifference <= 5 * 60 * 1000) {
-      // OTP is correct, proceed to save the user
-      console.log("OTP is correct, proceeding to save user");
       req.session.userlogged = true;
+
+      const { email, name, referredBy } = req.session;
+
       const newUser = new User({
         email: req.session.email,
         password: pass,
         name: req.session.name,
+        referredBy: referredBy, 
       });
-      console.log("passs is ", pass);
 
       await newUser.save();
-      console.log("User saved successfully");
+      
+      // find the refered user wallet and give him the necessary rewards
+      const userWallet = await wallet.findOne({userId:referredBy})
+
+      if(!userWallet){
+        // if the wallet is doesn't exist for the user create it 
+        const newWallet = new wallet({
+          userId:referredBy,
+          balance:50,
+          transactions:[{
+            transactionType:'credit',
+            amount:50,
+            from:'Referal reward',
+            date:new Date()
+          }]
+        });
+
+        await newWallet.save()
+
+      }else{
+        // if the refered user has wallet increment the balance
+        userWallet.balance += 50;
+        userWallet.transactions.push({
+          transactionType:'credit',
+          amount:50,
+          from:'Referal reward',
+          date:new Date()
+        });
+
+        await userWallet.save()
+      }
+
+      // SET THE REFERED DETAILS TO THE REFERAL MODEL
+      const newReferal = new referal({
+        offerAmount:50,
+        updatedDate:new Date(),
+        status:true,
+        joinedUser:[
+          {userId:newUser._id},
+        ],
+        invitedUser:[
+          {userId:referredBy},
+        ]
+      });
+
+      await newReferal.save()
 
       const bestSeller = await category.findOne({CategoryName:'Best seller'})
 
@@ -183,7 +247,7 @@ const verifyOtp = async (req, res) => {
 
         const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
         const brand = await brands.find();
-
+        const categories = await category.find()
         
 
         res.render("./user/userhome", {
@@ -197,6 +261,7 @@ const verifyOtp = async (req, res) => {
           bestSellerId:bestSeller?bestSeller._id:null,
           bestSellerData:bestSellerProducts,
           isAuthenticated,
+          categories,
         });
       } else {
         // Handle if Premium category is not found
@@ -278,6 +343,40 @@ const userLogin = async (req, res) => {
 
 const userlog = async (req, res) => {
   try {
+    const user = await Users.findOne({email:req.session.email})
+    const userId = user._id
+
+    const offerProducts = await cart.aggregate([
+      {
+        $match:{
+          userId:userId
+        }
+      },
+      {
+        $unwind:'$products'
+      },
+      {
+        $lookup:{
+          from:'productoffers',
+          localField:'products.productId',
+          foreignField:'productId',
+          as:'offerInfo'
+        }
+      },
+      {
+        $project: {
+          'offerInfo.OfferPercentage': '$offerInfo.OfferPercentage' // Adjust this line
+        }
+      }
+    ]);
+    
+    offerProducts.forEach(item => {
+      item.offerInfo.forEach(value =>{
+        console.log('value of percentage',value.OfferPercentage)
+      })
+    });
+
+
     const isLoggedIn = req.session.userlogged || req.user;
     const isAuthenticated = req.session.user ? true : false;
 
@@ -297,7 +396,6 @@ const userlog = async (req, res) => {
       const categories = await category.find()
 
         let cartItemsCount = 0
-        // function for cart items cart
         const userEmail = req.session.email
         await cartFunctions.getProductsArrayLength(userEmail)
         .then((productsArrayLength)=>{
@@ -308,8 +406,6 @@ const userlog = async (req, res) => {
         })
 
         
-      
-
       res.render("./user/userhome", {
         title: "Home",
         err: false,
@@ -322,7 +418,8 @@ const userlog = async (req, res) => {
         bestSellerData:bestSellerProducts,
         isAuthenticated,
         cartItemsCount,
-        categories
+        categories,
+        // percentage
       });
     } else {
       res.redirect("/");
@@ -346,7 +443,9 @@ const signupToLogin = (req, res, next) => {
 const toSignup = (req, res) => {
 
   const error = req.query.msg
-
+  const referedUserId = req.query.userId
+  req.session.referedUserId = referedUserId
+  
   if (req.session.userlogged) {
     res.redirect("/user/home");
   } else {
@@ -369,17 +468,27 @@ const logout = (req, res) => {
 // USer product details
 const productview = async (req, res) => {
   try {
+
     const productId = req.params.id;
     const isAuthenticated = req.session.user ? true : false;
-    console.log(productId);
+
+    let actualOfferPrice ;
+    let percentage ;
 
     const data = await products.find({ _id: productId });
-    
+    const offerPrice = await cartHelpers.actualPriceAfterOffer(productId)
+    if(offerPrice){
+      offerPrice.forEach(value =>{
+          actualOfferPrice = value.discountedAmount
+          percentage = value.offerPercentage
+      })
+    }
+    req.session.percentage = percentage
 
     if (!data) {
       return res.status(404).send("product not found");
     } else {
-      res.render("./user/productdetails", { data,isAuthenticated });
+      res.render("./user/productdetails", { data,offerPrice,actualOfferPrice,percentage,isAuthenticated });
     }
   } catch (err) {
     res.status(500).send("An error occured");
@@ -519,6 +628,43 @@ const filterProductsByBrand = async (req, res) => {
 const toProfile = (req,res)=>{
   res.render('./user/profile')
 }
+
+
+// to wallet
+const toWallet = async (req,res)=>{
+  
+  try {
+    const user = await User.findOne({email:req.session.email})
+    const userId = user._id
+
+    const userWallet = await wallet.findOne({userId:userId})
+    console.log(userWallet)
+
+    res.render('./user/wallet.ejs',{userWallet})  
+
+  } catch (err) {
+    console.error(err)
+  }
+}
+
+
+// To referal
+const toReferal = async (req,res)=>{
+  
+  const user = await User.findOne({email:req.session.email})
+  const userId = user._id
+
+  try{
+    const referalLink = await offerhelper.generateReferralCode(userId)
+    res.render('./user/referal.ejs',{referalLink})
+  }catch(err){
+    console.error(err)
+  }
+
+}
+
+
+
 module.exports = {
   toHome,
   userSignup,
@@ -539,5 +685,7 @@ module.exports = {
   productSearch,
   toProfile,
   getFilteredProducts,
-  filterProductsByBrand
+  filterProductsByBrand,
+  toWallet,
+  toReferal
 };

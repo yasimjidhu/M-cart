@@ -26,5 +26,5 @@ const profileAuth = (req,res,next)=>{
 module.exports = {
     verifyUser,
     userExist,
-    profileAuth
+    profileAuth,
 }

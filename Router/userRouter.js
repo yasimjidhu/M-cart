@@ -54,9 +54,11 @@ router.post('/products-search',user.productSearch)
 router.get('/filteredProducts',user.getFilteredProducts)
 router.get('/filterProductsByBrand',user.filterProductsByBrand)
 
+// wallet
+router.get('/user/toWallet',userauth.verifyUser,user.toWallet)
 
-
-
+// Referal
+router.get('/toReferal',userauth.verifyUser,user.toReferal)
 
 
 
