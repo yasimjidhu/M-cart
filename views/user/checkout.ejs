@@ -156,11 +156,11 @@
           </div>
           <div class="col-lg-12">
             <h6 class="bordered">Subtotal <span class="float-right">
-                <%=finalPrice%>
+                <%=cartGrandTotal.toFixed(2)%>
               </span></h6>
             <h6 class="bordered">Shipping <span id="displayedShippingPrice" class="float-right">0</span></h6>
             <h6 class="bordered">Total <span id="displayedTotalPrice" class="float-right">
-                <%=finalPrice %>
+                <%=cartGrandTotal.toFixed(2) %>
               </span></h6>
           </div>
           <div class="col-lg-12">
@@ -207,7 +207,8 @@
           <p>Type:<span class="ml-1">Paid</span></p>
           <p>Shipping charge:<span class="ml-1 text-danger">150</span></p>
           <input type="hidden" name="quantity" value="<%=quantity%>" id="allQuantity">
-          <input type="hidden" name="totalPrice" value="<%=finalPrice%>" id="totalPrice">
+          <input type="hidden" name="totalPrice" value="<%=cartGrandTotal%>" id="totalPrice">
+        
         </div>
       </div>
       <!-- </form> -->
@@ -488,7 +489,7 @@
         // Function to update displayed total price based on the selected method and cart total
         function updateTotalPrice() {
           const selectedShipping = document.querySelector('input[name="shippingMethod"]:checked');
-          const cartTotal = parseFloat('<%=finalPrice%>');
+          const cartTotal = parseFloat('<%=cartGrandTotal%>');
 
 
           if (selectedShipping) {
@@ -496,7 +497,7 @@
             const totalPrice = calculateTotalPrice(cartTotal, selectedShippingType);
 
             document.getElementById('displayedShippingPrice').textContent = shippingCharges[selectedShippingType];
-            document.getElementById('displayedTotalPrice').textContent = totalPrice;
+            document.getElementById('displayedTotalPrice').textContent = totalPrice.toFixed(2);
           }
         }
 
@@ -550,7 +551,7 @@
 
           // Get quantity and total price from the DOM elements
           const quantity = document.getElementById('allQuantity').value;
-          const cartTotal = parseFloat('<%=finalPrice%>');
+          const cartTotal = parseFloat('<%=cartGrandTotal%>');
 
           // Calculate total price including shipping charges
           const shippingCharge = shippingCharges[selectedShippingType];
@@ -578,7 +579,7 @@
             });
 
             const result = await response.json();
-            alert(JSON.stringify(result))
+            // alert(JSON.stringify(result))
 
             if (result.codSuccess) {
               window.location.href = '/order/orderSuccess';

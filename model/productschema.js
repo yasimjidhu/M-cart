@@ -16,7 +16,8 @@ const productschema = mongoose.Schema({
         min:0
     },
     discountedPrice:{
-        type:Number
+        type:Number,
+        default:0
     },
     stock:{
         type:Number,

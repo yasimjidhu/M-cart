@@ -1,5 +1,14 @@
 <!--header-->
 
+<style>
+
+.hide-content {
+    display: none;
+  }
+
+</style>
+
+
 <%-include('../user/partials/header') %>
   <%-include('../user/partials/navbar') %>
     <div class="page">
@@ -7,12 +16,13 @@
         <div class="col-2 filter-sidebar p-0">
           <h6 class="text-white text-center mt-4 heading">Filter The Products</h6>
           <div class="col-lg-12 filter-div">
-            <div class="inner">
+            <form id="filterForm">
+            <div class="inner"> 
               <% if(brand && brand.length>0){ %>
                 <% brand.forEach((brands,index)=> {%>
                   <div class="form-check">
                     <input class="form-check-input brandCheckbox" type="checkbox" name="brands"
-                      value="<%=brands.brandName %>" style="cursor: pointer;">
+                      value="<%=brands._id %>" style="cursor: pointer;">
                     <label class="form-check-label " for="<%=brands.brandName %>">
                       <%=brands.brandName %>
                     </label>
@@ -25,64 +35,39 @@
             <h6 class="text-center heading">Price Wise</h6>
             <div class="inner">
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="priceRanges" value="0-10000" class="priceCheckbox"
+                <input class="form-check-input priceCheckbox" type="checkbox" name="priceRanges" value="0-10000" 
                   style="cursor: pointer;">
                 <label class="form-check-label" for="">Under 10000</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="priceRanges" value="10000-25000"
-                  class="priceCheckbox" style="cursor: pointer;">
+                <input class="form-check-input priceCheckbox" type="checkbox" name="priceRanges" value="10000-25000"
+                  style="cursor: pointer;">
                 <label class="form-check-label" for="">10000-25000</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="priceRanges" value="25000-50000"
-                  class="priceCheckbox" style="cursor: pointer;">
+                <input class="form-check-input priceCheckbox" type="checkbox" name="priceRanges" value="25000-50000"
+                   style="cursor: pointer;">
                 <label class="form-check-label" for="">25000-50000</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="priceRanges" value="50000-100000"
-                  class="priceCheckbox" style="cursor: pointer;">
+                <input class="form-check-input priceCheckbox" type="checkbox" name="priceRanges" value="50000-100000"
+                   style="cursor: pointer;">
                 <label class="form-check-label" for="">50000-100000</label>
               </div>
               <div class="form-check">
-                <input class="form-check-input" type="checkbox" name="priceRanges" value="100000-200000"
-                  class="priceCheckbox" style="cursor: pointer;">
+                <input class="form-check-input priceCheckbox" type="checkbox" name="priceRanges" value="100000-200000"
+                   style="cursor: pointer;">
                 <label class="form-check-label" for="">Above 100000</label>
               </div>
+              <button type="submit" id="applyFiltersBtn" class="btn btn-primary mt-3">Apply Filters</button>
             </div>
           </div>
-          <div class="col-lg-12 filter-div mt-4">
-            <h6 class="text-center heading">Battery Wise</h6>
-            <div class="inner">
-              <div class="form-check">
-                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value="2000-2999"
-                  style="cursor: pointer;">
-                <label class="form-check-label" for="">2000-2999</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value="3000-3999"
-                  style="cursor: pointer;">
-                <label class="form-check-label" for="">3000-3999</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value=">4000-4999"
-                  style="cursor: pointer;">
-                <label class="form-check-label" for="">4000-4999</label>
-              </div>
-              <div class="form-check">
-                <input class="form-check-input batteryCheckbox" type="checkbox" name="batteryRanges" value=">Above 5000"
-                  style="cursor: pointer;">
-                <label class="form-check-label" for="">Above 5000</label>
-              </div>
-            </div>
-          </div>
+        </form>
         </div>
         <div class="col-10">
-          <div id="filteredProducts" style="width: 100%;">
-
-          </div>
+       
           <!--Navbar-->
-          <div class="container mt-3">
+          <div class="container filter-container mt-3">
             <div class="row categroy-li">
               <div class="col-sm-3 col-md-4 col-lg-2">
                 <% if(categories && categories.length> 0){ %>
@@ -140,25 +125,62 @@
                 <div class="col-sm-12 col-md-4 col-lg-3">
                   <div class="iphone" style="position: relative;">
                     <!-- Create a link around the image with the product ID as a query parameter -->
+                    <% if (offeredProducts && offeredProducts.length > 0) { %>
+                      <% let hasProductOffer = false; %>
+                      <% let hasCategoryOffer = false; %>
+                      <% let productOfferPercentage = 0; %>
+                      <% let categoryOfferPercentage = 0; %>
+                      <% offeredProducts.forEach(offer => { %>
+                        <% if (offer.offerType === 'productOffer') { %>
+                          <% offer.offerProducts.forEach(data => { %>
+                            <% if (x._id.toString() === data.productId.toString()) { %>
+                              <% hasProductOffer = true; %>
+                              <% productOfferPercentage = data.OfferPercentage; %>
+                            <% } %>
+                          <% }); %>
+                        <% } else if (offer.offerType === 'categoryOffer') { %>
+                          <% offer.productsWithCategoryOffer.forEach(item => { %>
+                            <% if (offer.offerType === 'categoryOffer' && x.category.toString() === item.categoryId.toString()) { %>
+                              <% hasCategoryOffer = true; %>
+                              <% categoryOfferPercentage = item.OfferPercentage; %>
+                            <% } %>
+                          <% }); %>
+                        <% } %>
+                      <% }); %>
+          
+                      <% if (hasProductOffer) { %>
+                        <div class="offer-badge">
+                          <span><%= productOfferPercentage %> Offer</span>
+                        </div>
+                      <% }else if(hasCategoryOffer) {%>
+                        <div class="offer-badge bg-success">
+                          <span><%= categoryOfferPercentage%> Offer</span>
+                        </div>
+                      <% } %>
+                    <% } %>
+          
                     <a href="/productview/<%= x._id %>">
-                      <img class="product-image" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>"  />
+                      <img class="product-image mt-4" src="/uploads/<%= x.image[4] %>" alt="<%= x.productName %>" />
                     </a>
-                    
                   </div>
                   <div class="details">
                     <!-- Display product information dynamically -->
                     <h5 class="text-danger">
                       <%= x.productName %>
                     </h5>
-                    <h5 class="">$<%= x.price %>
-                    </h5>
-                    <a class="btn" style="background-color:#001524; color: white; width: 100%;"
-                      data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
+                    <%if(x.discountedPrice){ %>
+                    <h5 class="">$<%= x.discountedPrice %></h5>
+                    <a class="btn" style="background-color:#001524; color: white; width: 100%;" data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
+                    <% }else{ %>
+                      <h5 class="">$<%= x.price %></h5>
+                      <a class="btn" style="background-color:#001524; color: white; width: 100%;" data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
+                    <%} %>
                   </div>
                 </div>
-                <% }); %>
+              <% }); %>
             </div>
           </div>
+          
 
 
           <div class="view-all">
@@ -222,6 +244,39 @@
               <% flashSales.forEach(product=> { %>
                 <div class="col-sm-12 col-md-4 col-lg-3">
                   <div class="iphone">
+                    <% if (offeredProducts && offeredProducts.length > 0) { %>
+                      <% let hasProductOffer = false; %>
+                      <% let hasCategoryOffer = false; %>
+                      <% let productOfferPercentage = 0; %>
+                      <% let categoryOfferPercentage = 0; %>
+                      <% offeredProducts.forEach(offer => { %>
+                        <% if (offer.offerType === 'productOffer') { %>
+                          <% offer.offerProducts.forEach(data => { %>
+                            <% if (product._id.toString() === data.productId.toString()) { %>
+                              <% hasProductOffer = true; %>
+                              <% productOfferPercentage = data.OfferPercentage; %>
+                            <% } %>
+                          <% }); %>
+                        <% } else if (offer.offerType === 'categoryOffer') { %>
+                          <% offer.productsWithCategoryOffer.forEach(item => { %>
+                            <% if (offer.offerType === 'categoryOffer' && product.category.toString() === item.categoryId.toString()) { %>
+                              <% hasCategoryOffer = true; %>
+                              <% categoryOfferPercentage = item.OfferPercentage; %>
+                            <% } %>
+                          <% }); %>
+                        <% } %>
+                      <% }); %>
+          
+                      <% if (hasProductOffer) { %>
+                        <div class="offer-badge">
+                          <span><%= productOfferPercentage %> Offer</span>
+                        </div>
+                      <% }else if(hasCategoryOffer) {%>
+                        <div class="offer-badge bg-success">
+                          <span><%= categoryOfferPercentage%> Offer</span>
+                        </div>
+                      <% } %>
+                    <% } %>
                     <a href="/productview/<%= product._id %>"><img class="product-images"
                         src="/uploads/<%= product.image[4] %>" alt="<%= product.name %>" /></a>
                     <!-- <i class="fas fa-heart" style="position: absolute; right: 31px; top: 24px;font-size: 28px;color:#001524;"></i> -->
@@ -273,7 +328,7 @@
                   </div>
                   <div class="col-md-6">
                     <div class="inner-div2">
-                      <img src="" alt="">
+                      <img src="/svg/iphone big.svg" alt="">
                     </div>
                   </div>
                 </div>
@@ -363,8 +418,8 @@
 
     <%-include('./partials/footer.ejs') %>
 
-      </body>
       <script>
+
 
         // function to add a product to the cart
         function addToCart(event) {
@@ -406,129 +461,107 @@
         }
 
 
-        // Function to hide non-filtered content
-const hideNonFilteredContent = () => {
-  const nonFilteredElements = document.querySelectorAll('.page > .container, .view-all, section, .round-icon, .trade-mark ,.banner-main,.premium-phones, .brand-wiseDiv,.categroy-li,.left,.banner-Main');
-  nonFilteredElements.forEach(element => {
-    element.style.display = 'none'; // Hide non-filtered elements
+
+// Function to hide main content
+function hideMainContent() {
+    document.querySelector('.page').classList.add('hide-content');
+  }
+
+  // Function to display main content
+  function showMainContent() {
+    document.querySelector('.page').classList.remove('hide-content');
+  }
+
+
+
+
+
+        // Function to create a single card
+function createCard(product) {
+  alert('createcard called')
+  const card = document.createElement('div');
+  card.classList.add('col', 'mb-4');
+
+  card.innerHTML = `
+    <div class="card">
+      <div class="card-body">
+        <h5 class="card-title">${product.name}</h5>
+        <p class="card-text">Price: $${product.price}</p>
+        <p class="card-text">Brand: ${product.stock}</p>
+        <!-- Add other product details here -->
+      </div>
+    </div>
+  `;
+
+  return card;
+}
+
+
+// Function to display products in cards
+function displayProducts(products) {
+  alert('display function called'+JSON.stringify(products))
+  const cardContainer = document.querySelector('.premium-phones');
+  cardContainer.innerHTML = ''; // Clear previous cards
+
+  products.forEach(product => {
+    const card = createCard(product);
+    cardContainer.appendChild(card);
   });
-};
+}
 
-// Function to show previously hidden elements
-const showHiddenContent = () => {
-  const hiddenElements = document.querySelectorAll('.page > .container, .view-all, section, .round-icon, .trade-mark ,.banner-main,.premium-phones, .brand-wiseDiv,.categroy-li,.left,.banner-Main');
-  hiddenElements.forEach(element => {
-    element.style.display = ''; // Display previously hidden elements
-  });
-};
 
-// Function to show filtered products
-const showFilteredProducts = () => {
-  const filteredProductsDiv = document.getElementById('filteredProducts');
-  filteredProductsDiv.style.display = 'block'; // Show filtered products
-};
+// Function to fetch products based on selected filters
+async function fetchProducts() {
+  const brandCheckboxes = document.querySelectorAll('.brandCheckbox:checked');
+  const priceCheckboxes = document.querySelectorAll('.priceCheckbox:checked');
+  const batteryCheckboxes = document.querySelectorAll('.batteryCheckbox:checked');
 
-// Function to filter the products by brand
-const filterProductsByBrand = async () => {
-  const brandCheckbox = document.querySelectorAll('input[name="brands"]:checked');
-  const brandRanges = Array.from(brandCheckbox, checkbox => checkbox.value);
-  const params = new URLSearchParams();
-  brandRanges.forEach(value => {
-    params.append('brandRanges', value);
-  });
-
+  const brands = Array.from(brandCheckboxes).map(checkbox => checkbox.value);
+  const priceRanges = Array.from(priceCheckboxes).map(checkbox => checkbox.value);
+  const batteryRanges = Array.from(batteryCheckboxes).map(checkbox => checkbox.value);
   try {
-    const response = await fetch(`/filterProductsByBrand?${params.toString()}`);
-    const data = await response.json();
+    const response = await fetch('/products-filter', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ brands, priceRanges, batteryRanges })
+    });
 
-    hideNonFilteredContent();
-    showFilteredProducts();
-    const filteredProductsdiv = document.getElementById('filteredProducts');
-    filteredProductsdiv.innerHTML = '';
-
-    if (data.brandWiseData.length <= 0) {
-      const imgdv = document.createElement('div');
-      imgdv.classList.add('col-lg-12', 'm-0', 'p-0');
-      imgdv.style.display = 'flex';
-      imgdv.style.flexDirection = 'column';
-      imgdv.style.justifyContent = 'center'; // Center horizontally
-      imgdv.style.alignItems = 'center'; // Center vertically
-
-      const nullimg = document.createElement('img');
-      nullimg.src = '/images/theme/noData.jpg';
-      nullimg.classList.add('empty-product');
-      nullimg.style.width = '60%'; // Adjust the width as needed
-
-      const h1 = document.createElement('h1');
-      h1.innerHTML = 'No products found under this Brands';
-
-      imgdv.appendChild(nullimg);
-      imgdv.appendChild(h1);
-      filteredProductsdiv.appendChild(imgdv);
+    if (!response.ok) {
+      throw new Error('Failed to fetch products');
     }
 
-    //create a row container for the cards
-    let rowDiv;
-    data.brandWiseData.forEach((brand, index) => {
-      brand.brandDetails.forEach(item => {
-        if (index % 4 === 0) {
-          rowDiv = document.createElement('div');
-          rowDiv.classList.add('row', 'mb-3');
-          filteredProductsdiv.appendChild(rowDiv);
-        }
+    const products = await response.json();
+    console.log('result got',products)
 
-        //create a column for each product card
-        const cardDiv = document.createElement('div');
-        cardDiv.classList.add('col-lg-3', 'mt-4');
+    // Hide main content before displaying filtered products
+    hideMainContent();
 
-        cardDiv.innerHTML = `
-          <div class="card mb-3">
-            <a href="/productview/${item._id}"><img class="card-img-top" src="/uploads/${item.image[4]}" alt="${item.productName}"/></a>
-            <div class="card-body">
-              <h5 class="card-title" style="color: #bd5c05;">${item.productName}</h5>
-              <p class="card-text">$${item.price}</p>
-            </div>
-          </div>
-        `;
+    // Display the fetched products in cards
+    displayProducts(products);
 
-        //Append the card column to the row
-        rowDiv.appendChild(cardDiv);
-      });
-    });
-  } catch (error) {
-    console.error('Error filtering products by brand:', error);
+    // Show main content after displaying filtered products
+    showMainContent();
+
+
+  } catch (err) {
+    alert(JSON.stringify(err))
+    console.error('Error fetching products:', err);
+    // Handle error (e.g., show error message)
   }
-};
+}
 
-// Function to handle change event on brand checkboxes
-const handleBrandCheckboxChange = () => {
-  const brandCheckboxes = document.querySelectorAll('input[name="brands"]');
-  brandCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', () => {
-      filterProductsByBrand(); // Call the function to filter products by brand
-      // Check if any brand checkbox is unchecked
-      const unchecked = Array.from(brandCheckboxes).every(checkbox => !checkbox.checked);
-      if (unchecked) {
-        showHiddenContent(); // Show previously hidden elements
-      }
-    });
-  });
-};
+document.getElementById('applyFiltersBtn').addEventListener('click', fetchProducts);
 
-// Call the function to handle brand checkbox changes
-handleBrandCheckboxChange();
 
-// Attach change event listeners to checkboxes for price and brand
-const priceCheckboxes = document.querySelectorAll('input[name="priceRanges"]');
-const brandCheckboxes = document.querySelectorAll('input[name="brands"]');
 
-priceCheckboxes.forEach(checkbox => {
-  checkbox.addEventListener('change', filterProductsByPrice);
-});
 
-brandCheckboxes.forEach(checkbox => {
-  checkbox.addEventListener('change', filterProductsByBrand);
-});
+
+
+
+
+
 
 
       </script>

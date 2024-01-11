@@ -19,7 +19,8 @@ const { log } = require("console");
 const cart = require("../Router/cartRouter");
 const Excel = require('exceljs');
 const categoryOffer = require("../model/categoryOffer");
-const cartHelpers = require('../helpers/cartHelpers')
+const cartHelpers = require('../helpers/cartHelpers');
+const referal = require("../model/referal");
 
 
 // Admin creadentials
@@ -1582,7 +1583,7 @@ const createProductOffer = async (req, res) => {
       console.log('discountedAmount',discountedAmount)
 
       if(discountedAmount){
-      productFound.discountedPrice = discountedAmount
+      productFound.discountedPrice = productFound.price - discountedAmount
       productFound.offerType = 'productOffer'
       await productFound.save()
     }
@@ -1642,6 +1643,15 @@ const editproductOffer = async (req,res)=>{
     await existingOffer.save()
     console.log('offer edited')
 
+    const productFound = await products.findById(productId)
+    if(productFound){
+
+      const discountedAmount = await cartHelpers.calculateDiscountedPrice(productFound.price,OfferPercentage)
+      productFound.discountedPrice = productFound.price - discountedAmount
+      console.log('discounted amount in products',discountedAmount)
+    }
+    productFound.save()
+
     return res.status(200).json({message:'Product offer Updated'})
   }catch(err){
     console.log(err)
@@ -1652,17 +1662,31 @@ const editproductOffer = async (req,res)=>{
 
 // remove the product offer 
 const deleteProductOffer = async (req,res)=>{
-  console.log('deletion reached')
+  
   const productOfferId = req.params.offerId
 
   try {
     
-    const deleted = await productOffer.findByIdAndDelete(productOfferId)
+    const productOfferFound = await productOffer.findById(productOfferId)
 
-    if(!deleted){
+    const productId = productOfferFound.productId
+    console.log('prductid in delte productoffer',productId)
+
+    if(!productOfferFound){
       return res.status(404).json({message:'Product offer not found'})
     }
-    res.status(200).json({success:true})
+
+    const deleted = await productOffer.findByIdAndDelete(productOfferId)
+
+    const updatedProducts = await products.updateOne(
+      {_id:productId,offerType:'productOffer'},
+      {$set:{discountedPrice:0,offerType:null}}
+    )
+
+    if(updatedProducts){
+      console.log('updated success')
+      return res.status(200).json({success:true})
+    }
   } catch (error) {
     console.log(error)
   }
@@ -1737,7 +1761,6 @@ const addCategoryOffer = async (req,res)=>{
     );
     
     const productIds = withoutProductOffer.map(product => product._id )
-    console.log('productIds',productIds)
 
 
     // Update offerType in products collection to 'categoryOffer'
@@ -1745,8 +1768,27 @@ const addCategoryOffer = async (req,res)=>{
       { _id: { $in: productIds } }, // Filter criteria: Not in productIds array
       { $set: { offerType: 'categoryOffer' } } 
     );
+    
 
+    // Calculate the multiplier for the discount percentage
+    const discountMultiplier = 1 - (OfferPercentage / 100);
+    console.log('discount multiplier',discountMultiplier)
 
+    // Fetch products under the specified category
+    const productsToUpdate = await products.find({ category: categoryId });
+    console.log('productstoupdate',productsToUpdate)
+
+     // Update discountedPrice for each product
+     for (const product of productsToUpdate) {
+      // Calculate the discounted price based on the discount percentage
+      const discountedPrice = product.price * discountMultiplier;
+  
+
+      // Update the product's discountedPrice field
+      await products.findByIdAndUpdate(product._id, { discountedPrice: discountedPrice });
+  
+    }
+    
     return res.status(200).json({message:'category offer added successfully',categroryOffers:newCategoryOffer})
   }catch(err){
     console.log(err)
@@ -1797,7 +1839,22 @@ const editCategoryOffer = async (req,res)=>{
 
     //save the updated category offer
     await existingOffer.save()
-    console.log('offer edited')
+    
+    const discountMultiplier = 1 - (OfferPercentage / 100 );
+    console.log('discount multiplier',discountMultiplier)
+
+    // Fetch products under the specified category
+    const productstoupdate = await products.find({category:categoryId})
+
+    // update the discounted Price for each product
+    for(const product of productstoupdate){
+      // calculate the discounted price based on the discounted percentage
+      const discountedPrice = product.price * discountMultiplier
+
+      // update the product's discounted price field
+      await products.findByIdAndUpdate(product._id,{discountedPrice:discountedPrice})
+    }
+    console.log('edited successfully')
 
     return res.status(200).json({message:'Product offer Updated'})
 
@@ -1809,28 +1866,143 @@ const editCategoryOffer = async (req,res)=>{
 
 // remove the category offer 
 const deleteCategoryOffer = async (req,res)=>{
-  console.log('deletion reached')
+ 
   const categoryOfferId = req.params.offerId
 
   try {
     
-    const deleted = await categoryOffer.findByIdAndDelete(categoryOfferId)
-
-    if(!deleted){
-      return res.status(404).json({message:'category offer not found'})
+    const categoryOfferFound = await categoryOffer.findById(categoryOfferId)
+    if (!categoryOfferFound) {
+      return res.status(404).json({ message: 'Category offer not found' });
     }
-    res.status(200).json({success:true})
+
+    const categoryId= categoryOfferFound.categoryId;
+
+    // Remove the category offer
+    await categoryOffer.findByIdAndDelete(categoryOfferId);
+
+    // RESET PRODUCT DETAILS IF THE OFFER WAS ASSOCIATED WITH PRODUCTS
+    const updatedProducts = await products.updateMany(
+      {category:categoryId, offerType:'categoryOffer'}, //  FILTER
+      {$set:{offerType:null,discountedPrice:0}}
+    );
+    console.log('deleted new category offer')
+    return res.status(200).json({ message: 'Category offer deleted successfully' });
+
   } catch (error) {
     console.log(error)
+    return res.status(500).json({ message: 'Failed to delete category offer', error: err.message });
   }
 }
 
 
-
 // to Referal management
-const toReferal = (req,res)=>{
-  res.render('./admin/referal.ejs')
+const toReferal = async (req,res)=>{
+
+  try{
+    const allReferalData = await referal.aggregate([
+      {
+        $unwind:'$joinedUser'
+      },
+      {
+        $lookup:{
+          from:'users',
+          localField:'joinedUser.userId',
+          foreignField:'_id',
+          as:'referedUserInfo'
+        }
+      },
+      {
+        $unwind:'$invitedUser'
+      },
+      {
+        $lookup:{
+          from:'users',
+          localField:'invitedUser.userId',
+          foreignField:'_id',
+          as:'invitedUserInfo'
+        }
+      },
+      {
+        $project:{
+          'referedUserInfo':1,
+          'invitedUserInfo':1
+        }
+      }
+    ])
+
+
+    return res.render('./admin/referal.ejs',{allReferalData})
+
+  }catch(err){
+    console.error(err)
+  }
 }
+
+
+// Add referal offer
+const addReferalOffer = async (req,res)=>{
+
+  try {
+    const { offerAmount, validFrom, validUntil } = req.body;
+  
+
+    
+    const fromDate = new Date(validFrom);
+    const untilDate = new Date(validUntil);
+    if (fromDate >untilDate) {
+      return res.status(400).json({ message: 'Valid until date must be after valid from date' });
+    }
+
+    
+    const newReferalOffer = new referal({
+      offerAmount: offerAmount,
+      validFrom: fromDate,
+      validUntil: untilDate,
+      status: true,
+      joinedUser: [],
+      invitedUser: []
+    });
+
+    await newReferalOffer.save();
+
+    return res.status(200).json({ message: 'Referral offer added successfully', referralOffer: newReferalOffer });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: 'Failed to add referral offer', error: err.message });
+  }
+}
+
+// delete referal
+const deleteReferal = async (req, res) => {
+  const referalId = req.params.referalId;
+  
+  try {
+    const deletedReferal = await referal.findByIdAndDelete(referalId);
+    
+    if (!deletedReferal) {
+      return res.status(404).json({ message: 'Referal not found' });
+    }
+
+    return res.status(200).json({ message: 'Referal deleted successfully' });
+  } catch (error) {
+    console.error('Error deleting referal:', error);
+    return res.status(500).json({ message: 'Failed to delete referal', error: error.message });
+  }
+};
+
+
+// To banner management
+const toBannerManagement = (req,res)=>{
+
+  try{
+    res.render('./admin/bannerMgt.ejs')
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
 
 module.exports = {
   loginAdmin,
@@ -1887,6 +2059,9 @@ module.exports = {
   getSingleCategoryOffer,
   editCategoryOffer,
   deleteCategoryOffer,
-  toReferal
+  toReferal,
+  addReferalOffer,
+  deleteReferal,
+  toBannerManagement
   
 };

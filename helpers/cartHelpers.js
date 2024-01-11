@@ -5,6 +5,47 @@ const express = require('express')
 const { ObjectId } = require('mongoose').Types;
 const mongoose = require('mongoose')
 
+
+
+// to get eachproducts in cart
+const  getCartProducts = async function(userId){
+    const productsInCart = await cart.aggregate([
+        {
+            $match:{userId:userId}
+    
+        },
+        {
+            $unwind:'$products'
+        },
+        {
+            $lookup:{
+                from:'products',
+                localField:'products.productId',
+                foreignField:'_id',
+                as:'cartProducts'
+            }
+        },
+        {
+            $unwind:'$cartProducts'
+        },
+        {
+            $project:{
+                'cartProducts.productName':1,
+                'cartProducts.image':{$arrayElemAt:['$cartProducts.image',4]},
+                'cartProducts.price':1,
+                'cartProducts.discountedPrice':1,
+                'products.quantity':1,
+                'cartProducts._id':1
+            }
+        },
+        
+    ]);
+
+    return productsInCart
+}
+
+
+
 const priceOfEachItem = async (user) => {
     const EachAmount = await cart.aggregate([
         {
@@ -147,6 +188,7 @@ const actualPriceAfterOffer = async (productId) => {
     }
 };
 
+
 // function for find discounted amount
 function calculateDiscountedPrice(originalPrice, discountPercentage) {
     const discountAmount = (originalPrice * discountPercentage) / 100;
@@ -157,6 +199,7 @@ function calculateDiscountedPrice(originalPrice, discountPercentage) {
 
 
 module.exports ={
+    getCartProducts,
     priceOfEachItem,
     totalCartAmount,
     actualPriceAfterOffer,

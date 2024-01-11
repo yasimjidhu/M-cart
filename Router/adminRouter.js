@@ -178,7 +178,11 @@ admin.delete('/deleteCategoryOffer/:offerId',adminauth.verifyAdmin,adminControll
 
 // referal offers
 admin.get('/toReferal',adminauth.verifyAdmin,adminController.toReferal)
+admin.post('/add-referral-offers',adminauth.verifyAdmin,adminController.addReferalOffer)
+admin.delete('/delete-referral-offers/:referalId',adminauth.verifyAdmin,adminController.deleteReferal)
 
+// Banner management
+admin.get('/toBanner-mgt',adminauth.verifyAdmin,adminController.toBannerManagement)
 
 // error handling middleware
 admin.use((req, res) => {

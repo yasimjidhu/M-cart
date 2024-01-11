@@ -47,7 +47,8 @@ const productOfferChecker = () => {
             $unset: {
               offerPrice: "",
               offerType: "",
-              offerExpiryDate: ""
+              offerExpiryDate: "",
+              discountedPrice:""
             }
           }
         );

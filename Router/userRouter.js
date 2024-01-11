@@ -51,8 +51,8 @@ router.get('/allproductview/:categoryId',user.toViewAll)
 router.post('/products-search',user.productSearch)
 
 // filter products
-router.get('/filteredProducts',user.getFilteredProducts)
-router.get('/filterProductsByBrand',user.filterProductsByBrand)
+router.post('/products-filter',userauth.verifyUser,user.filterProducts)
+
 
 // wallet
 router.get('/user/toWallet',userauth.verifyUser,user.toWallet)

@@ -68,15 +68,35 @@ const toCart = async (req, res) => {
             return res.render('./user/emptyCart',{title:'Cart'})
         }
 
-        const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
-        var firstCartItem = cartData[0];
-        const cartTotal = firstCartItem.total
-        
-        const finalPrice = eachProductPrice.reduce((acc,current)=>{
-            return acc + current.total
-        },0);
-        req.session.finalPrice = finalPrice
-        res.render('./user/cart',{finalPrice,cartTotal,eachProductPrice,isAuthenticated,message,title:'Cart'});
+        // const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
+        const CartProducts = await cartHelpers.getCartProducts(userId)
+
+        let discountedPrice = []
+        let cartTotal = 0
+
+        CartProducts.forEach((data, index) => {
+            if (data.cartProducts.discountedPrice > 0) {
+                data.cartProducts.discountedPrice = data.cartProducts.discountedPrice;
+                discountedPrice.push(data.cartProducts.discountedPrice);
+                cartTotal += data.cartProducts.discountedPrice;
+            } else {
+                data.cartProducts.discountedPrice = data.cartProducts.price;
+                discountedPrice.push(data.cartProducts.price);
+                cartTotal += data.cartProducts.price;
+            }
+                // Assign each product's subtotal to the respective object in CartProducts
+                data.cartProducts.subTotal = data.products.quantity * data.cartProducts.discountedPrice
+        });
+ 
+
+        let cartGrandTotal = 0 ;
+        CartProducts.forEach(data =>{
+            cartGrandTotal += data.cartProducts.subTotal
+        })
+
+        req.session.cartGrandTotal = cartGrandTotal
+
+        res.render('./user/cart',{isAuthenticated,message,title:'Cart',cartGrandTotal});
     } catch (error) {
         console.log(error);
     }
@@ -104,6 +124,38 @@ const cartProducts = async (req, res) => {
             return res.json({ success: true, datas: [], cartData: [] }); // Return empty cart for the user if no items found
         }
 
+        // user all products in cart
+        const CartProducts = await cartHelpers.getCartProducts(userId)
+        
+        // user each product sub total
+        const eachSubTotal = await cartHelpers.priceOfEachItem(userId)
+
+        
+
+        let discountedPrice = []
+        let cartTotal = 0
+
+        CartProducts.forEach((data, index) => {
+            if (data.cartProducts.discountedPrice > 0) {
+                data.cartProducts.discountedPrice = data.cartProducts.discountedPrice;
+                discountedPrice.push(data.cartProducts.discountedPrice);
+                cartTotal += data.cartProducts.discountedPrice;
+            } else {
+                data.cartProducts.discountedPrice = data.cartProducts.price;
+                discountedPrice.push(data.cartProducts.price);
+                cartTotal += data.cartProducts.price;
+            }
+                // Assign each product's subtotal to the respective object in CartProducts
+                data.cartProducts.subTotal = data.products.quantity * data.cartProducts.discountedPrice
+        });
+ 
+
+        let cartGrandTotal = 0 ;
+        CartProducts.forEach(data =>{
+            cartGrandTotal += data.cartProducts.subTotal
+        })
+
+        
         const cartId = cartItemsForUser._id
 
         // Extracting product ids and quantities from the user's cart
@@ -112,6 +164,8 @@ const cartProducts = async (req, res) => {
             quantity: product.quantity
         }));
 
+        console.log('cartproducts',CartProducts)
+
         // Remove duplicate productIds if any
         const uniqueProductDetails = [...new Map(productDetails.map(item => [item.productId.toString(), item])).values()];
         const productIds = uniqueProductDetails.map(product => product.productId);
@@ -119,9 +173,9 @@ const cartProducts = async (req, res) => {
 
         // Fetch products based on the array of productIds
         const productsInCart = await products.find({ _id: { $in: productIds } }, { image: 1, price: 1 ,_id:1});
-
         
-        return res.status(200).json({ success: true, datas: productsInCart, cartData: uniqueProductDetails,productQty: productQuantity[0],cartId});
+        const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
+        return res.status(200).json({ success: true, datas: CartProducts,discountedPrice,eachSubTotal, cartData: uniqueProductDetails,productQty: productQuantity[0],cartId,cartGrandTotal});
     } catch (err) {
         console.log(err);
         res.status(500).json({ error: 'Internal server error' });
@@ -191,6 +245,7 @@ const addToCart = async (req, res) => {
 // Remove Item from the cart
 const RemoveItem = async (req, res) => {
     const productID = req.params.productID;
+    console.log('productId in cart',productID)
     const userEmail = req.session.email;
     
     try {
@@ -219,7 +274,6 @@ const toCheckout = async (req, res) => {
     try {
       const quantity = req.query.quantity;
       const totalPrice = req.query.total;
-      
 
       const userEmail = req.session.email;
       const user = await users.findOne({ email: userEmail });
@@ -287,21 +341,52 @@ const toCheckout = async (req, res) => {
     }
 
 
+    // const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
+    const CartProducts = await cartHelpers.getCartProducts(user._id)
+    console.log('CartProducts',CartProducts)
+
+    let discountedPrice = []
+    let cartTotal = 0
+
+    CartProducts.forEach((data, index) => {
+        if (data.cartProducts.discountedPrice > 0) {
+            data.cartProducts.discountedPrice = data.cartProducts.discountedPrice;
+            discountedPrice.push(data.cartProducts.discountedPrice);
+            cartTotal += data.cartProducts.discountedPrice;
+        } else {
+            data.cartProducts.discountedPrice = data.cartProducts.price;
+            discountedPrice.push(data.cartProducts.price);
+            cartTotal += data.cartProducts.price;
+        }
+            // Assign each product's subtotal to the respective object in CartProducts
+            data.cartProducts.subTotal = data.products.quantity * data.cartProducts.discountedPrice
+    });
+
+
+    let cartGrandTotal = 0 ;
+    CartProducts.forEach(data =>{
+        cartGrandTotal += data.cartProducts.subTotal
+    })
+    console.log('carttotal in checkout',cartGrandTotal)
 
 
 
 
-      const finalPrice = req.session.finalPrice
+    // const userCart = await cart.findOne({userId:user._id})
+    // const userDiscountedPrice = userCart.discountedAmount
+    
+    // // const cartTotal = await cartHelpers.totalCartAmount(user._id)
+    //   const discountAppliedPrice = cartTotal - userDiscountedPrice
   
-      const cartItems = userCartData.map(cartItem => cartItem.userCartProducts);
-      const flattenedCartItems = [].concat(...cartItems);
+    //   const cartItems = userCartData.map(cartItem => cartItem.userCartProducts);
+    //   const flattenedCartItems = [].concat(...cartItems);
   
       const userAddressData = await address.findOne({ userId: user._id });
       const userAddress = userAddressData ? userAddressData.address : null;
   
-      const total = flattenedCartItems.reduce((acc, currentItem) => acc + currentItem.price, 0);
+    //   const total = flattenedCartItems.reduce((acc, currentItem) => acc + currentItem.price, 0);
   
-      res.render('./user/checkout', { userCartData, userAddress, total , quantity, finalPrice,title:'Checkout'})
+      res.render('./user/checkout', { userCartData,quantity, userAddress  ,cartGrandTotal, title:'Checkout'})
     } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');

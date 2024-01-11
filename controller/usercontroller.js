@@ -19,6 +19,7 @@ const cartHelpers = require('../helpers/cartHelpers')
 const offerhelper = require('../helpers/offer');
 const { query } = require("express");
 const { default: mongoose } = require("mongoose");
+const categoryOffer = require("../model/categoryOffer");
 
 
 
@@ -176,15 +177,17 @@ const verifyOtp = async (req, res) => {
       
       // find the refered user wallet and give him the necessary rewards
       const userWallet = await wallet.findOne({userId:referredBy})
+      const referalData = await referal.find()
+      const offerAmount = referalData[0].offerAmount
 
       if(!userWallet){
         // if the wallet is doesn't exist for the user create it 
         const newWallet = new wallet({
           userId:referredBy,
-          balance:50,
+          balance:offerAmount,
           transactions:[{
             transactionType:'credit',
-            amount:50,
+            amount:offerAmount,
             from:'Referal reward',
             date:new Date()
           }]
@@ -194,10 +197,10 @@ const verifyOtp = async (req, res) => {
 
       }else{
         // if the refered user has wallet increment the balance
-        userWallet.balance += 50;
+        userWallet.balance += offerAmount;
         userWallet.transactions.push({
           transactionType:'credit',
-          amount:50,
+          amount:offerAmount,
           from:'Referal reward',
           date:new Date()
         });
@@ -207,7 +210,6 @@ const verifyOtp = async (req, res) => {
 
       // SET THE REFERED DETAILS TO THE REFERAL MODEL
       const newReferal = new referal({
-        offerAmount:50,
         updatedDate:new Date(),
         status:true,
         joinedUser:[
@@ -346,35 +348,42 @@ const userlog = async (req, res) => {
     const user = await Users.findOne({email:req.session.email})
     const userId = user._id
 
-    const offerProducts = await cart.aggregate([
-      {
-        $match:{
-          userId:userId
-        }
-      },
-      {
-        $unwind:'$products'
-      },
+    const offeredProducts = await products.aggregate([
       {
         $lookup:{
           from:'productoffers',
-          localField:'products.productId',
+          localField:'_id',
           foreignField:'productId',
-          as:'offerInfo'
+          as:'offerProducts'
         }
       },
       {
-        $project: {
-          'offerInfo.OfferPercentage': '$offerInfo.OfferPercentage' // Adjust this line
+        $lookup:{
+          from:'categoryoffers',
+          localField:'category',
+          foreignField:'categoryId',
+          as:'productsWithCategoryOffer'
         }
+      },
+     {
+      $project:{
+        '_id':1,
+        'category':1,
+        'offerType':1,
+        'offerProducts':1,
+        'productsWithCategoryOffer':1
       }
+     }
     ]);
-    
-    offerProducts.forEach(item => {
-      item.offerInfo.forEach(value =>{
-        console.log('value of percentage',value.OfferPercentage)
+    console.log('offer products',offeredProducts)
+    offeredProducts.forEach(data =>{
+      data.productsWithCategoryOffer.forEach(item =>{
+        console.log('data',item)
       })
-    });
+    })
+
+
+    // to get all product offered smartphones
 
 
     const isLoggedIn = req.session.userlogged || req.user;
@@ -404,7 +413,6 @@ const userlog = async (req, res) => {
         .catch((err)=>{
           console.error('error',err)
         })
-
         
       res.render("./user/userhome", {
         title: "Home",
@@ -419,6 +427,7 @@ const userlog = async (req, res) => {
         isAuthenticated,
         cartItemsCount,
         categories,
+        offeredProducts
         // percentage
       });
     } else {
@@ -470,16 +479,23 @@ const productview = async (req, res) => {
   try {
 
     const productId = req.params.id;
+  
     const isAuthenticated = req.session.user ? true : false;
 
-    let actualOfferPrice ;
     let percentage ;
+    let discountedPrice;
+    let originalPrice;
 
     const data = await products.find({ _id: productId });
+    originalPrice = data[0].price
+    discountedPrice = data[0].discountedPrice
+
     const offerPrice = await cartHelpers.actualPriceAfterOffer(productId)
+  
+
+
     if(offerPrice){
       offerPrice.forEach(value =>{
-          actualOfferPrice = value.discountedAmount
           percentage = value.offerPercentage
       })
     }
@@ -488,7 +504,7 @@ const productview = async (req, res) => {
     if (!data) {
       return res.status(404).send("product not found");
     } else {
-      res.render("./user/productdetails", { data,offerPrice,actualOfferPrice,percentage,isAuthenticated });
+      res.render("./user/productdetails", { data,originalPrice,discountedPrice,percentage,isAuthenticated });
     }
   } catch (err) {
     res.status(500).send("An error occured");
@@ -563,67 +579,42 @@ const productSearch = async (req, res) => {
   }
 };
 
-// filter the products
 
-const getFilteredProducts = async (req, res) => {
+
+// Controller function to handle product filtering
+const filterProducts = async (req, res) => {
   try {
-    console.log(req.query)
-    const { priceRanges } = req.query; // Retrieve priceRanges from query parameters
-    console.log('priceRanges', priceRanges);
+    console.log('filter reached')
+    const { brands, priceRanges } = req.body;
+    console.log(priceRanges)
 
-    // Parse the priceRanges string into an array of price range objects
-    const priceRangeArray = priceRanges.split(',').map(range => {
-      const [min, max] = range.split('-').map(Number); // Split the range and convert values to numbers
-      return { price: { $gte: min, $lte: max } }; // Create MongoDB $gte and $lte criteria for the range
-    });
+    let query = {};
 
-    // Construct the query to find products within the specified price ranges
-    const filteredProducts = await products.find({ $or: priceRangeArray });
+    if (brands && brands.length > 0) {
+      query.brand = { $in: brands };
+    }
 
-    res.status(200).json({ success: true, filteredProducts });
+    if (priceRanges && priceRanges.length > 0) {
+      const priceQueries = priceRanges.map(range => {
+        const [minPrice, maxPrice] = range.split('-').map(Number);
+        return { price: { $gte: minPrice, $lte: maxPrice } };
+      });
+
+      query.$or = priceQueries;
+    }
+
+    // Fetch products based on filters
+    const filteredProducts = await products.find(query);
+    console.log(filteredProducts)
+
+    res.json(filteredProducts); // Return filtered products as JSON
   } catch (error) {
     console.error('Error fetching filtered products:', error);
-    res.status(500).json({ success: false, error: 'Error fetching filtered products' });
+    res.status(500).json({ message: 'Failed to fetch filtered products' });
   }
 };
 
-// Backend route to filter products by brand
-const filterProductsByBrand = async (req, res) => {
-  const { brandRanges } = req.query;
 
-  try {
-    const brandArray = Array.isArray(brandRanges) ? brandRanges : [brandRanges];
-
-    const brandWiseData = await brands.aggregate([
-      {
-        $match: {
-          brandName: { $in: brandArray }
-        }
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: '_id',
-          foreignField: 'brand',
-          as: 'brandDetails'
-        }
-      },
-      {
-        $project: {
-          'brandDetails.productName': 1,
-          'brandDetails.image': 1,
-          'brandDetails.price': 1,
-          'brandDetails._id': 1
-        }
-      }
-    ]);
-
-    res.status(200).json({ success: true, brandWiseData });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ success: false, error: 'Internal server error' });
-  }
-};
 
 const toProfile = (req,res)=>{
   res.render('./user/profile')
@@ -684,8 +675,7 @@ module.exports = {
   toViewAll,
   productSearch,
   toProfile,
-  getFilteredProducts,
-  filterProductsByBrand,
+  filterProducts,
   toWallet,
   toReferal
 };

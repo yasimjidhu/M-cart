@@ -46,12 +46,14 @@
             <div class="col-lg-6">
                 <h1><%= product.productName %></h1>
 
-                <% if (percentage && actualOfferPrice) { %>
-                    <h5 class="text-dark"><%= percentage %><span class="">% Offer for this product</span></h5>
-                    <h4 class="text-danger" style="text-decoration: line-through;">₹<%= product.price %></h4>
-                    <h1 class="text-success">₹<%= actualOfferPrice %></h1>
+                <% if (discountedPrice >0 ) { %>
+                    <!-- <h5 class="text-dark"><%= percentage %><span class="">% Offer for this product</span></h5> -->
+                    <h3 class="text-danger" style="text-decoration: line-through;">₹<%= originalPrice %></h3>
+                    <h1 class="text-success">₹<%= discountedPrice %></h1>
                 <% } else { %>
-                    <h1 class="phone-price">₹<%= product.price %></h1>
+                    <!-- <h5 class="text-dark"><%= percentage %><span class="">% Offer for this product</span></h5> -->
+                    <!-- <h2 class="text-danger" style="text-decoration: line-through;">₹<%= originalPrice %></h2> -->
+                    <h1 class="phone-price">₹<%=originalPrice %></h1>
                 <% } %>
                 
                 <p><%= product.description %></p>

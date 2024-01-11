@@ -43,9 +43,9 @@
                    <div class="col-lg-12 txt-div  mt-1">
                     <h5 class="text-white">Cart Total</h5>
                     <br>
-                    <p class="bordered text-white" id="fullTotal">Sub Total: <span id="subCartTotal" class="float-right"><%=locals.finalPrice%></span></p>
+                    <p class="bordered text-white" id="fullTotal">Sub Total: <span id="subCartTotal" class="float-right"><%=locals.cartGrandTotal.toFixed(2)%></span></p>
                     <p class="bordered text-white">Shipping <span class="float-right">Free</span></p>
-                    <p class="text-white">Total <span class="float-right" id="wholeTotal" ><%=locals.finalPrice%></span></p>
+                    <p class="text-white">Total <span class="float-right" id="wholeTotal" ><%=locals.cartGrandTotal.toFixed(2)%></span></p>
                     <div class="checkout-div ">
                       <a href="#" class="checkout-btn" style="text-decoration: none; color: black;">Process To Checkout</a>
                     </div>
@@ -119,7 +119,7 @@
           const imgTd = document.createElement('td');
           const img = document.createElement('img');
           
-          img.src = `/uploads/${product.image[4]}`; 
+          img.src = `/uploads/${product.cartProducts.image}`; 
           img.style.width = '110px';
           img.style.height = '110px';
           imgTd.appendChild(img);
@@ -127,7 +127,7 @@
 
           // Price cell
           const priceTd = document.createElement('td');
-          priceTd.textContent = `${product.price}`;
+          priceTd.textContent = `${product.cartProducts.discountedPrice}`;
           tr.appendChild(priceTd);
 
           // Quantity cell
@@ -136,7 +136,7 @@
           const quantityInput = document.createElement('input');
           quantityInput.type = 'number';
           quantityInput.min = '1';
-          quantityInput.value = getProductQuantity(data.cartData, product._id) || 1; 
+          quantityInput.value = getProductQuantity(data.cartData, product.cartProducts._id) || 1; 
           quantityInput.classList.add('quantity-input');
           quantityInput.addEventListener('change', function () {
             updateSubtotal(this, priceTd);
@@ -150,7 +150,7 @@
             if (quantityInput.value > 1) {
               quantityInput.value = parseInt(quantityInput.value) - 1;
               updateSubtotal(quantityInput, priceTd);
-              changeQuntity(data.cartId,product._id,-1)
+              changeQuntity(data.cartId,product.cartProducts._id,-1)
             }
             // changeQuntity()
           });
@@ -162,7 +162,7 @@
           incrementButton.addEventListener('click', function () {
             quantityInput.value = parseInt(quantityInput.value) + 1;
             updateSubtotal(quantityInput, priceTd);
-            changeQuntity(data.cartId,product._id,+1)
+            changeQuntity(data.cartId,product.cartProducts._id,+1)
           });
 
           quantityTd.appendChild(decrementButton);
@@ -174,15 +174,15 @@
 
           // Subtotal cell
           const subtotalTd = document.createElement('td');
-          subtotalTd.textContent = '<%=finalPrice%>';
+          subtotalTd.textContent = product.cartProducts.subTotal.toFixed(2);
           subtotalTd.classList.add('productSubtotal');
           tr.appendChild(subtotalTd);
-
+          
           const deleteTd = document.createElement('td')
           const remove = document.createElement('img')
 
           remove.addEventListener('click',()=>{
-            removeItem(product._id)
+            removeItem(product.cartProducts._id)
           })
           remove.src = `/png/minus-button.png`;
           remove.style.width = '30px';

@@ -1768,11 +1768,11 @@ body{
     background: #4bb8a9; 
 }
 
-.card {
+/* .card {
     background-color: #fff ;
     box-shadow: 2px 4px 15px 0px rgb(0, 108, 170);
     z-index: 0;
-}
+} */
 
 small{
     font-size: 12px !important;
@@ -1812,3 +1812,18 @@ small{
     font-size: 16px;
     font-weight: bold;
 }
+.offer-badge {
+    background-color: red;
+    color: white;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    display: inline-block;
+  }
+  .offer-badge1{
+    color: white;
+    padding: 2px 5px;
+    border-radius: 5px;
+    font-weight: bold;
+    background-color: green;
+  }

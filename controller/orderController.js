@@ -127,28 +127,73 @@ const placeOrder = async (req, res) => {
             // })
         }else if (selectedPaymentMethod === 'razorPay') {
 
-            orderSuccess = true
-            successResponse = { success: true, title: 'Order Confirmation', message: 'Order created successfully' };
+            const newOrder = new orders({
+                userId: userId,
+                paymentmode: selectedPaymentMethod,
+                shippingMethod: selectedShippingType,
+                deliveryDate: new Date(),
+                status: 'Pending',
+                totalAmount: grandTotal,
+                address: selectedAddress,
+                products: productsArray,
+            });
 
+            const savedOrder = await newOrder.save(); // Save the order and get the result
+
+            // orderSuccess = true;
+            // successResponse = {
+            //     success: true,
+            //     title: 'Order Confirmation',
+            //     message: 'Order created successfully',
+            // };
+
+            // Use the savedOrder._id as the receipt for Razorpay
             const options = {
-                amount: grandTotal * 100, // amount in paisa
+                amount: grandTotal * 100,
                 currency: 'INR',
-                receipt: savedOrder._id, // Use the order ID as the receipt
+                receipt: savedOrder._id, // Use the saved order's _id as the receipt
             };
 
             const razorpayOrder = await instance.orders.create(options);
 
-            res.status(201).json({
-                title:'Order Confirmtion',
+            return res.status(201).json({
+                title: 'Order Confirmation',
                 success: true,
                 message: 'Razorpay order created successfully',
                 data: {
                     order: savedOrder,
                     razorpayOrderId: razorpayOrder.id,
                     razorpayOptions: razorpayOrder,
-                    online:true,
-                }
+                    online: true,
+                },
             });
+
+
+
+
+
+            // orderSuccess = true
+            // successResponse = { success: true, title: 'Order Confirmation', message: 'Order created successfully' };
+
+            // const options = {
+            //     amount: grandTotal * 100, // amount in paisa
+            //     currency: 'INR',
+            //     receipt: savedOrder._id, // Use the order ID as the receipt
+            // };
+
+            // const razorpayOrder = await instance.orders.create(options);
+
+            // res.status(201).json({
+            //     title:'Order Confirmtion',
+            //     success: true,
+            //     message: 'Razorpay order created successfully',
+            //     data: {
+            //         order: savedOrder,
+            //         razorpayOrderId: razorpayOrder.id,
+            //         razorpayOptions: razorpayOrder,
+            //         online:true,
+            //     }
+            // });
 
         } else if(selectedPaymentMethod === 'walletPayment') {
             const userWallet = await wallet.findOne({userId:userId})
@@ -201,6 +246,8 @@ const placeOrder = async (req, res) => {
 
             const savedOrder = await newOrder.save();
 
+            // Remove the entire cart document associated with the user after successful order placement
+            await cart.deleteOne({ userId: userId });
             
 
             if(successResponse){
@@ -646,7 +693,14 @@ const applyCoupon = async (req, res) => {
         const discountedAmount = Math.min(couponFound.discountAmount,totalPrice)
         const finalTotal = totalPrice - discountedAmount
 
-        req.session.finalTotal = finalTotal
+        const userCart = await cart.findOne({userId:userId})
+        userCart.discountedAmount = discountedAmount;
+
+        await userCart.save()
+
+        const discountAppliedPrice = totalPrice - discountedAmount
+
+        req.session.finalTotal = discountAppliedPrice
         // Update the coupon usage count and push the current timestamp to usageTime
         couponFound.usages++;
         couponFound.usageTime.push(Date.now())  // Push the current timestamp

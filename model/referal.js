@@ -22,6 +22,15 @@ const referalSchema = mongoose.Schema({
       },
     },
   ],
+  maxUsage:{
+    type:Number
+  },
+  validFrom:{
+    type:Date,
+  },
+  validUntil:{
+    type:Date
+  }
 });
 
 const referal = mongoose.model('referal',referalSchema)
