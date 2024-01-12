@@ -11,9 +11,9 @@
 
 <%-include('../user/partials/header') %>
   <%-include('../user/partials/navbar') %>
-    <div class="page">
+    <div class="page ">
       <div class="row m-0">
-        <div class="col-2 filter-sidebar p-0">
+        <div class="col-2 filter-sidebar  p-0">
           <h6 class="text-white text-center mt-4 heading">Filter The Products</h6>
           <div class="col-lg-12 filter-div">
             <form id="filterForm">
@@ -67,7 +67,7 @@
         <div class="col-10">
        
           <!--Navbar-->
-          <div class="container filter-container mt-3">
+          <div class="container productContainer filter-container mt-3">
             <div class="row categroy-li">
               <div class="col-sm-3 col-md-4 col-lg-2">
                 <% if(categories && categories.length> 0){ %>
@@ -82,26 +82,11 @@
                     <p>No Category Found</p>
                     <% } %>
               </div>
-              <div class="col-sm-5 col-md-4 col-lg-5 d-flex banner-main" style="background-color: black">
-                <div class="left">
-                  <div class="left-logo ">
-                    <img src="/svg/apple logo.svg" alt="" />
-                    <h5>iPhone 14</h5>
-                  </div>
-                  <h3>
-                    Up to 10% <br />
-                    off Voucher
-                  </h3>
-                  <h6>Shop Now <i class="fa-solid fa-arrow-right" style="color: #ffffff"></i></h6>
+              <% if(allBanners && allBanners.length > 0){ %>
+                <div class="col-sm-5 col-md-4 col-lg-10 d-flex banner-main" style="background-color: black">
+                  <img src="/uploads/banner-images/<%=allBanners[0].image %>" width="100%" alt="">
                 </div>
-              </div>
-              <div class="col-sm-4 col-md-4 col-lg-5 d-flex banner-Main" style="background-color: black">
-                <div class="right d-flex justify-content-center align-items-center">
-                  <img width="100%" src="/svg/iphone banner.svg" alt="" />
-                </div>
-              </div>
-            </div>
-          </div>
+                <% } %>
 
           <!-- Inside your EJS template -->
           <section>
@@ -169,10 +154,10 @@
                       <%= x.productName %>
                     </h5>
                     <%if(x.discountedPrice){ %>
-                    <h5 class="">$<%= x.discountedPrice %></h5>
+                    <h5 class="">₹<%= x.discountedPrice %></h5>
                     <a class="btn" style="background-color:#001524; color: white; width: 100%;" data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
                     <% }else{ %>
-                      <h5 class="">$<%= x.price %></h5>
+                      <h5 class="">₹<%= x.price %></h5>
                       <a class="btn" style="background-color:#001524; color: white; width: 100%;" data-productId="<%=x._id %>" onclick="addToCart(event)">Add To Cart</a>
                     <%} %>
                   </div>
@@ -188,9 +173,6 @@
               <button type="submit">View All Products</button>
             </form>
           </div>
-
-
-
 
           <section>
             <div class="container">
@@ -269,11 +251,11 @@
           
                       <% if (hasProductOffer) { %>
                         <div class="offer-badge">
-                          <span><%= productOfferPercentage %> Offer</span>
+                          <span><%= productOfferPercentage %>% Offer</span>
                         </div>
                       <% }else if(hasCategoryOffer) {%>
                         <div class="offer-badge bg-success">
-                          <span><%= categoryOfferPercentage%> Offer</span>
+                          <span><%= categoryOfferPercentage%> % Offer</span>
                         </div>
                       <% } %>
                     <% } %>
@@ -304,7 +286,7 @@
 
           <section>
             <div class=" mt-5">
-              <div class="container">
+              <div class="container-fluid">
                 <div class="row m-0" style="background-color: black;border-radius: 17px;">
                   <div class="col-md-6 d-flex justify-content-center align-items-center">
                     <div class="inner-div">
@@ -461,71 +443,42 @@
         }
 
 
-
-// Function to hide main content
-function hideMainContent() {
-    document.querySelector('.page').classList.add('hide-content');
-  }
-
-  // Function to display main content
-  function showMainContent() {
-    document.querySelector('.page').classList.remove('hide-content');
-  }
-
-
-
-
-
-        // Function to create a single card
-function createCard(product) {
-  alert('createcard called')
+// Function to create a product card HTML element
+// Function to create a product card HTML element
+function createProductCard(product) {
   const card = document.createElement('div');
-  card.classList.add('col', 'mb-4');
+  card.className = 'product-card';
 
+  const images = product.image.map(image => `<img src="${image}" alt="${product.productName}">`).join('');
+  
   card.innerHTML = `
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title">${product.name}</h5>
-        <p class="card-text">Price: $${product.price}</p>
-        <p class="card-text">Brand: ${product.stock}</p>
-        <!-- Add other product details here -->
-      </div>
+    <div class="product-images">
+      ${images}
+    </div>
+    <div class="product-info">
+      <h3>${product.productName}</h3>
+      <p>Price: $${product.discountedPrice || product.price}</p>
     </div>
   `;
 
   return card;
 }
 
-
-// Function to display products in cards
-function displayProducts(products) {
-  alert('display function called'+JSON.stringify(products))
-  const cardContainer = document.querySelector('.premium-phones');
-  cardContainer.innerHTML = ''; // Clear previous cards
-
-  products.forEach(product => {
-    const card = createCard(product);
-    cardContainer.appendChild(card);
-  });
-}
-
-
 // Function to fetch products based on selected filters
 async function fetchProducts() {
   const brandCheckboxes = document.querySelectorAll('.brandCheckbox:checked');
   const priceCheckboxes = document.querySelectorAll('.priceCheckbox:checked');
-  const batteryCheckboxes = document.querySelectorAll('.batteryCheckbox:checked');
 
   const brands = Array.from(brandCheckboxes).map(checkbox => checkbox.value);
   const priceRanges = Array.from(priceCheckboxes).map(checkbox => checkbox.value);
-  const batteryRanges = Array.from(batteryCheckboxes).map(checkbox => checkbox.value);
+
   try {
-    const response = await fetch('/products-filter', {
-      method: 'POST',
+    // Use GET method without a request body
+    const response = await fetch(`/products-filter?brands=${brands.join(',')}&priceRanges=${priceRanges.join(',')}`, {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ brands, priceRanges, batteryRanges })
     });
 
     if (!response.ok) {
@@ -533,35 +486,34 @@ async function fetchProducts() {
     }
 
     const products = await response.json();
-    console.log('result got',products)
 
-    // Hide main content before displaying filtered products
-    hideMainContent();
-
-    // Display the fetched products in cards
     displayProducts(products);
-
-    // Show main content after displaying filtered products
-    showMainContent();
-
-
   } catch (err) {
-    alert(JSON.stringify(err))
     console.error('Error fetching products:', err);
-    // Handle error (e.g., show error message)
+  }
+}
+
+// Function to display products as cards with each row containing 4 products
+function displayProducts(products) {
+  const productContainer = document.getElementById('productContainer');
+  productContainer.innerHTML = ''; // Clear existing content
+
+  // Create rows with 4 products each
+  for (let i = 0; i < products.length; i += 4) {
+    const row = document.createElement('div');
+    row.className = 'product-row';
+
+    // Create product cards for the current row
+    for (let j = i; j < i + 4 && j < products.length; j++) {
+      const productCard = createProductCard(products[j]);
+      row.appendChild(productCard);
+    }
+
+    // Append the row to the container
+    productContainer.appendChild(row);
   }
 }
 
 document.getElementById('applyFiltersBtn').addEventListener('click', fetchProducts);
 
-
-
-
-
-
-
-
-
-
-
-      </script>
+</script>

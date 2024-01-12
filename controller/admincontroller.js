@@ -8,6 +8,7 @@ const category = require("../model/category");
 const brands = require("../model/brands");
 const orders = require('../model/orders')
 const cartModel = require('../model/cart')
+const banner = require('../model/banner')
 const coupon = require('../model/coupon')
 const productOffer = require('../model/productOffer')
 const categroryOffer = require('../model/categoryOffer')
@@ -1993,15 +1994,127 @@ const deleteReferal = async (req, res) => {
 
 
 // To banner management
-const toBannerManagement = (req,res)=>{
+const toBannerManagement = async(req,res)=>{
 
   try{
-    res.render('./admin/bannerMgt.ejs')
+    const allBanners = await banner.find()
+    res.render('./admin/bannerMgt.ejs',{allBanners})
   }catch(err){
     console.log(err)
   }
 }
 
+// Upload the banner
+const uploadBanner = async (req,res)=>{
+  try{
+  
+    if(!req.file){
+      return res.status(400).json({success:false,message:'image not found'})
+    }
+    const bannerImage = req.file
+    const splitted = bannerImage.filename.split('.')
+    const imageType = splitted[1]
+
+    const validImageTypes = ['png','jpg','jpeg']
+    const validImage = validImageTypes.includes(imageType)
+
+    if(!validImage){
+      console.log('invalid image')
+      return res.status(400).json({invalidImage:true,message:'invalid image format'})
+    }
+
+    // RESIZE THE IMAGE TO THE DESIRED DIMENSIONS
+    const resizedImageBuffer = await sharp(bannerImage.path)
+    .resize({widht:800,height:200})
+    .toBuffer()   
+
+    // SAVE THE DESIRED IMAGE
+    const newFileName = `resized-${bannerImage.filename}`;
+    const imagePath = `./public/uploads/banner-images/${newFileName}`
+    await sharp(resizedImageBuffer).toFile(imagePath)
+
+
+    const newBanner = new banner({
+      image:bannerImage.filename,
+      date:new Date()
+    })
+    await newBanner.save()
+   
+
+    return res.status(200).json({success:true,message:'Banner Added succesfully'})
+
+  }catch(err){
+    console.error(err)
+    return res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+}
+
+// CHANGE THE BANNER
+const changeBanner = async (req,res)=>{
+  const bannerId = req.params.bannerId
+ 
+  try{
+    const exisitingBanner = await banner.findById(bannerId)
+    console.log(exisitingBanner)
+    
+    if(!exisitingBanner){
+      return res.status(400).json({message:'banner not found'})
+    }
+
+    if(!req.file){
+      return res.status(400).json({success:false,message:'image not found'})
+    }
+    const bannerImage = req.file
+    const splitted = bannerImage.filename.split('.')
+    const imageType = splitted[1]
+
+    const validImageTypes = ['png','jpg','jpeg']
+    const validImage = validImageTypes.includes(imageType)
+
+    if(!validImage){
+      console.log('invalid image')
+      return res.status(400).json({invalidImage:true,message:'invalid image format'})
+    }
+
+    // RESIZE THE IMAGE TO THE DESIRED DIMENSIONS
+    const resizedImageBuffer = await sharp(bannerImage.path)
+    .resize({widht:800,height:200})
+    .toBuffer()   
+
+    // SAVE THE DESIRED IMAGE
+    const newFileName = `resized-${bannerImage.filename}`;
+    const imagePath = `./public/uploads/banner-images/${newFileName}`
+    await sharp(resizedImageBuffer).toFile(imagePath)
+
+    exisitingBanner.image = req.file.filename
+    exisitingBanner.date = new Date()
+
+    await exisitingBanner.save()
+    console.log('banner updated')
+
+  }catch(err){
+    console.error(err)
+  }
+}
+
+
+// DELETE THE BANNER
+const deleteBanner = async (req,res)=>{
+  const bannerId = req.params.bannerId
+
+  try{
+
+    const bannerDeleted = await banner.findByIdAndDelete(bannerId)
+    
+    if(!bannerDeleted){
+      return res.status(400).json({message:'banner not found'})
+    }
+    
+    return res.status(200).json({success:true,message:'banner deleted successfully'})
+  }catch(err){
+    console.error(err)
+  }
+}
 
 
 module.exports = {
@@ -2062,6 +2175,9 @@ module.exports = {
   toReferal,
   addReferalOffer,
   deleteReferal,
-  toBannerManagement
+  toBannerManagement,
+  uploadBanner,
+  changeBanner,
+  deleteBanner
   
 };

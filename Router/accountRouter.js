@@ -39,5 +39,17 @@ account.post('/edit-UserInfo', userAuth.profileAuth, accountController.editUserI
 account.get('/toUserCoupons',userAuth.profileAuth,accountController.toUserCoupons)
 
 
+
+// account.use((req, res) => {
+//     try {
+//       console.log('Handling 404 middleware for', req.originalUrl);
+//       res.status(404).render("./user/404");
+//     } catch (err) {
+//       console.error(err);
+//       res.status(500).send("internal server error");
+//     }
+//   });
+
+
 module.exports = account;
 

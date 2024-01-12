@@ -6,6 +6,7 @@ const adminauth = require("../middleware/adminAuth");
 const products = require("../model/productschema");
 const category = require("../model/category");
 const Excel = require('exceljs')
+const bannerUpload = require('../service/banner')
 
 // Import multer and set up the storage for file uploads
 const multer = require("multer");
@@ -183,6 +184,11 @@ admin.delete('/delete-referral-offers/:referalId',adminauth.verifyAdmin,adminCon
 
 // Banner management
 admin.get('/toBanner-mgt',adminauth.verifyAdmin,adminController.toBannerManagement)
+admin.post('/upload-Banner',bannerUpload.single('banner-image'),adminController.uploadBanner)
+admin.post('/edit-banner/:bannerId',bannerUpload.single('banner-image'),adminController.changeBanner)
+admin.delete('/delete-banner/:bannerId',adminauth.verifyAdmin,adminController.deleteBanner)
+
+
 
 // error handling middleware
 admin.use((req, res) => {

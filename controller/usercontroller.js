@@ -20,6 +20,7 @@ const offerhelper = require('../helpers/offer');
 const { query } = require("express");
 const { default: mongoose } = require("mongoose");
 const categoryOffer = require("../model/categoryOffer");
+const banners = require('../model/banner')
 
 
 
@@ -41,8 +42,35 @@ async function getProductsFromActiveBrands() {
 const toHome = async (req, res) => {
   try {
 
-      
+    const offeredProducts = await products.aggregate([
+      {
+        $lookup:{
+          from:'productoffers',
+          localField:'_id',
+          foreignField:'productId',
+          as:'offerProducts'
+        }
+      },
+      {
+        $lookup:{
+          from:'categoryoffers',
+          localField:'category',
+          foreignField:'categoryId',
+          as:'productsWithCategoryOffer'
+        }
+      },
+     {
+      $project:{
+        '_id':1,
+        'category':1,
+        'offerType':1,
+        'offerProducts':1,
+        'productsWithCategoryOffer':1
+      }
+     }
+    ]);
 
+    
       const blockedBrands = await brands.find({ brandStatus: false }, { _id: 1 });
       const blockedBrandIds = blockedBrands.map((brand) => brand._id);
 
@@ -56,6 +84,7 @@ const toHome = async (req, res) => {
       const brandData = await brands.find();
 
       const categories = await category.find()
+      const allBanners = await banners.find()
       
 
       res.render("./user/userhome", {
@@ -67,7 +96,9 @@ const toHome = async (req, res) => {
         flashSales: flashsalesProducts,
         flashSalesId:flashsales?flashsales._id:null,
         bestSellerData: bestSellerProducts,
-        categories
+        categories,
+        offeredProducts,
+        allBanners
 
       });
     
@@ -375,17 +406,9 @@ const userlog = async (req, res) => {
       }
      }
     ]);
-    console.log('offer products',offeredProducts)
-    offeredProducts.forEach(data =>{
-      data.productsWithCategoryOffer.forEach(item =>{
-        console.log('data',item)
-      })
-    })
 
-
+  
     // to get all product offered smartphones
-
-
     const isLoggedIn = req.session.userlogged || req.user;
     const isAuthenticated = req.session.user ? true : false;
 
@@ -403,6 +426,7 @@ const userlog = async (req, res) => {
       const brandData = await brands.find();
 
       const categories = await category.find()
+      const allBanners = await banners.find()
 
         let cartItemsCount = 0
         const userEmail = req.session.email
@@ -427,7 +451,8 @@ const userlog = async (req, res) => {
         isAuthenticated,
         cartItemsCount,
         categories,
-        offeredProducts
+        offeredProducts,
+        allBanners
         // percentage
       });
     } else {
@@ -585,17 +610,16 @@ const productSearch = async (req, res) => {
 const filterProducts = async (req, res) => {
   try {
     console.log('filter reached')
-    const { brands, priceRanges } = req.body;
-    console.log(priceRanges)
+    const { brands, priceRanges } = req.query; // Use req.query to get parameters from the URL
 
     let query = {};
 
     if (brands && brands.length > 0) {
-      query.brand = { $in: brands };
+      query.brand = { $in: brands.split(',') };
     }
 
     if (priceRanges && priceRanges.length > 0) {
-      const priceQueries = priceRanges.map(range => {
+      const priceQueries = priceRanges.split(',').map(range => {
         const [minPrice, maxPrice] = range.split('-').map(Number);
         return { price: { $gte: minPrice, $lte: maxPrice } };
       });
@@ -607,12 +631,13 @@ const filterProducts = async (req, res) => {
     const filteredProducts = await products.find(query);
     console.log(filteredProducts)
 
-    res.json(filteredProducts); // Return filtered products as JSON
+    return res.json(filteredProducts); // Return filtered products as JSON
   } catch (error) {
     console.error('Error fetching filtered products:', error);
     res.status(500).json({ message: 'Failed to fetch filtered products' });
   }
 };
+
 
 
 

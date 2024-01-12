@@ -19,6 +19,7 @@ body{
     justify-content: center;
     align-items: center;
     border-bottom: 1px solid black;
+    z-index:1000 ;
 }
 .nav-link {
     color: white;
@@ -1597,12 +1598,15 @@ body{
 }
 .filter-sidebar{
     background-color: rgb(109, 106, 106);
+    box-shadow: 3px 1px 5px 3px #152938;
 }
 .filter-div{
     display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
+  flex-direction: column;
+  justify-content: start;
+  align-items: start;
+  /* margin: auto; */
+  margin-left: 30px;
 }
  .product-image {
     width: 100%;
@@ -1827,3 +1831,16 @@ small{
     font-weight: bold;
     background-color: green;
   }
+
+  .fixed-sidebar {
+    background-color: #15616D;
+    position: fixed;
+    top: 0; /* Adjust this value based on where you want the sidebar to be fixed */
+    left: 0;
+    height: 100%; /* Make it cover the full height of the viewport */
+    overflow-y: auto; /* Enable vertical scrolling if content exceeds viewport height */
+    overflow-x: hidden;
+    /* background-color: #fff; Add a background color if needed */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    z-index: 999;
+}
