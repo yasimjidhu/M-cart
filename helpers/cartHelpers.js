@@ -35,7 +35,8 @@ const  getCartProducts = async function(userId){
                 'cartProducts.price':1,
                 'cartProducts.discountedPrice':1,
                 'products.quantity':1,
-                'cartProducts._id':1
+                'cartProducts._id':1,
+                'cartTotal':1
             }
         },
         

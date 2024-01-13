@@ -344,11 +344,13 @@ const toUserOrders = async (req, res) => {
           'productDetails.productName': 1, // Include specific fields from productDetails
           'productDetails.image': 1,
           'productDetails.price': 1,
+          'productDetails.discountedPrice':1,
           'products.quantity': 1, // Include quantity from the orders collection
           'totalAmount': 1, // Include totalAmount from the orders collection
           'status': 1,
           'deliveryDate':1,
-          'totalCost': { $multiply: ['$products.quantity', '$productDetails.price'] } // Calculate total cost
+          'totalCost': { $multiply: ['$products.quantity', '$productDetails.price'] }, // Calculate total cost
+          'totalCostAfterDiscount':{$multiply:['$products.quantity','$productDetails.discountedPrice']}// calculate the discounted amount
         }
       },
       {
@@ -363,13 +365,15 @@ const toUserOrders = async (req, res) => {
           },
           totalAmount: { $first: '$totalAmount' }, // Retrieve totalAmount
           status: { $first: '$status' }, // Retrieve status
-          deliveryDate: { $first: '$deliveryDate' } // Retrieve createdAt date
+          deliveryDate: { $first: '$deliveryDate' } ,// Retrieve createdAt date
+          dicountedCost:{$first:'$totalCostAfterDiscount'}
         }
       },
       {
         $sort: { deliveryDate: -1 } // Sort by createdAt field in descending order (latest first)
       }
     ]);
+    console.log('user order bro',userOrders)
     
     
     res.render('./user/userOrders', { userOrders,title:'My Orders' });
@@ -512,114 +516,7 @@ const CancelledOrders = async (req,res)=>{
     
 }
 
-// admin order details view 
-const toAdminDetailedOrders = async (req,res)=>{
-    const orderId = req.params.orderId
 
-    try{
-        const orderFound = await orders.findById(orderId)
-
-        if(!orderFound){
-            return res.status(401).json({message:'order not found',success:false})
-        }
-
-        const userOrderWithProducts = await orders.aggregate([
-            {
-                $match: {
-                    _id: new mongoose.Types.ObjectId(orderId)
-                }
-            },
-            {
-                $lookup:{
-                    from:'addresses',
-                    localField:'userId',
-                    foreignField:'userId',
-                    as:'addressInfo'
-                }
-            },
-            {
-                $unwind:'$addressInfo'
-            },
-            {
-                $addFields:{
-                    'addressinfoaddress':'$addressInfo.address'
-                }
-            },
-            {
-                $unwind: '$products'
-            },
-            {
-                $lookup: {
-                    from: 'products',
-                    localField: 'products.productId',
-                    foreignField: '_id',
-                    as: 'userOrderedProducts'
-                }
-            },
-            {
-                $unwind: '$userOrderedProducts'
-            },
-            {
-                $addFields: {
-                    'userOrderedProducts.totalAmount': { $multiply: ['$userOrderedProducts.price', '$products.quantity'] }
-                }
-            },
-            {
-                $project: {
-                    'userOrderedProducts.productName': 1,
-                    'userOrderedProducts.image': 1,
-                    'userOrderedProducts.price': 1,
-                    'products.quantity': 1,
-                    'userOrderedProducts.totalAmount': 1,
-                    'userOrderedProducts.specifications': 1,
-                    'userId': 1,
-                    'status':1,
-                    'address':1,
-                    'addressinfoaddress':1
-                }
-            },
-            {
-                $lookup: {
-                    from: 'users', // Assuming 'users' is the collection where user information is stored
-                    localField: 'userId',
-                    foreignField: '_id',
-                    as: 'userDetails'
-                }
-            },
-            {
-                $addFields: {
-                    userProfileImage: { $arrayElemAt: ['$userDetails.profileImage', 0] }
-                }
-            },
-            {
-                $project: {
-                    'userOrderedProducts.productName': 1,
-                    'userOrderedProducts.image': 1,
-                    'userOrderedProducts.price': 1,
-                    'userOrderedProducts.specifications': 1,
-                    'products.quantity': 1,
-                    'userOrderedProducts.totalAmount': 1,
-                    'userAddress': 1,
-                    'userProfileImage': 1,
-                    'status':1,
-                    'addressinfoaddress':1
-                }
-            }
-            
-        ]);
-        console.log('userOrderWithProducts',userOrderWithProducts)
-        userOrderWithProducts.forEach(data =>{
-            data.addressinfoaddress.forEach(item =>{
-                console.log('item',item.fullName)
-            })
-        })
-        
-        res.render('./admin/orderDetails',{orderFound,userOrderWithProducts, title:'Order Details'})
-
-    }catch(err){
-        console.log(err)
-    }
-}
 
 
 // to get order status for progress
@@ -678,6 +575,7 @@ const applyCoupon = async (req, res) => {
             return res.status(400).json({message:'Coupon usage limit exceeded'})
         }
         const totalPrice = await cartHelpers.totalCartAmount(userId);
+        console.log('total price',totalPrice)
 
         // checking if the user's total amount meet's the minimum required for the coupon
         if(totalPrice < couponFound.minimumAmount){
@@ -759,7 +657,6 @@ module.exports = {
     cancelOrder,
     getOrderStatus,
     CancelledOrders,
-    toAdminDetailedOrders,
     verifyPayment,
     applyCoupon,
     toViewOrderDetails

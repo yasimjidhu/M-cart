@@ -18,6 +18,10 @@ const cartSchema = mongoose.Schema({
     discountedAmount:{
         type:Number,
         default:0
+    },
+    cartTotal:{
+        type:Number,
+        default:0
     }
    
 })

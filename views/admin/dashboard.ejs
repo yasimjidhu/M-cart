@@ -16,20 +16,30 @@
                 <button type="button" class="btn btn-warning salesbtn btn-sm" id="yearlyBtn">yearly</button>
             </div>
             
-            <form id="salesReportForm">
-              <label>
-                <input type="checkbox" name="reportType" value="weekly"> Weekly Sales Report
-              </label>
-              <br>
-              <label>
-                <input type="checkbox" name="reportType" value="daily"> Daily Sales Report
-              </label>
-              <br>
-              <label>
-                <input type="checkbox" name="reportType" value="yearly"> Yearly Sales Report
-              </label>
-            </form>
-            <button class="btn" style="width:10%; color: black;" onclick="getSalesReport()"><i class="fa fa-download"></i> Download</button>
+            
+<form id="salesReportForm">
+  <label>
+    <input type="checkbox" name="reportType" value="daily"> Daily Sales Report
+</label>
+<br>
+<label>
+    <input type="checkbox" name="reportType" value="weekly"> Weekly Sales Report
+</label>
+  <br>
+  <label>
+      <input type="checkbox" name="reportType" value="yearly"> Yearly Sales Report
+  </label>
+
+  <!-- Add a dropdown for file format selection -->
+  <label for="fileFormat">Select File Format:</label>
+  <select id="fileFormat" name="fileFormat">
+      <option value="pdf">PDF</option>
+      <option value="excel">Excel</option>
+  </select>
+</form>
+
+<button class="btn" style="width:10%; color: black;" onclick="getSalesReport()"><i class="fa fa-download"></i> Download</button>
+
             <div class="">
                 <canvas id="myChart" width="600" height="200"></canvas>
                 <div class="col-lg-12 d-flex justify-content-between mt-5">
@@ -88,7 +98,7 @@ function updateWeeklySales() {
         const salesData = Array.from({ length: 4 }, () => 0); // Assuming 4 weeks in a month for example
 
         data.weeklyData.forEach(weekData => {
-          const weekNumber = weekData._id - 1; // Subtract 1 to get the array index
+          const weekNumber = weekData._id ; // add 1 to get the array index
 
           // Update salesData array at the respective index with the totalSales value
           salesData[weekNumber] = weekData.totalSales;
@@ -326,79 +336,94 @@ toGetLatestOrders()
 
 async function getSalesReport(){
   try{
-    const response = await fetch('/admin/downloadDailySalesReport',{
-      method:'GET',
+    const fileFormat = document.getElementById('fileFormat').value;
+
+    // Get the selected report type
+    const reportType = Array.from(document.getElementsByName('reportType'))
+      .filter(checkbox => checkbox.checked)
+      .map(checkbox => checkbox.value);
+
+      if (reportType.length === 0) {
+      alert('Please select a report type (Daily, Weekly, Yearly)');
+      return;
+    }
+
+
+
+    // Fetch data based on the selected report type
+    const response = await fetch(`/admin/downloadSalesReport?fileFormat=${fileFormat}&reportType=${reportType}`, {
+      method: 'GET',
     });
-    if(response.ok){
+
+    if (response.ok) {
       // create a blob from the response
       const blob = await response.blob();
 
-      //create a temporarily URL for the blob
+      // create a temporarily URL for the blob
       const url = window.URL.createObjectURL(blob);
 
       // create an anchor element to trigger the download
       const a = document.createElement('a');
       a.href = url;
-      a.download = 'sales-report.xlsx'; //set the file name here
-      document.body.appendChild(a)
+      a.download = `sales-report.${fileFormat}`; // set the file name here
+      document.body.appendChild(a);
       a.click();
 
-      // cleanup 
-      window.URL.revokeObjectURL(url)
-      document.body.removeChild(a)
-
-    }else{
-      alert('failed')
+      // cleanup
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } else {
+      alert('Failed to download sales report');
       console.error('Failed to download sales report');
     }
-  }catch(err){
-    alert('catch worked')
+  } catch (err) {
+    alert('Catch worked');
     console.error('Error generating sales report', err);
   }
 }
 
 
 // Function to trigger download of weekly sales report
-const downloadWeeklySales = async () => {
-  try {
-    const response = await fetch('/download-weekly-sales');
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'weekly-sales-report.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } else {
-      console.error('Failed to download weekly sales report');
-    }
-  } catch (error) {
-    console.error('Error downloading weekly sales report:', error);
-  }
-};
+// const downloadWeeklySales = async () => {
+//   try {
+//     const response = await fetch('/download-weekly-sales');
+//     if (response.ok) {
+//       const blob = await response.blob();
+//       const url = window.URL.createObjectURL(blob);
+//       const a = document.createElement('a');
+//       a.href = url;
+//       a.download = 'weekly-sales-report.xlsx';
+//       document.body.appendChild(a);
+//       a.click();
+//       document.body.removeChild(a);
+//     } else {
+//       console.error('Failed to download weekly sales report');
+//     }
+//   } catch (error) {
+//     console.error('Error downloading weekly sales report:', error);
+//   }
+// };
 
 // Function to trigger download of yearly sales report
-const downloadYearlySales = async () => {
-  try {
-    const response = await fetch('/download-yearly-sales');
-    if (response.ok) {
-      const blob = await response.blob();
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'yearly-sales-report.xlsx';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-    } else {
-      console.error('Failed to download yearly sales report');
-    }
-  } catch (error) {
-    console.error('Error downloading yearly sales report:', error);
-  }
-};
+// const downloadYearlySales = async () => {
+//   try {
+//     const response = await fetch('/download-yearly-sales');
+//     if (response.ok) {
+//       const blob = await response.blob();
+//       const url = window.URL.createObjectURL(blob);
+//       const a = document.createElement('a');
+//       a.href = url;
+//       a.download = 'yearly-sales-report.xlsx';
+//       document.body.appendChild(a);
+//       a.click();
+//       document.body.removeChild(a);
+//     } else {
+//       console.error('Failed to download yearly sales report');
+//     }
+//   } catch (error) {
+//     console.error('Error downloading yearly sales report:', error);
+//   }
+// };
 
 
 

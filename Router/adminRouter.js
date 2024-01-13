@@ -149,11 +149,12 @@ admin.post(
 );
 
 // Orders
-admin.get("/orders", adminController.toOrders);
-admin.put("/updateOrderStatus", adminController.updateOrderStatus);
+admin.get("/orders",adminauth.verifyAdmin, adminController.toOrders);
+admin.get('/viewDetails/:orderId', adminauth.verifyAdmin, adminController.toAdminDetailedOrders)
+admin.put("/updateOrderStatus",adminauth.verifyAdmin, adminController.updateOrderStatus);
 
 // download excel sales report
-admin.get('/downloadDailySalesReport',adminController.downloadDailySales)
+admin.get('/downloadSalesReport',adminController.downloadSalesReport)
 
 
 // coupon

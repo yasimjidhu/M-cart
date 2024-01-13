@@ -15,7 +15,7 @@ order.post('/verify-payment', userAuth.verifyUser, orderController.verifyPayment
 
 
 order.get('/cancelledOrders', userAuth.verifyUser, orderController.CancelledOrders)
-order.get('/viewDetails/:orderId', adminAuth.verifyAdmin, orderController.toAdminDetailedOrders)
+
 
 // apply coupons
 order.post('/applyCoupon',userAuth.verifyUser,orderController.applyCoupon)

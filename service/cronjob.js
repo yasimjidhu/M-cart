@@ -3,6 +3,7 @@ const cron = require("node-cron");
 const productOffer = require("../model/productOffer");
 const products = require("../model/productschema");
 const coupons = require("../model/coupon");
+const categoryOffer = require("../model/categoryOffer");
 
 // cron job to check and update product offers
 const couponChecker = () => {
@@ -29,7 +30,6 @@ const couponChecker = () => {
 // function to check the productOffer is expired or not
 const productOfferChecker = () => {
   cron.schedule("*/10 * * * * *", async () => {
-    // console.log('running')
     try {
       // Find expired product offers
       const expiredOffers = await productOffer.find({
@@ -42,13 +42,11 @@ const productOfferChecker = () => {
 
         // Find and update the associated products to remove offer details
         await products.updateMany(
-          { _id: offer.productId },
+          { _id: offer.productId, offerType: 'productOffer' },
           {
-            $unset: {
-              offerPrice: "",
-              offerType: "",
-              offerExpiryDate: "",
-              discountedPrice:""
+            $set: {
+              offerType: null,
+              discountedPrice: 0,
             }
           }
         );
@@ -61,8 +59,40 @@ const productOfferChecker = () => {
   });
 };
 
+// category offer checker
+const categoryOfferChecker = () =>{
+  cron.schedule("*/10 * * * * *",async ()=> {
+    try{
+      // find expired category offers
+      const expiredCategoryOffers = await categoryOffer.find({
+        endDate:{$lte:new Date()}
+      });
+
+      for(const offer of expiredCategoryOffers){
+        //delete the expired offer
+        await categoryOffer.findByIdAndDelete(offer._id);
+
+        // find and update the associated products to remove offer details
+        await products.updateMany(
+          {category:offer.categoryId,offerType:'categoryOffer'},
+          {
+            $set:{
+              offerType:null,
+              discountedPrice:0
+            }
+          }
+        )
+      }
+
+      // console.log('expired category offer deleted successfully')
+    }catch(err){
+      console.error(err)
+    }
+  })
+}
 
 module.exports = {
   couponChecker,
-  productOfferChecker
+  productOfferChecker,
+  categoryOfferChecker
 };

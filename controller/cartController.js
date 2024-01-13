@@ -164,7 +164,6 @@ const cartProducts = async (req, res) => {
             quantity: product.quantity
         }));
 
-        console.log('cartproducts',CartProducts)
 
         // Remove duplicate productIds if any
         const uniqueProductDetails = [...new Map(productDetails.map(item => [item.productId.toString(), item])).values()];
@@ -369,17 +368,12 @@ const toCheckout = async (req, res) => {
     })
     console.log('carttotal in checkout',cartGrandTotal)
 
+    // check is there any discount amount in the cart
+    const userCart = await cart.findOne({userId:user._id})
+    const discountAmount = userCart.discountedAmount
 
-
-
-    // const userCart = await cart.findOne({userId:user._id})
-    // const userDiscountedPrice = userCart.discountedAmount
-    
-    // // const cartTotal = await cartHelpers.totalCartAmount(user._id)
-    //   const discountAppliedPrice = cartTotal - userDiscountedPrice
-  
-    //   const cartItems = userCartData.map(cartItem => cartItem.userCartProducts);
-    //   const flattenedCartItems = [].concat(...cartItems);
+    cartGrandTotal = cartGrandTotal-discountAmount
+    console.log('changed',cartGrandTotal)
   
       const userAddressData = await address.findOne({ userId: user._id });
       const userAddress = userAddressData ? userAddressData.address : null;

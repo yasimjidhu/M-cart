@@ -34,7 +34,11 @@
                       <div class="card-body product-details">
                         <div class="mt-4 ml-5">
                           <h3 class="card-title"><%= product.productName %></h3>
-                          <p class="card-text">Price: <%= product.price %></p>
+                          <% if(product.discountedPrice >0){ %>
+                          <p class="card-text">Price: <%= product.discountedPrice %></p>
+                          <% }else{ %>
+                            <p class="card-text">Price: <%= product.price %></p>
+                          <% } %>
                           <p class="card-text">Quantity: <%= productQuantity %></p>
                           <p class="card-text">Total: <%= totalCost %></p>
                           <p class="card-text">Status: <span id="orderStatus_<%= order._id %>"><%= order.status %></span></p>
@@ -44,7 +48,7 @@
                             <button id="cancelButton_<%= order._id %>" onclick="cancelOrder('<%= order._id %>')" class="btn btn-primary">Cancel order</button>
                             <a href="/order/viewDetails/<%=order._id %>"><button  class="btn btn-success">View order</button></a>
                           <% } %>
-                          <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#returnModal">
+                          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#returnModal">
                             Return Order
                           </button>                          
                         </div>

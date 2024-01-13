@@ -19,6 +19,7 @@ const path = require('path');
 const { log } = require("console");
 const cart = require("../Router/cartRouter");
 const Excel = require('exceljs');
+const pdf = require('html-pdf')
 const categoryOffer = require("../model/categoryOffer");
 const cartHelpers = require('../helpers/cartHelpers');
 const referal = require("../model/referal");
@@ -57,16 +58,10 @@ const todashboard =  (req, res) => {
 // get daily sales
 const dailySales = async (req, res) => {
   try {
-    // Set the start and end of the current day
-    const currentDate = new Date();
-    const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
-    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
-
     // Daily sales aggregation pipeline
     const dailySales = await orders.aggregate([
       {
         $match: {
-          deliveryDate: { $gte: startOfDay, $lte: endOfDay },
           status: 'Paid' // Assuming you want to consider only 'Paid' orders
         }
       },
@@ -80,9 +75,10 @@ const dailySales = async (req, res) => {
       },
       {
         $sort: { _id: 1 } // Sort by day
-}
-    ])
-    console.log('dailySales',dailySales)
+      }
+    ]);
+
+  
 
     res.status(200).json({ success: true, dailySalesData: dailySales });
   } catch (err) {
@@ -92,38 +88,45 @@ const dailySales = async (req, res) => {
 };
 
 
-
-
 // weekly sales
 const weeklySales = async (req, res) => {
   try {
     const today = new Date();
-    const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay(), 0, 0, 0, 0);
-    const endOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + 6, 23, 59, 59, 999);
+    const startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1, 0, 0, 0, 0); // Start of the month
+    const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0, 23, 59, 59, 999); // End of the month
 
-    const weeklySales = await orders.aggregate([
+    const weeklySalesData = await orders.aggregate([
       {
         $match: {
-          deliveryDate: { $gte: startOfWeek, $lte: endOfWeek },
+          deliveryDate: { $gte: startOfMonth, $lte: endOfMonth },
           status: 'Paid'
         }
       },
       {
         $group: {
-          _id: { $dayOfWeek: '$deliveryDate' }, // Grouping by day of the week (Sunday = 1, Monday = 2, ..., Saturday = 7)
+          _id: {
+            $floor: {
+              $divide: [
+                { $subtract: ['$deliveryDate', startOfMonth] }, // Difference in milliseconds
+                1000 * 60 * 60 * 24 * 7 // Milliseconds in a week
+              ]
+            }
+          },
           totalSales: { $sum: '$totalAmount' }
         }
       },
-      { $sort: { '_id': 1 } } // Sort by day of the week
+      { $sort: { '_id': 1 } } // Sort by week number
     ]);
 
-    // console.log('weekly sales', weeklySales);
-    res.status(200).json({ success: true, weeklyData: weeklySales });
+    console.log('weekly sales',weeklySalesData)
+    res.status(200).json({ success: true, weeklyData: weeklySalesData });
   } catch (err) {
     console.log(err);
     res.status(500).json({ success: false, error: err.message });
   }
 }
+
+
 
 
 // get Yearly sales
@@ -1154,6 +1157,120 @@ const toOrders = async(req,res)=>{
 }
 
 
+// admin order details view 
+const toAdminDetailedOrders = async (req,res)=>{
+  const orderId = req.params.orderId
+
+  try{
+      const orderFound = await orders.findById(orderId)
+
+      if(!orderFound){
+          return res.status(401).json({message:'order not found',success:false})
+      }
+
+      const userOrderWithProducts = await orders.aggregate([
+          {
+              $match: {
+                  _id: new mongoose.Types.ObjectId(orderId)
+              }
+          },
+          {
+              $lookup:{
+                  from:'addresses',
+                  localField:'userId',
+                  foreignField:'userId',
+                  as:'addressInfo'
+              }
+          },
+          {
+              $unwind:'$addressInfo'
+          },
+          {
+              $addFields:{
+                  'addressinfoaddress':'$addressInfo.address'
+              }
+          },
+          {
+              $unwind: '$products'
+          },
+          {
+              $lookup: {
+                  from: 'products',
+                  localField: 'products.productId',
+                  foreignField: '_id',
+                  as: 'userOrderedProducts'
+              }
+          },
+          {
+              $unwind: '$userOrderedProducts'
+          },
+          {
+              $addFields: {
+                  'userOrderedProducts.totalAmount': { $multiply: ['$userOrderedProducts.price', '$products.quantity'] }
+              }
+          },
+          {
+              $project: {
+                  'userOrderedProducts.productName': 1,
+                  'userOrderedProducts.image': 1,
+                  'userOrderedProducts.price': 1,
+                  'userOrderedProducts.discountedPrice':1,
+                  'products.quantity': 1,
+                  'userOrderedProducts.totalAmount': 1,
+                  'userOrderedProducts.specifications': 1,
+                  'userId': 1,
+                  'status':1,
+                  'address':1,
+                  'addressinfoaddress':1
+              }
+          },
+          {
+              $lookup: {
+                  from: 'users', // Assuming 'users' is the collection where user information is stored
+                  localField: 'userId',
+                  foreignField: '_id',
+                  as: 'userDetails'
+              }
+          },
+          {
+              $addFields: {
+                  userProfileImage: { $arrayElemAt: ['$userDetails.profileImage', 0] }
+              }
+          },
+          {
+              $project: {
+                  'userOrderedProducts.productName': 1,
+                  'userOrderedProducts.image': 1,
+                  'userOrderedProducts.price': 1,
+                  'userOrderedProducts.discountedPrice':1,
+                  'userOrderedProducts.specifications': 1,
+                  'products.quantity': 1,
+                  'userOrderedProducts.totalAmount': 1,
+                  'userAddress': 1,
+                  'userProfileImage': 1,
+                  'status':1,
+                  'addressinfoaddress':1
+              }
+          }
+          
+      ]);
+      console.log('userOrderWithProducts',userOrderWithProducts)
+      userOrderWithProducts.forEach(data =>{
+          data.addressinfoaddress.forEach(item =>{
+              console.log('item',item.fullName)
+              console.log('dicount price in order',data)
+          })
+      })
+      
+      res.render('./admin/orderDetails',{orderFound,userOrderWithProducts, title:'Order Details'})
+
+  }catch(err){
+      console.log(err)
+  }
+}
+
+
+
 // update order status
 const updateOrderStatus = async (req,res)=>{
     const {orderId,newStatus} = req.query
@@ -1179,97 +1296,103 @@ const updateOrderStatus = async (req,res)=>{
 }
 
 
-// download sales report
-const downloadDailySales = async (req, res) => {
-  try {
-    // Set the start and end of the current day
-    const currentDate = new Date();
-    const startOfWeek = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate() - 6, 0, 0, 0, 0); // Adjust the number of days as needed
-    const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999);
-    // Aggregate sales for the past week
-    const dailySaleData = await orders.aggregate([
-      {
-        $match: {
-          deliveryDate: { $gte: startOfWeek, $lte: endOfDay },
-          status: 'Paid'
-        }
-      },
-      {
-        $unwind: '$products'
-      },
-      {
-        $lookup: {
-          from: 'products',
-          localField: 'products.productId',
-          foreignField: '_id',
-          as: 'dailyproducts'
-        }
-      },
-      {
-        $group: {
-          _id: {
-            $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$deliveryDate' } }
-          },
-          totalSales: { $sum: '$totalAmount' },
-          dailyproducts: { $push: '$dailyproducts' }, // Accumulate dailyproducts array for each grouped date
-          userId:{$push:'$userId'},
-          paymentMode:{$push:'$paymentmode'},
-          totalAmount:{$push:'$totalAmount'},
-          orderId:{$push:'$_id'}
-        }
-      },
-      {
-        $sort: { _id: 1 }
-      },
-      {
-        $project:{
-          _id: 1,
-          totalSales: 1,
-          dailyproducts: 1,
-          userId:1,
-          paymentMode:1,
-          totalAmount:1,
-          orderId:1
-        }
-      }
-    ]);
+// DOWNLOAD SALES DATA
+const downloadSalesReport = async (req,res)=>{
 
+  try{
 
-    const workbook = new Excel.Workbook();
-    const worksheet = workbook.addWorksheet('Sales Report');
+    const {fileFormat,reportType} = req.query
+    console.log('fileformat',fileFormat,reportType)
 
-    // Add headers
-    worksheet.addRow(['Date','OrderID','Product Name','Total Amount','Payment Method']);
+    let salesData;
 
-    // Add data to the worksheet
-    dailySaleData.forEach(daySale => {
-      daySale.dailyproducts.forEach(innerArray => {
-        innerArray.forEach(product => {
-          daySale.paymentMode.forEach(mode =>{
-            daySale.totalAmount.forEach(amount=>{
-              worksheet.addRow([daySale._id, product.productName,daySale.totalSales,amount,mode]);
-            })
-          })
-        });
-      });
-    });
+    //FETCH SALES DATA BASED ON REPORT TYPE
+    switch(reportType){
+      case 'daily':
+        salesData = await fetchDailySalesData()
+        break;
 
-    console.log('daily sales has downloaded',dailySaleData)
+      case 'weekly':
+        salesData = await fetchWeeklySalesData()
+        break;
 
-    // Set content type and disposition for file download
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="sales-report.xlsx"');
+      case 'yearly':
+        salesData = await fetchYearlySalesData()
+        break;
 
-    // Write the workbook data to the response
-    await workbook.xlsx.write(res);
-    res.status(200).end();
-  } catch (err) {
+      default:
+        return res.status(400).json({success:false,message:'Invalid report type'})
+    }
+
+    //GENERATE AND SEND THE SALES REPORT
+    generateAndSendSalesReport(res,fileFormat,salesData)
+
+  }catch(err){
     console.error('Error generating sales report', err);
     res.status(500).send('Error generating sales report');
   }
-};
+}
 
-const downloadWeeklySales = async(req,res)=>{
+
+const fetchDailySalesData = async () =>{
+  
+  const currentDate = new Date();
+  const startOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0, 0);
+  const endOfDay = new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 23, 59, 59, 999)
+
+  const dailySalesData = await orders.aggregate([
+          {
+            $match: {
+              deliveryDate: { $gte: startOfDay, $lte: endOfDay },
+              status: 'Paid'
+            }
+          },
+          {
+            $unwind: '$products'
+          },
+          {
+            $lookup: {
+              from: 'products',
+              localField: 'products.productId',
+              foreignField: '_id',
+              as: 'dailyproducts'
+            }
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: { format: '%Y-%m-%d', date: { $toDate: '$deliveryDate' } }
+              },
+              totalSales: { $sum: '$totalAmount' },
+              dailyproducts: { $push: '$dailyproducts' }, // Accumulate dailyproducts array for each grouped date
+              userId:{$push:'$userId'},
+              paymentMode:{$push:'$paymentmode'},
+              totalAmount:{$push:'$totalAmount'},
+              orderId:{$push:'$_id'}
+            }
+          },
+          {
+            $sort: { _id: 1 }
+          },
+          {
+            $project:{
+              _id: 1,
+              totalSales: 1,
+              dailyproducts: 1,
+              userId:1,
+              paymentMode:1,
+              totalAmount:1,
+              orderId:1
+            }
+          }
+        ]);
+        console.log('daily sales',dailySalesData)
+
+        return dailySalesData
+}
+
+// DOWNLOAD WEEKLY SALES
+const fetchWeeklySalesData = async()=>{
   try{
     const today = new Date();
     const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay(), 0, 0, 0, 0);
@@ -1298,7 +1421,7 @@ const downloadWeeklySales = async(req,res)=>{
           _id: { $dayOfWeek: '$deliveryDate' }, // Grouping by day of the week (Sunday = 1, Monday = 2, ..., Saturday = 7)
           totalSales: { $sum: '$totalAmount' },
           weeklyProducts:{$push:'$weeklyproducts'},
-          userId:{push:'$userId'},
+          userId: { $addToSet: '$userId' },
           paymentMode:{$push:'$paymentmode'},
           totalAmount:{$push:'$totalAmount'},
           orderId:{$push:'$_id'}
@@ -1317,43 +1440,26 @@ const downloadWeeklySales = async(req,res)=>{
         }
       }
     ]);
+    console.log('weekly sales',weeklySalesData)
+    weeklySalesData.forEach(data =>{
+      for (let index = 0; index < data.weeklyProducts[0].length; index++) {
+        console.log(data.weeklyProducts[0][index])
+      }
+    })
+    console.log('weekly sales data sent')
 
-    const workbook = new Excel.Workbook();
-    const worksheet = workbook.addWorksheet('Sales Report');
-
-    // Add headers
-    worksheet.addRow(['Date','OrderID','Product Name','Total Amount','Payment Method']);
-
-    // Add data to the worksheet
-    weeklySalesData.forEach(daySale => {
-      daySale.dailyproducts.forEach(innerArray => {
-        innerArray.forEach(product => {
-          daySale.paymentMode.forEach(mode =>{
-            daySale.totalAmount.forEach(amount=>{
-              worksheet.addRow([daySale._id, product.productName,daySale.totalSales,amount,mode]);
-            })
-          })
-        });
-      });
-    });
-
-    // Set content type and disposition for file download
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="sales-report.xlsx"');
-
-    // Write the workbook data to the response
-    await workbook.xlsx.write(res);
+    return weeklySalesData
   }catch(err){
     console.error(err)
+    throw err;
   }
 }
 
 
 
 // download yearly sales
-const downloadYearlySales = async (req, res) => {
+const fetchYearlySalesData = async () => {
   try {
-    // Fetch yearly sales data from your database
        // Get unique years from the deliveryDate in the orders collection
        const uniqueYears = await orders.aggregate([
         {
@@ -1397,27 +1503,121 @@ const downloadYearlySales = async (req, res) => {
         });
       }
 
-    const workbook = new Excel.Workbook();
-    const worksheet = workbook.addWorksheet('Yearly Sales Report');
-
-    // Add headers to the worksheet
-    worksheet.addRow(['Year', 'Total Sales']);
-
-    // Add yearly sales data to the worksheet
-    yearlySalesData.forEach(yearData => {
-      worksheet.addRow([yearData.year, yearData.totalSales]);
-    });
-
-    // Set content type and disposition for file download
-    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    res.setHeader('Content-Disposition', 'attachment; filename="yearly-sales-report.xlsx"');
-
-    // Write the workbook data to the response
-    await workbook.xlsx.write(res);
   } catch (err) {
     console.error('Error generating yearly sales report', err);
     res.status(500).send('Error generating yearly sales report');
   }
+};
+
+
+const generateAndSendSalesReport = async (res, fileFormat, salesData) => {
+  try {
+    // Set common headers based on file format
+    let contentType, contentDisposition, extension;
+
+    if (fileFormat === 'excel') {
+      contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+      contentDisposition = 'attachment; filename="sales-report.xlsx"';
+      extension = 'xlsx';
+    } else if (fileFormat === 'pdf') {
+      contentType = 'application/pdf';
+      contentDisposition = 'attachment; filename="sales-report.pdf"';
+      extension = 'pdf';
+    } else {
+      // Invalid file format
+      res.status(400).json({ success: false, message: 'Invalid file format' });
+      return;
+    }
+
+    // Set headers for Excel or PDF file download
+    res.setHeader('Content-Type', contentType);
+    res.setHeader('Content-Disposition', contentDisposition);
+
+    // Generate content based on the file format
+    let content;
+
+    if (fileFormat === 'excel') {
+      // Generate Excel report
+      const workbook = new Excel.Workbook();
+      const worksheet = workbook.addWorksheet('Sales Report');
+
+      // Add headers
+      worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
+
+     // Add data to the worksheet
+salesData.forEach(daySale => {
+  if (daySale.weeklyProducts && daySale.weeklyProducts.length > 0) {
+    daySale.weeklyProducts.forEach((productArray, index) => {
+      const product = productArray[0];
+      if (product) {
+        worksheet.addRow([daySale.orderId[index], product.productName, daySale.totalAmount[index], daySale.paymentmode[index]]);
+      }
+    });
+  }
+});
+
+
+      // Write the workbook data to the response
+      content = await workbook.xlsx.writeBuffer();
+    } else if (fileFormat === 'pdf') {
+      // Generate HTML content for PDF
+      const htmlContent = generateHtmlForSalesReport(salesData);
+
+      // Options for html-pdf
+      const pdfOptions = { format: 'Letter' };
+
+      // Generate PDF from HTML content
+      content = await new Promise((resolve, reject) => {
+        pdf.create(htmlContent, pdfOptions).toBuffer((err, buffer) => {
+          if (err) {
+            console.error('Error generating PDF', err);
+            reject('Error generating PDF');
+          } else {
+            resolve(buffer);
+          }
+        });
+      });
+    }
+
+    // Send the generated content as the response
+    res.end(content);
+
+  } catch (err) {
+    console.error('Error generating sales report', err);
+    res.status(500).send('Error generating sales report');
+  }
+};
+
+
+
+
+// Function to generate HTML content for PDF
+const generateHtmlForSalesReport = (salesData) => {
+  // Modify this part based on your HTML structure
+  let htmlContent = '<html><head><title>Daily Sales Report</title></head><body>';
+  htmlContent += '<h1>Daily Sales Report</h1>';
+
+  salesData.forEach(daySale => {
+    htmlContent += `<h2>Week: ${daySale._id}</h2>`;
+    htmlContent += '<table border="1"><tr><th>Product Name</th><th>User ID</th><th>Payment Mode</th><th>Total Amount</th><th>Order ID</th></tr>';
+
+    daySale.weeklyProducts.forEach((productArray, index) => {
+      const product = productArray[0]; // Assuming dailyproducts is an array of arrays
+
+      htmlContent += `<tr>`;
+      htmlContent += `<td>${product.productName}</td>`;
+      htmlContent += `<td>${daySale.userId[0]}</td>`;
+      htmlContent += `<td>${daySale.paymentMode[index]}</td>`;
+      htmlContent += `<td>${daySale.totalAmount[index]}</td>`;
+      htmlContent += `<td>${daySale.orderId[index]}</td>`;
+      htmlContent += `</tr>`;
+    });
+
+    htmlContent += '</table><br>';
+  });
+
+  htmlContent += '</body></html>';
+  return htmlContent;
 };
 
 
@@ -2153,10 +2353,9 @@ module.exports = {
   blockBrand,
   unblockBrand,
   toOrders,
+  toAdminDetailedOrders,
   updateOrderStatus,
   deleteProductImage,
-  downloadDailySales,
-  downloadWeeklySales,
   toCoupons,
   createCoupon,
   getSingleCoupon,
@@ -2178,6 +2377,7 @@ module.exports = {
   toBannerManagement,
   uploadBanner,
   changeBanner,
-  deleteBanner
+  deleteBanner,
+  downloadSalesReport
   
 };

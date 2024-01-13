@@ -70,9 +70,10 @@ app.use((err,req,res,next)=>{
 const port = process.env.PORT||4000
 
 app.listen(port,()=>{
-    const {couponChecker,productOfferChecker} = require('./service/cronjob')
+    const {couponChecker,productOfferChecker,categoryOfferChecker} = require('./service/cronjob')
     couponChecker()
     productOfferChecker()
+    categoryOfferChecker()
     console.log("server is running on http://localhost:3000 ");
 })
 

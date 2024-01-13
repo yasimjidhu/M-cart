@@ -46,7 +46,11 @@
                                             <p class="text-dark mb-0 small"> <%= order.products.quantity %></p>
                                           </div>
                                           <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p class="text-dark mb-0 small"><%= order.userOrderedProducts.price %></p>
+                                            <% if(order.userOrderedProducts.discountedPrice > 0 ){ %>
+                                              <p class="text-dark mb-0 small"><%= order.userOrderedProducts.discountedPrice %></p>
+                                            <% }else{ %>
+                                              <p class="text-dark mb-0 small"><%= order.userOrderedProducts.price %></p>
+                                            <% } %>
                                           </div>
                                         </div>
                                         <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
