@@ -1598,7 +1598,7 @@ body{
 }
 .filter-sidebar{
     background-color: rgb(109, 106, 106);
-    box-shadow: 3px 1px 5px 3px #152938;
+    /* box-shadow: 3px 1px 5px 3px #152938; */
 }
 .filter-div{
     display: flex;
@@ -1843,4 +1843,7 @@ small{
     /* background-color: #fff; Add a background color if needed */
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     z-index: 999;
+}
+.order-card{
+    width: 100% !important;
 }

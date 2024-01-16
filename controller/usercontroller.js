@@ -427,6 +427,7 @@ const userlog = async (req, res) => {
 
       const categories = await category.find()
       const allBanners = await banners.find()
+      // console.log('all banners',allBanners)
 
         let cartItemsCount = 0
         const userEmail = req.session.email
@@ -591,13 +592,14 @@ const toViewAll = async (req, res) => {
 // User search products
 const productSearch = async (req, res) => {
   try {
+    const isAuthenticated = req.session.user ? true : false;
     const searchItem = req.body.usersearch.toLowerCase();
 
     // search for products using a case sensitive regex match on the product name
     const foundProducts = await products.find({
       productName: { $regex: new RegExp(searchItem, "i") },
     });
-    res.render("./user/searchResults", { Products: foundProducts, searchItem });
+    res.render("./user/searchResults", { Products: foundProducts, searchItem ,isAuthenticated});
   } catch (error) {
     res.status(500).redirect("/user/home");
     console.log(error);
@@ -610,7 +612,8 @@ const productSearch = async (req, res) => {
 const filterProducts = async (req, res) => {
   try {
     console.log('filter reached')
-    const { brands, priceRanges } = req.query; // Use req.query to get parameters from the URL
+    const isAuthenticated = req.session.user ? true : false;
+    const { brands, priceRanges,sort} = req.query; // Use req.query to get parameters from the URL
 
     let query = {};
 
@@ -627,11 +630,13 @@ const filterProducts = async (req, res) => {
       query.$or = priceQueries;
     }
 
-    // Fetch products based on filters
-    const filteredProducts = await products.find(query);
-    console.log(filteredProducts)
+    // Add sorting based on the 'sort' query parameter
+    const sortOption = getSortOption(sort)
 
-    return res.json(filteredProducts); // Return filtered products as JSON
+    // Fetch products based on filters
+    const filteredProducts = await products.find(query).sort(sortOption)
+
+    return res.status(200).json(filteredProducts); // Return filtered products as JSON
   } catch (error) {
     console.error('Error fetching filtered products:', error);
     res.status(500).json({ message: 'Failed to fetch filtered products' });
@@ -639,29 +644,48 @@ const filterProducts = async (req, res) => {
 };
 
 
+// functon to get sorting option based on the provided value
+function getSortOption(sort){
+  switch(sort){
+    case 'priceLowToHigh':
+      return {price:1};
+    case 'priceHighToLow':
+      return {price:-1};
+    case 'newestFirst':
+      return {createdAt:-1};
+    case 'oldestFirst':
+      return {createdAt:1}
+    default:
+      return {}
+  }
+}
+
 
 
 const toProfile = (req,res)=>{
-  res.render('./user/profile')
+  const isAuthenticated = req.session.user ? true : false;
+  res.render('./user/profile',{isAuthenticated})
 }
 
 
 // to wallet
-const toWallet = async (req,res)=>{
-  
+const toWallet = async (req, res) => {
   try {
-    const user = await User.findOne({email:req.session.email})
-    const userId = user._id
+    const isAuthenticated = req.session.user ? true : false;
+    const user = await User.findOne({ email: req.session.email });
+    const userId = user._id;
 
-    const userWallet = await wallet.findOne({userId:userId})
-    console.log(userWallet)
+    const userWallet = await wallet
+      .findOne({ userId: userId })
+      .sort({ "transactions.date": -1 });
+    console.log(userWallet);
 
-    res.render('./user/wallet.ejs',{userWallet})  
-
+    res.render('./user/wallet.ejs', { userWallet,isAuthenticated });
   } catch (err) {
-    console.error(err)
+    console.error(err);
   }
-}
+};
+
 
 
 // To referal
@@ -669,10 +693,11 @@ const toReferal = async (req,res)=>{
   
   const user = await User.findOne({email:req.session.email})
   const userId = user._id
+  const isAuthenticated = req.session.user ? true : false;
 
   try{
     const referalLink = await offerhelper.generateReferralCode(userId)
-    res.render('./user/referal.ejs',{referalLink})
+    res.render('./user/referal.ejs',{referalLink,isAuthenticated})
   }catch(err){
     console.error(err)
   }

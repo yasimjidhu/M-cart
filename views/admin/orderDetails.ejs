@@ -66,28 +66,26 @@
                         </div>
                         <div class="col-lg-12">
                           <h3 class="text-center text-success mb-4">USER ADDRESS</h3>
-                          <% if (userOrderWithProducts && userOrderWithProducts.length > 0) { %>
-                            <% userOrderWithProducts[0].addressinfoaddress.forEach(item => { %>
+                          <% if (addressFound) { %>
                               <div class="row">
                                 <div class="col-lg-6" style="padding: 0px 28px;">
-                                  <h6><span class="order-span1 text-dark">Full Name:</span> <%= item.fullName.toUpperCase()%></h6>
-                                  <h6><span class="order-span1">PhoneNumber:</span> <%= item.phoneNumber %></h6>
-                                  <h6><span class="order-span1">Email:</span> <%= item.email %></h6>
-                                  <h6><span class="order-span1">Country:</span> <%= item.country %></h6>
-                                  <h6><span class="order-span1">PinCode:</span> <%= item.pinCode %></h6>
-                                  <h6><span class="order-span1">State:</span> <%= item.state %></h6>
+                                  <h6><span class="order-span1 text-dark">Full Name:</span> <%= addressFound.fullName.toUpperCase()%></h6>
+                                  <h6><span class="order-span1">PhoneNumber:</span> <%= addressFound.phoneNumber %></h6>
+                                  <h6><span class="order-span1">Email:</span> <%= addressFound.email %></h6>
+                                  <h6><span class="order-span1">Country:</span> <%= addressFound.country %></h6>
+                                  <h6><span class="order-span1">PinCode:</span> <%= addressFound.pinCode %></h6>
+                                  <h6><span class="order-span1">State:</span> <%= addressFound.state %></h6>
                                 </div>
                                 <div class="col-lg-6" style="padding: 0px 28px;">
-                                  <h6><span class="order-span1">District:</span> <%= item.district %></h6>
-                                  <h6><span class="order-span1">City:</span> <%= item.city %></h6>
-                                  <h6><span class="order-span1">Area:</span> <%= item.area %></h6>
-                                  <h6><span class="order-span1">Street:</span> <%= item.street %></h6>
-                                  <h6><span class="order-span1">Building:</span> <%= item.building %></h6>
-                                  <h6><span class="order-span1">House Number:</span> <%= item.houseNumber %></h6>
+                                  <h6><span class="order-span1">District:</span> <%= addressFound.district %></h6>
+                                  <h6><span class="order-span1">City:</span> <%= addressFound.city %></h6>
+                                  <h6><span class="order-span1">Area:</span> <%= addressFound.area %></h6>
+                                  <h6><span class="order-span1">Street:</span> <%= addressFound.street %></h6>
+                                  <h6><span class="order-span1">Building:</span> <%= addressFound.building %></h6>
+                                  <h6><span class="order-span1">House Number:</span> <%= addressFound.houseNumber %></h6>
                                   <!-- Add other details here for the second column -->
                                 </div>
                               </div>
-                            <% }) %>
                           <% } %>
                         </div>
                         <div class="card-footer border-0 "

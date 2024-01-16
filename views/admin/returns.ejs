@@ -1,0 +1,182 @@
+<!--header-->
+
+<%- include('../user/partials/header') %>
+<%- include('../user/partials/links') %>
+    <!--Navbar-->
+<%-include('../admin/partials/nav') %>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f4;
+    }
+    h3 {
+      text-align: center;
+      margin-top: 20px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+    tr:nth-child(even) {
+      background-color: #f2f2f2;
+    }
+    th {
+      background-color: teal;
+      color: white;
+    }
+    .buttonApprove {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .buttonReject {
+      background-color: #ec1d1d;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .buttonApprove:hover {
+      background-color: #45a049;
+    }
+    .buttonReject:hover{
+      background-color: #b80303;;
+    }
+
+    @media (max-width: 600px) {
+      table, thead, tbody, th, td, tr {
+        display: block;
+      }
+      thead tr {
+        position: absolute;
+        top: -9999px;
+        left: -9999px;
+      }
+      tr {
+        margin-bottom: 20px;
+      }
+      td {
+        border: none;
+        position: relative;
+        padding-left: 50%;
+      }
+      td:before {
+        position: absolute;
+        top: 0;
+        left: 6px;
+        width: 45%;
+        padding-right: 10px;
+        white-space: nowrap;
+      }
+      td:nth-of-type(1):before { content: "Return ID: "; }
+      td:nth-of-type(2):before { content: "Order ID: "; }
+      td:nth-of-type(3):before { content: "Customer Name: "; }
+      td:nth-of-type(4):before { content: "Return Reason: "; }
+      td:nth-of-type(5):before { content: "Action: "; }
+    }
+  </style>
+  <div class="container-fluid">
+    <div class="row">
+        <div class="col-lg-2 p-0">
+            <%-include('../admin/partials/sidebar') %>
+        </div>
+        <div class="col-lg-10">
+          <% if (requestedRetuns && requestedRetuns.length > 0) { %>
+          <h3>Requested Returns</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>NO:</th>
+                <th>Order ID</th>
+                <th>Customer Name</th>
+                <th>Return Reason</th>
+                <th>Total Amount</th>
+                <th>Approve</th>
+                <th>Reject</th>
+              </tr>
+            </thead>
+            <tbody>
+              <% requestedRetuns.forEach((order, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= order._id %></td>
+                <td><%= order.userData.name.toLowerCase() %></td>
+                <td><%= order.returnData.reason %></td>
+                <td><%= order.totalAmount %></td>
+                <td><button class="buttonApprove" onclick="approveReturn('<%=order._id%>')">Approve</button></td>
+                <td><button class="buttonReject" onclick="rejectReturn('<%=order._id %>')">Reject</button></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+          <% } else { %>
+          <h3>No requested returns found</h3>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+<script>
+
+  async function approveReturn(orderId){
+    const response = await fetch(`/admin/approve-return/${orderId}`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      }
+    })
+    
+    if(!response.ok){
+      throw new Error()
+    }
+    Swal.fire({
+      icon: "success",
+      title: "Order Return approved",
+      text: "approved return request",
+      showConfirmButton:true
+    }).then((result)=>{
+      if(result.isConfirmed){
+        window.location.reload()
+      }
+    })
+  }
+
+  async function rejectReturn(orderId){
+    const response = await fetch(`/admin/reject-return/${orderId}`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json'
+      }
+    })
+
+    if(!response.ok){
+      throw new Error()
+    }
+    Swal.fire({
+      icon: "success",
+      title: "Order Return rejected",
+      text: "rejected return request",
+      showConfirmButton:true
+    }).then((result)=>{
+      if(result.isConfirmed){
+        window.location.reload()
+      }
+    })
+
+  }
+
+</script>

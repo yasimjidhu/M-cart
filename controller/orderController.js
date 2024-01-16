@@ -15,6 +15,7 @@ const errorHandler = require('../middleware/errorMiddleware')
 const Cart = require('../model/cart')
 const coupon = require('../model/coupon')
 const wallet = require('../model/wallet');
+const returns = require('../model/returns')
 const cartHelpers = require('../helpers/cartHelpers')
 const crypto = require('crypto')
 const Razorpay = require('razorpay')
@@ -266,7 +267,7 @@ const placeOrder = async (req, res) => {
 const verifyPayment = async (req, res) => {
     try {
       console.log('verifypayment called')
-      console.log(req.body)
+     
       
       let hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
      
@@ -276,7 +277,7 @@ const verifyPayment = async (req, res) => {
 
   
       const orderId= order.data.order._id
-      console.log('orderid in the database',orderId)
+     
       const updateOrderDocument = await orders.findByIdAndUpdate(orderId, {
         status: "Paid",
       });
@@ -303,7 +304,8 @@ const verifyPayment = async (req, res) => {
 
 const orderSuccess = (req,res)=>{
     try {
-        res.render('./user/orderPlaced')
+        const isAuthenticated = req.session.user ? true : false;
+        res.render('./user/orderPlaced',{isAuthenticated})
     } catch (error) {
         errorHandler(error,req,res)
     }
@@ -312,6 +314,7 @@ const orderSuccess = (req,res)=>{
 const toUserOrders = async (req, res) => {
     const userEmail = req.session.email;
     const user = await users.findOne({ email: userEmail });
+    const isAuthenticated = req.session.user ? true : false;
     
     if (!user) {
       return res.status(404).send("User not found");
@@ -373,10 +376,10 @@ const toUserOrders = async (req, res) => {
         $sort: { deliveryDate: -1 } // Sort by createdAt field in descending order (latest first)
       }
     ]);
-    console.log('user order bro',userOrders)
     
     
-    res.render('./user/userOrders', { userOrders,title:'My Orders' });
+    
+    res.render('./user/userOrders', { userOrders,title:'My Orders',isAuthenticated });
   };
   
   
@@ -461,6 +464,7 @@ const CancelledOrders = async (req,res)=>{
 
     const user = await users.findOne({email:req.session.email})
     const userId = user._id
+    const isAuthenticated = req.session.user ? true : false;
 
     if(!userId){
         return res.status(404).json({message:'user not found'})
@@ -507,11 +511,48 @@ const CancelledOrders = async (req,res)=>{
         ]).exec()
 
         const brandData = await brand.find()
-        res.render('./user/myCancellations',{userCancelledOrders,brandData,title:'My Cancellation'})
+        res.render('./user/myCancellations',{userCancelledOrders,brandData,title:'My Cancellation',isAuthenticated})
         
     } catch (error) {
         console.error(error)
         next(error)
+    }
+    
+}
+
+
+// return the order
+const returnOrder =  async (req,res)=>{
+
+    try{
+        const user = await users.findOne({email:req.session.email})
+        const userId = user._id
+        const {reason,orderId} = req.body
+
+        const updatedOrder = await orders.findOneAndUpdate(
+            {_id:orderId},
+            {$set:{status:'return requested'}},
+            {new:true}
+        );
+
+        if(!updatedOrder){
+            return res.status(404).json({message:'order not found'})
+        }
+        console.log(updatedOrder)
+        
+        const newRetuns = new returns({
+            reason:reason,
+            requestedDate:new Date(),
+            userId:userId,
+            orderId:orderId
+        })
+
+        await newRetuns.save()
+
+        return res.status(200).json({success:true})
+
+    }catch(err){
+        console.error(err)
     }
     
 }
@@ -613,7 +654,10 @@ const applyCoupon = async (req, res) => {
 };
 
 const toViewOrderDetails = async (req,res)=>{
+    const user = await users.findOne({email:req.session.email})
+    const userId = user._id
     const orderId = req.params.orderId
+    const isAuthenticated = req.session.user ? true : false;
 
     try{
 
@@ -639,9 +683,13 @@ const toViewOrderDetails = async (req,res)=>{
                     as:'orderedProductInfo'
                 }
             },
-        ])
-        console.log(orderedProducts)
-        res.render('./user/orderDetails.ejs',{userOrderWithProducts:orderedProducts})
+        ]);
+        const addressId = orderedProducts[0].address
+        
+        const allUserAddress = await address.findOne({userId:userId})
+        const addressFound = await allUserAddress.address.find(address => address.id.toString()===addressId.toString())
+
+        res.render('./user/orderDetails.ejs',{userOrderWithProducts:orderedProducts,isAuthenticated,addressFound})
 
     }catch(err){
         console.error(err)
@@ -659,7 +707,8 @@ module.exports = {
     CancelledOrders,
     verifyPayment,
     applyCoupon,
-    toViewOrderDetails
+    toViewOrderDetails,
+    returnOrder
 
 }
  

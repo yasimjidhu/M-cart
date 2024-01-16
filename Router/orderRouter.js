@@ -3,6 +3,7 @@ const order = express.Router()
 const orderController = require('../controller/orderController')
 const userAuth = require('../middleware/userAuth')
 const adminAuth = require('../middleware/adminAuth')
+const upload = require('../service/multer')
 require('dotenv').config()
 
 order.post('/placeOrder', userAuth.verifyUser, orderController.placeOrder)
@@ -15,6 +16,7 @@ order.post('/verify-payment', userAuth.verifyUser, orderController.verifyPayment
 
 
 order.get('/cancelledOrders', userAuth.verifyUser, orderController.CancelledOrders)
+order.post('/return',userAuth.verifyUser,orderController.returnOrder)
 
 
 // apply coupons

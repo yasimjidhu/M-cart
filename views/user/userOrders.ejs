@@ -23,7 +23,7 @@
           <% userOrders.forEach((order) => { %>
             <% order.productDetails.forEach((product, index) => { %>
               <% const productQuantity = order.products && order.products[index] ? order.products[index].quantity : 0; %>
-              <% const totalCost = product.price *productQuantity; %> 
+              <% const totalCost = product.price * productQuantity; %> 
               <div class="col-md-12 mb-4">
                 <div class="card mt-4" id="orderCard">
                   <div class="row">
@@ -34,23 +34,27 @@
                       <div class="card-body product-details">
                         <div class="mt-4 ml-5">
                           <h3 class="card-title"><%= product.productName %></h3>
-                          <% if(product.discountedPrice >0){ %>
-                          <p class="card-text">Price: <%= product.discountedPrice %></p>
-                          <% }else{ %>
+                          <% if (product.discountedPrice > 0) { %>
+                            <p class="card-text">Price: <%= product.discountedPrice %></p>
+                          <% } else { %>
                             <p class="card-text">Price: <%= product.price %></p>
                           <% } %>
                           <p class="card-text">Quantity: <%= productQuantity %></p>
-                          <p class="card-text">Total: <%= totalCost %></p>
+                          <% if (product.discountedPrice > 0) { %>
+                            <p class="card-text">Total: <%= productQuantity * product.discountedPrice %></p>
+                          <% } else { %>
+                            <p class="card-text">Total: <%= productQuantity * product.price %></p>
+                          <% } %>
                           <p class="card-text">Status: <span id="orderStatus_<%= order._id %>"><%= order.status %></span></p>
                           <% if (order.status === 'Cancelled') { %>
                             <!-- Display cancellation status or handle accordingly -->
-                          <% } else { %>
+                          <% } else if (order.status !== 'return requested' && order.status !== 'Shipped') { %>
                             <button id="cancelButton_<%= order._id %>" onclick="cancelOrder('<%= order._id %>')" class="btn btn-primary">Cancel order</button>
-                            <a href="/order/viewDetails/<%=order._id %>"><button  class="btn btn-success">View order</button></a>
-                          <% } %>
-                          <button type="button" class="btn btn-danger" data-toggle="modal" data-target="#returnModal">
-                            Return Order
-                          </button>                          
+                            <% } %>
+                            <% if (order.status === 'Delivered') { %>
+                              <button type="button" class="order-Return-Btn btn btn-danger" data-orderId="<%=order._id %>" onclick="setOrderId(event)" data-toggle="modal" data-target="#orderReturnModal"> Return Order</button>                    
+                              <% } %>
+                              <a href="/order/viewDetails/<%=order._id %>"><button class="btn btn-success">View order</button></a>
                         </div>
                       </div>
                     </div>
@@ -66,40 +70,35 @@
           <h4 class="text-danger text-center">You haven't ordered <span class="text-dark">anything</span></h4>
         <% } %>
       </div>
-    </div>
-  </div>
 
-  <!--- Return modal-->
-  <div class="modal fade" id="returnModal" tabindex="-1" role="dialog" aria-labelledby="returnModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <!-- Modal Header -->
-        <div class="modal-header">
-          <h5 class="modal-title" id="returnModalLabel">Initiate Return</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
-        </div>
-        <!-- Modal Body: Return Request Form -->
-        <div class="modal-body">
-          <!-- Input fields for return details -->
-          <form id="returnForm">
-            <div class="form-group">
-              <label for="returnReason">Return Reason</label>
-              <input type="text" class="form-control" id="returnReason" placeholder="Enter return reason" required>
-            </div>
-            <!-- Additional fields as needed: Order ID, Product ID, Quantity, etc. -->
-            <!-- You can use hidden input fields or fetch this information dynamically -->
-  
-            <!-- Submit button for the return request -->
-            <button type="submit" class="btn btn-primary">Submit Return Request</button>
-          </form>
-        </div>
+  <!-- Modal -->
+<div class="modal fade" id="orderReturnModal" tabindex="-1" role="dialog" aria-labelledby="orderReturnModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="orderReturnModalLabel">Order Return Request</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="returnForm">
+          <div class="form-group">
+            <label for="returnReason">Reason for Return</label>
+            <textarea class="form-control" id="returnReason" name="reason" rows="3" placeholder="Enter reason for return"></textarea>
+          </div>
+          <button type="submit" id="returnBtn"></button>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="cancel-btn" data-dismiss="modal">Close</button>
+        <button type="button" id="return-modal-btn" class="btn btn-primary">Submit Return Request</button>
       </div>
     </div>
   </div>
+</div>
 
-
+  
 
 </body>
 
@@ -107,13 +106,19 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
 <script>
+
+
   function cancelOrder(orderId) {
     const orderStatus = document.getElementById(`orderStatus_${orderId}`);
     const cancelButton = document.getElementById(`cancelButton_${orderId}`);
+    const returnButton = document.getElementById(`returnButton_${orderId}`)
 
     if (orderStatus.textContent.trim() === 'Cancelled') {
       if (cancelButton) {
         cancelButton.style.display = 'none'; // Hide the button
+        returnButton.style.display = 'none';
+        
+
       }
       return;
     }
@@ -177,4 +182,66 @@
       }
     });
   }
+
+
+  function setOrderId(event){
+    const orderId = event.target.getAttribute('data-orderId')
+    document.getElementById('return-modal-btn').setAttribute('data-orderId',orderId)
+  }
+
+
+
+  const returnModalBtn = document.getElementById('return-modal-btn')
+  const returnBtn = document.getElementById('returnBtn')
+
+  if(returnBtn && returnModalBtn){
+    returnModalBtn.addEventListener('click',function(){
+      returnBtn.click()
+    })
+  }
+
+  // function for return the order
+  document.getElementById('returnForm').addEventListener('submit', async function (event) {
+    event.preventDefault();
+
+    const reason = document.getElementById('returnReason').value;
+    const orderId = document.getElementById('return-modal-btn').getAttribute('data-orderId')
+    const cancelBtn = document.getElementById('cancel-btn')
+
+    const Data = {
+        reason: reason,
+        orderId: orderId
+    };
+
+    try {
+        const response = await fetch(`/order/return`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json', // Set content type to JSON
+            },
+            body: JSON.stringify(Data), // Convert data to JSON format
+        });
+
+        if (!response.ok) {
+            throw new Error('Failed to return the product');
+        }
+        Swal.fire({
+          icon: "success",
+          title: "Request sent",
+          text: "order return request sent ",
+          showConfirmButton:true
+        }).then((result)=>{
+          if(result.isConfirmed){
+            cancelBtn.click()
+            window.location.reload()
+          }
+        })
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to return the product');
+    }
+});
+
+ 
+
 </script>

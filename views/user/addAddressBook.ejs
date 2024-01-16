@@ -199,7 +199,7 @@
             return regex.test(name)
         }
         function isValidPhoneNumber(phoneNumber){
-            const regex =  /^\d{3}-\d{3}-\d{4}$/
+            const regex = /^[0-9]{10}$/
             return regex.test(phoneNumber)
         }
         function isValidEmail(email) {
@@ -215,7 +215,7 @@
             return regex.test(street)
         }
         function isValidCity(city){
-            const regex = /^[a-zA-Z]+$/
+            const regex =/^[A-Za-z '-]+$/
             return regex.test(city)
         }
 
@@ -326,7 +326,7 @@
                 event.preventDefault();
             }
             if(isValidCity(areaValue)){
-                areaError.textContent = 'Please enter a valid state.';
+                areaError.textContent = 'Please enter a valid area.';
                 areaError.style.color='red'
                 event.preventDefault();
             }

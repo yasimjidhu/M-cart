@@ -12,64 +12,90 @@
         <div class="col-lg-10 p-0">
             <!---order div-->
             <section class="h-100 gradient-custom shadow">
-                <div class="container-fluid py-2 h-100 ">
-                  <div class="row h-100 p-3">
-                    <div class="col-12 px-2">
-                      <div class="card shadow" style="border-radius: 10px;">
-                        <div class="card-body p-4">
-                          <div class="card shadow-0 border mb-4">
-                            <div class="card-body">
-                                <% if (userOrderWithProducts && userOrderWithProducts.length > 0) { %>
+              <div class="container-fluid py-2 h-100 ">
+                <div class="row h-100 p-3">
+                  <div class="col-12 px-2">
+                    <div class="card shadow" style="border-radius: 10px;">
+                      <div class="card-body order-card p-4">
+                        <div class="card shadow-0 border mb-4">
+                          <div class="card-body" style="width:100%;">
+                            <% if (userOrderWithProducts && userOrderWithProducts.length > 0 && addressFound) { %>
+                              <table class="table table-bordered">
+                                <thead>
+                                  <tr>
+                                    <th>Product</th>
+                                    <th>Product Name</th>
+                                    <th>Specification</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    
+                                    
+                                  </tr>
+                                </thead>
+                                <tbody>
                                   <% userOrderWithProducts.forEach(order => { %>
                                     <% if (order.orderedProductInfo) { %>
-                                        <% order.orderedProductInfo.forEach(data =>{ %>
-                                        <ul class="orderli">
-                                            <li>Product</li>
-                                            <li>Product Name</li>
-                                            <li>Specififcation</li>
-                                            <li>Quantity</li>
-                                            <li>Price</li>
-                                        </ul>
-                                        <div class="row">
-                                          <div class="col-md-3">
+                                      <% order.orderedProductInfo.forEach(data =>{ %>
+                                        <tr>
+                                          <td>
                                             <img src="/uploads/<%= data.image[4] %>" class="img-fluid" alt="Phone" width="120px">
-                                          </div>
-                                          <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p class="text-dark mb-0"><%= data.productName %> </p>
-                                          </div>
-                                          <div class="col-md-3 text-center d-flex justify-content-center align-items-center">
-                                            <p class="text-dark mb-0 small"><%= data.specifications[0] %></p>
-                                          </div>
-                                          <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p class="text-dark mb-0 small"> <%= order.products.quantity %></p>
-                                          </div>
-                                          <div class="col-md-2 text-center d-flex justify-content-center align-items-center">
-                                            <p class="text-dark mb-0 small"><%= data.price %></p>
-                                          </div>
-                                        </div>
-                                        <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
-                                        <% }) %>
-                                        <% } else { %>
-                                      <h3>No data available</h3>
+                                          </td>
+                                          <td class="text-center"><%= data.productName %></td>
+                                          <td class="text-center"><%= data.specifications[0] %></td>
+                                          <td class="text-center"><%= order.products.quantity %></td>
+                                          <% if(data.discountedPrice > 0){ %>
+                                            <td class="text-center"><%= data.discountedPrice %></td>
+                                          <% }else{ %>
+                                            <td class="text-center"><%= data.price %></td>
+                                          <% } %>
+                                        
+                                        </tr>
+                                      <% }) %>
+                                    <% } else { %>
+                                      <tr>
+                                        <td colspan="6" class="text-center">No data available</td>
+                                      </tr>
                                     <% } %>
-                                    
                                   <% }) %>
-                                <% } else { %>
-                                  <h3>No data available</h3>
-                                <% } %>
-                              </div>
+                                </tbody>
+                              </table>
+                              <h3 class="text-success text-center">USER ADDRESS</h3>
+                              <div class="row mt-5">
+                                <div class="col-lg-6">
+                                  <div class="sub" style="width: 400px;display: flex;flex-direction: column;align-items: start;">
+                              <h5 class="text-center"><span class="order-span1">Full Name:</span><%=addressFound.fullName %></h5>
+                              <h5 class="text-center"><span class="order-span1">Phone Number:</span><%=addressFound.phoneNumber %></h5>
+                              <h5 class="text-center"><span class="order-span1">Email:</span><%=addressFound.email %></h5>
+                              <h5 class="text-center"><span class="order-span1">Country:</span><%=addressFound.country %></h5>
+                              <h5 class="text-center"><span class="order-span1">Pin code:</span><%=addressFound.pinCode %></h5>
+                              <h5 class="text-center"><span class="order-span1">state:</span><%=addressFound.state %></h5>
+                                  </div>
+                                </div>
+                                <div class="col-lg-6 " style="display: flex;flex-direction: column;align-items: start;">
+                              <h5 class="text-center"><span class="order-span1">District:</span><%=addressFound.district %></h5>
+                              <h5 class="text-center"><span class="order-span1">City:</span><%=addressFound.city %></h5>
+                              <h5 class="text-center"><span class="order-span1">Area:</span><%=addressFound.area %></h5>
+                              <h5 class="text-center"><span class="order-span1">street:</span><%=addressFound.street %></h5>
+                              <h5 class="text-center"><span class="order-span1">Building:</span><%=addressFound.building %></h5>
+                              <h5 class="text-center"><span class="order-span1">House Number:</span><%=addressFound.houseNumber %></h5>
+                                </div>
+                            </div>
+                            <% } else { %>
+                              <h3>No data available</h3>
+                            <% } %>
                           </div>
                         </div>
-                        
-                        <div class="card-footer border-0 "
-                          style="background-color: #001524;padding: 7px; border-bottom-left-radius: 15px; border-bottom-right-radius: 10px; margin-bottom: 10px; margin-top: 40px;">
-                          <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">Total : <%=userOrderWithProducts[0].totalAmount %></h5>
-                        </div>
+                      </div>
+            
+                      <div class="card-footer border-0" style="background-color: #001524;padding: 7px; border-bottom-left-radius: 15px; border-bottom-right-radius: 10px; margin-bottom: 10px; margin-top: 40px;">
+                        <h5 class="d-flex align-items-center justify-content-end text-white text-uppercase mb-0">Total : <%=userOrderWithProducts[0].totalAmount %></h5>
                       </div>
                     </div>
                   </div>
                 </div>
-              </section>
+              </div>
+            </section>
         </div>
     </div>
 </div>
+

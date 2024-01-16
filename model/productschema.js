@@ -43,6 +43,9 @@ const productschema = mongoose.Schema({
     offerType:{
         type:String
     },
+    createdAt:{
+        type:Date
+    }
 
    
 })

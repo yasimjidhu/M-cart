@@ -65,7 +65,7 @@ const toCart = async (req, res) => {
         ]).exec()
 
         if(cartData.length<=0){
-            return res.render('./user/emptyCart',{title:'Cart'})
+            return res.render('./user/emptyCart',{title:'Cart',isAuthenticated})
         }
 
         // const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
@@ -96,7 +96,7 @@ const toCart = async (req, res) => {
 
         req.session.cartGrandTotal = cartGrandTotal
 
-        res.render('./user/cart',{isAuthenticated,message,title:'Cart',cartGrandTotal});
+        res.render('./user/cart',{isAuthenticated,message,title:'Cart',cartGrandTotal,isAuthenticated});
     } catch (error) {
         console.log(error);
     }
@@ -200,6 +200,15 @@ const addToCart = async (req, res) => {
         }
 
         const userId = user._id;
+        let price = 0
+
+        const productFound = await products.findOne({_id:productId})
+        if(productFound.discountedPrice > 0){
+            price = productFound.discountedPrice
+        }else{
+            price = productFound.price
+        }
+        console.log('price in cart',price)
 
 
         const cartItem = await cart.findOne({ userId :userId});
@@ -210,7 +219,8 @@ const addToCart = async (req, res) => {
                 userId: userId,
                 products: [{
                     productId:productId,
-                    quantity: quantity
+                    quantity: quantity,
+                    price:price
                 }]
             });
             await newCartItem.save();
@@ -223,11 +233,13 @@ const addToCart = async (req, res) => {
 
             if(existingProduct){
                 existingProduct.quantity += quantity
+                existingProduct.price = price
             }else{
                  // If the cart exists, update it by pushing the new product
                 cartItem.products.push({
                 productId: productId,
-                quantity: quantity
+                quantity: quantity,
+                price:price
             });
             }
             await cartItem.save();
@@ -253,7 +265,10 @@ const RemoveItem = async (req, res) => {
 
         const updatedCart = await cart.updateOne(
             { userId: userId },
-            { $pull: { products: { productId: productID } } }
+            {
+                $pull:{products:{productId:productID}},
+                $set:{discountedAmount:0}
+            }
         );
 
         if (updatedCart) {
@@ -276,6 +291,7 @@ const toCheckout = async (req, res) => {
 
       const userEmail = req.session.email;
       const user = await users.findOne({ email: userEmail });
+      const isAuthenticated = req.session.user ? true : false;
   
       if (!user) {
         return res.status(404).send('User not found');
@@ -342,7 +358,7 @@ const toCheckout = async (req, res) => {
 
     // const eachProductPrice = await cartHelpers.priceOfEachItem(userId)
     const CartProducts = await cartHelpers.getCartProducts(user._id)
-    console.log('CartProducts',CartProducts)
+
 
     let discountedPrice = []
     let cartTotal = 0
@@ -366,21 +382,21 @@ const toCheckout = async (req, res) => {
     CartProducts.forEach(data =>{
         cartGrandTotal += data.cartProducts.subTotal
     })
-    console.log('carttotal in checkout',cartGrandTotal)
+
 
     // check is there any discount amount in the cart
     const userCart = await cart.findOne({userId:user._id})
     const discountAmount = userCart.discountedAmount
 
     cartGrandTotal = cartGrandTotal-discountAmount
-    console.log('changed',cartGrandTotal)
+ 
   
       const userAddressData = await address.findOne({ userId: user._id });
       const userAddress = userAddressData ? userAddressData.address : null;
   
     //   const total = flattenedCartItems.reduce((acc, currentItem) => acc + currentItem.price, 0);
   
-      res.render('./user/checkout', { userCartData,quantity, userAddress  ,cartGrandTotal, title:'Checkout'})
+      res.render('./user/checkout', { userCartData,quantity, userAddress  ,cartGrandTotal, title:'Checkout',isAuthenticated})
     } catch (error) {
       console.error('Error:', error);
       res.status(500).send('Internal Server Error');

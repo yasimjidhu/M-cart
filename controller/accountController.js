@@ -15,6 +15,7 @@ const offerhelper = require('../helpers/offer')
 
 // To profile
 const  toProfile = async (req, res) => {
+    const isAuthenticated = req.session.user ? true : false;
     const userEmail = req.session.email
     const userData = await users.findOne({email:userEmail})
     const userId = userData._id
@@ -32,7 +33,7 @@ const  toProfile = async (req, res) => {
 
         const firstAddress = userAddress[0]; // Assuming the first address
         
-        res.status(200).render('./user/profile', { firstAddress, userData,title:'Profile' });
+        res.status(200).render('./user/profile', { firstAddress, userData,title:'Profile',isAuthenticated });
         
        
     } catch (error) {
@@ -85,6 +86,7 @@ const toAddressBook = async (req, res) => {
     try {
         const userEmail = req.session.email;
         const user = await users.findOne({ email: userEmail });
+        const isAuthenticated = req.session.user ? true : false;
 
         if (user) {
             const userId = user._id;
@@ -92,9 +94,9 @@ const toAddressBook = async (req, res) => {
             const alladdress = await address.find({ userId: userId }, { _id: 0, address: 1 });
    
             const error = req.query.msg
-            res.render('./user/addressBook', { alladdress,error,title:'AddressBook' });
+            res.render('./user/addressBook', { alladdress,error,title:'AddressBook',isAuthenticated });
         } else {
-            res.render('./user/addressBook', { alladdress: [] }); // Render with empty address array if user not found
+            res.render('./user/addressBook', { alladdress: [],isAuthenticated }); // Render with empty address array if user not found
         }
     } catch (error) {
         console.error(error);
@@ -104,7 +106,8 @@ const toAddressBook = async (req, res) => {
 
 // to Add address
 const toAddAddress = (req,res)=>{
-    res.render('./user/addAddressBook',{title:'Add Address'})
+    const isAuthenticated = req.session.user ? true : false;
+    res.render('./user/addAddressBook',{title:'Add Address',isAuthenticated})
 }
 
 // add Address Post 
@@ -176,6 +179,7 @@ const addAddress = async (req, res) => {
 
 // Edit address 
 const toEditAddress = async (req, res) => {
+    const isAuthenticated = req.session.user ? true : false;
     const email = req.session.email;
     const addressId = req.params.addressId;
     
@@ -199,7 +203,7 @@ const toEditAddress = async (req, res) => {
         
 
         // Access the matched address object within existingAddress.address[0]
-        res.render('./user/editAddress', { existingAddress ,title:'Edit Address'});
+        res.render('./user/editAddress', { existingAddress ,title:'Edit Address',isAuthenticated});
 
     } catch (err) {
         console.error(err);
@@ -425,7 +429,8 @@ const toUserCoupons = async (req,res)=>{
 
     try {
         const allCoupons = await coupon.find()
-        res.render('./user/userCoupons.ejs',{allCoupons})
+        const isAuthenticated = req.session.user ? true : false;
+        res.render('./user/userCoupons.ejs',{allCoupons,isAuthenticated})
     } catch (error) {
         console.error(error)
     }

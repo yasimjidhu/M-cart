@@ -2,6 +2,7 @@ const Users = require("../model/userSchema");
 const address = require('../model/address')
 const mongoose = require('mongoose')
 const products = require("../model/productschema");
+const returns = require('../model/returns')
 const { ObjectId } = require("mongodb");
 const admin = require("../Router/adminRouter");
 const category = require("../model/category");
@@ -23,6 +24,7 @@ const pdf = require('html-pdf')
 const categoryOffer = require("../model/categoryOffer");
 const cartHelpers = require('../helpers/cartHelpers');
 const referal = require("../model/referal");
+const Wallet = require("../model/wallet");
 
 
 // Admin creadentials
@@ -437,6 +439,7 @@ const addproducts = async (req, res) => {
       description: req.body.description,
       specifications: specifications,
       brand: brandId,
+      createdAt:new Date()
 
       // specification: req.body.specification,
     };
@@ -1174,22 +1177,7 @@ const toAdminDetailedOrders = async (req,res)=>{
                   _id: new mongoose.Types.ObjectId(orderId)
               }
           },
-          {
-              $lookup:{
-                  from:'addresses',
-                  localField:'userId',
-                  foreignField:'userId',
-                  as:'addressInfo'
-              }
-          },
-          {
-              $unwind:'$addressInfo'
-          },
-          {
-              $addFields:{
-                  'addressinfoaddress':'$addressInfo.address'
-              }
-          },
+        
           {
               $unwind: '$products'
           },
@@ -1221,7 +1209,6 @@ const toAdminDetailedOrders = async (req,res)=>{
                   'userId': 1,
                   'status':1,
                   'address':1,
-                  'addressinfoaddress':1
               }
           },
           {
@@ -1249,20 +1236,21 @@ const toAdminDetailedOrders = async (req,res)=>{
                   'userAddress': 1,
                   'userProfileImage': 1,
                   'status':1,
-                  'addressinfoaddress':1
+                  'address':1,
+                  'userId':1
               }
           }
           
       ]);
-      console.log('userOrderWithProducts',userOrderWithProducts)
-      userOrderWithProducts.forEach(data =>{
-          data.addressinfoaddress.forEach(item =>{
-              console.log('item',item.fullName)
-              console.log('dicount price in order',data)
-          })
-      })
       
-      res.render('./admin/orderDetails',{orderFound,userOrderWithProducts, title:'Order Details'})
+      const addressId = userOrderWithProducts[0].address
+      const userId = userOrderWithProducts[0].userId
+      const userAllAddress = await address.findOne({userId:userId})
+      
+      const addressFound = await userAllAddress.address.find(address => address._id.toString()===addressId.toString())
+      console.log('addressfound',addressFound)
+      
+      res.render('./admin/orderDetails',{orderFound,userOrderWithProducts,addressFound, title:'Order Details'})
 
   }catch(err){
       console.log(err)
@@ -1295,6 +1283,147 @@ const updateOrderStatus = async (req,res)=>{
     }
 }
 
+const toRequestedReturns = async (req,res)=>{
+
+  try{
+
+    const requestedRetuns = await orders.aggregate([
+      {
+        $match:{
+          status:'return requested'
+        }
+      },
+      {
+        $lookup:{
+          from:'users',
+          localField:'userId',
+          foreignField:'_id',
+          as:'userData'
+        }
+      },
+      {
+        $lookup:{
+          from:'returns',
+          localField:'_id',
+          foreignField:'orderId',
+          as:'returnData'
+        }
+      },
+      {
+        $unwind:'$userData'
+      },
+      {
+        $unwind:'$returnData'
+      },
+      {
+        $project:{
+          '_id':1,
+          'userData.name':1,
+          'returnData.reason':1,
+          'totalAmount':1
+        }
+      }
+    ])
+    res.render('./admin/returns.ejs',{requestedRetuns})
+  }catch(err){
+    console.log(err)
+  }
+}
+
+// Approve return request
+const approveReturn = async (req,res)=>{
+  const orderId = req.params.orderId
+
+  try{
+
+    const updatedOrder = await orders.findOneAndUpdate(
+      {_id:orderId},
+      {$set:{status:'returned'}},
+      {new:true} 
+    );
+
+    const deleted = await returns.findOneAndDelete({orderId:orderId})
+
+    const userId = updatedOrder.userId
+    const shippingMethod = updatedOrder.shippingMethod
+    const totalAmount = updatedOrder.totalAmount
+
+    const returnedAmount = findReturnedAmount(shippingMethod,totalAmount) 
+
+    const userWallet = await Wallet.findOne({userId:userId})
+
+    if(!userWallet){
+      const newWallet = new Wallet({
+        userId:userId,
+        balance:0,
+        transactions:[]
+      })
+    }
+    const newTransaction = {
+      transactionType: 'credit',
+      amount: returnedAmount,
+      from: 'order return',
+      orderId,
+      date: new Date(),
+    };
+
+    userWallet.transactions.push(newTransaction)
+    userWallet.balance += returnedAmount
+
+    await userWallet.save()
+
+    return res.status(200).json({success:true})
+
+  }catch(err){
+    console.log(err)
+  }
+}
+
+// reject order return
+const rejectReturn = async(req,res)=>{
+  const orderId = req.params.orderId
+
+  try{
+
+    const updatedOrder = await orders.findByIdAndUpdate(
+      orderId,
+      {$set:{status:'return  rejected'}},
+      {new:true}
+    );
+
+    const updatedReturn = await returns.findOneAndDelete({orderId:orderId})
+
+    return res.status(200).json({success:true})
+  }catch(err){
+    console.error(err)
+  }
+}
+
+
+// function to find the returned amount after deducting the shipping charge from grand total
+function findReturnedAmount(shippingMethod,totalAmount){
+  
+  let result ;
+  switch(shippingMethod){
+    case 'standard' :
+      result = totalAmount - 0;
+      break;
+    
+    case 'express' :
+      result = totalAmount - 100;
+      break;
+
+    case 'sameDay':
+      result = totalAmount - 150;
+      break;
+
+    default :
+      return null
+  }
+
+  return result
+
+}
 
 // DOWNLOAD SALES DATA
 const downloadSalesReport = async (req,res)=>{
@@ -1441,13 +1570,18 @@ const fetchWeeklySalesData = async()=>{
       }
     ]);
     console.log('weekly sales',weeklySalesData)
-    weeklySalesData.forEach(data =>{
-      for (let index = 0; index < data.weeklyProducts[0].length; index++) {
-        console.log(data.weeklyProducts[0][index])
-      }
-    })
-    console.log('weekly sales data sent')
+    const firstWeeklySale = weeklySalesData[0]; // Assuming weeklySales is your array
 
+if (firstWeeklySale && firstWeeklySale.weeklyProducts && firstWeeklySale.weeklyProducts.length > 0) {
+  const firstWeeklyProductsArray = firstWeeklySale.weeklyProducts[0]; // Accessing the first element of weeklyProducts array
+
+  for (const item of firstWeeklyProductsArray) {
+    // Now 'item' represents each item inside the inner array
+    console.log('this is the item which is you are searching',item);
+  }
+} else {
+  console.error('Invalid weekly sales data or empty weeklyProducts array.');
+}
     return weeklySalesData
   }catch(err){
     console.error(err)
@@ -2223,15 +2357,14 @@ const uploadBanner = async (req,res)=>{
       return res.status(400).json({invalidImage:true,message:'invalid image format'})
     }
 
-    // RESIZE THE IMAGE TO THE DESIRED DIMENSIONS
     const resizedImageBuffer = await sharp(bannerImage.path)
-    .resize({widht:800,height:200})
-    .toBuffer()   
+  .resize({ width: 800, height: 300 })
+  .toBuffer();
 
-    // SAVE THE DESIRED IMAGE
-    const newFileName = `resized-${bannerImage.filename}`;
-    const imagePath = `./public/uploads/banner-images/${newFileName}`
-    await sharp(resizedImageBuffer).toFile(imagePath)
+  // SAVE THE DESIRED IMAGE
+  const newFileName = `${bannerImage.filename}`;
+  const imagePath = `./public/uploads/banner-images/${newFileName}`;
+  await sharp(resizedImageBuffer).toFile(imagePath, { quality: 100 });
 
 
     const newBanner = new banner({
@@ -2282,9 +2415,9 @@ const changeBanner = async (req,res)=>{
     .toBuffer()   
 
     // SAVE THE DESIRED IMAGE
-    const newFileName = `resized-${bannerImage.filename}`;
+    const newFileName = `${bannerImage.filename}`;
     const imagePath = `./public/uploads/banner-images/${newFileName}`
-    await sharp(resizedImageBuffer).toFile(imagePath)
+    await sharp(resizedImageBuffer).toFile(imagePath,{quality:100})
 
     exisitingBanner.image = req.file.filename
     exisitingBanner.date = new Date()
@@ -2378,6 +2511,9 @@ module.exports = {
   uploadBanner,
   changeBanner,
   deleteBanner,
-  downloadSalesReport
+  downloadSalesReport,
+  toRequestedReturns,
+  approveReturn,
+  rejectReturn
   
 };

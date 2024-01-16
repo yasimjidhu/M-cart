@@ -59,15 +59,33 @@
                    style="cursor: pointer;">
                 <label class="form-check-label" for="">Above 100000</label>
               </div>
+              
+              <h6 class="heading mt-3">Sort By</h6>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort" value="priceLowToHigh" style="cursor: pointer;">
+                <label class="form-check-label" for="">Price Low to High</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort" value="priceHighToLow" style="cursor: pointer;">
+                <label class="form-check-label" for="">Price High to Low</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort" value="newestFirst" style="cursor: pointer;">
+                <label class="form-check-label" for="">Newest First</label>
+              </div>
+              <div class="form-check">
+                <input class="form-check-input" type="radio" name="sort" value="oldestFirst" style="cursor: pointer;">
+                <label class="form-check-label" for="">Oldest First</label>
+              </div>
               <button type="submit" id="applyFiltersBtn" class="btn btn-primary mt-3">Apply Filters</button>
             </div>
           </div>
         </form>
         </div>
         <div class="col-10">
-       
+        
           <!--Navbar-->
-          <div class="container productContainer filter-container mt-3">
+          <div class="container  filter-container mt-3">
             <div class="row categroy-li">
               <div class="col-sm-3 col-md-4 col-lg-2">
                 <% if(categories && categories.length> 0){ %>
@@ -87,6 +105,7 @@
                   <img src="/uploads/banner-images/<%=allBanners[0].image %>" width="100%" alt="">
                 </div>
                 <% } %>
+                <div class="col-lg-12"  id="productContainer"></div>
 
           <!-- Inside your EJS template -->
           <section>
@@ -104,7 +123,8 @@
               </div>
             </div>
           </section>
-          <div class="container">
+            </div>
+          <div class="container-fluid">
             <div class="row premium-phones">
               <% data.forEach(function(x) { %>
                 <div class="col-sm-12 col-md-4 col-lg-3">
@@ -288,31 +308,11 @@
             <div class=" mt-5">
               <div class="container-fluid">
                 <div class="row m-0" style="background-color: black;border-radius: 17px;">
-                  <div class="col-md-6 d-flex justify-content-center align-items-center">
-                    <div class="inner-div">
-                      <p>All-Rounder</p>
-                      <h2>EXPERIENCE THE <br>SUPER RETINA <br> XDR DISPLAY</h2>
-                      <div class="contain d-flex justify-content-start">
-                        <div id="circles">
-                          <p>Hours</p>
-                        </div>
-                        <div id="circles">
-                          <p>Hours</p>
-                        </div>
-                        <div id="circles">
-                          <p>Hours</p>
-                        </div>
-                        <div id="circles">
-                          <p>Hours</p>
-                        </div>
-                      </div>
+                  <% if(allBanners && allBanners.length > 0){ %>
+                    <div class="col-lg-12 p-0">
+                      <img src="/uploads/banner-images/<%=allBanners[1].image %>" width="100%"  alt="">
                     </div>
-                  </div>
-                  <div class="col-md-6">
-                    <div class="inner-div2">
-                      <img src="/svg/iphone big.svg" alt="">
-                    </div>
-                  </div>
+                  <% } %>
                 </div>
               </div>
               <div class="view-all2">
@@ -402,7 +402,9 @@
 
       <script>
 
-
+        document.getElementById("filterForm").addEventListener("submit",(e)=>{
+          e.preventDefault()
+        })
         // function to add a product to the cart
         function addToCart(event) {
           event.preventDefault()
@@ -443,50 +445,65 @@
         }
 
 
-// Function to create a product card HTML element
+
 // Function to create a product card HTML element
 function createProductCard(product) {
   const card = document.createElement('div');
-  card.className = 'product-card';
+  card.className = 'card col-lg-12 m-5 mb-4'; // Added 'col-lg-3' for Bootstrap grid and 'mb-4' for margin-bottom
 
-  const images = product.image.map(image => `<img src="${image}" alt="${product.productName}">`).join('');
-  
-  card.innerHTML = `
-    <div class="product-images">
-      ${images}
-    </div>
-    <div class="product-info">
-      <h3>${product.productName}</h3>
-      <p>Price: $${product.discountedPrice || product.price}</p>
-    </div>
-  `;
+  // Check if product.image is an array and has at least 5 elements
+  if (Array.isArray(product.image) && product.image.length >= 5) {
+    // Access the fifth element (index 4) of the image array
+    const fifthImage = product.image[4];
+    card.style.height ='360px'
+    card.innerHTML = `
+      <div class="product-images">
+        <a href="/productview/${product._id}">
+        <img src="/uploads/${fifthImage}" alt="${product.productName}" style="width:auto;height:200px;margin-top:15px">
+        </a>
+      </div>
+      <div class="product-info">
+        <h4>${product.productName}</h4>
+        <h5 class ="text-danger">Price: $${product.discountedPrice > 0 ? product.discountedPrice : product.price}</h5>
+        <a class="btn" style="background-color:#001524; color: white; width: 100%;" data-productId="${product._id}" onclick="addToCart(event)">Add To Cart</a>
+      </div>
+    `;
+  } else {
+    // Handle the case where product.image is not an array or does not have enough elements
+    console.error('Invalid product.image array:', product.image);
+  }
 
   return card;
 }
+
+
 
 // Function to fetch products based on selected filters
 async function fetchProducts() {
   const brandCheckboxes = document.querySelectorAll('.brandCheckbox:checked');
   const priceCheckboxes = document.querySelectorAll('.priceCheckbox:checked');
+  const sortOption = document.querySelector('input[name="sort"]:checked').value;
+  console.log(priceCheckboxes)
+  console.log(brandCheckboxes)
+  console.log(sortOption)
 
   const brands = Array.from(brandCheckboxes).map(checkbox => checkbox.value);
   const priceRanges = Array.from(priceCheckboxes).map(checkbox => checkbox.value);
 
   try {
     // Use GET method without a request body
-    const response = await fetch(`/products-filter?brands=${brands.join(',')}&priceRanges=${priceRanges.join(',')}`, {
+    const response = await fetch(`/products-filter?brands=${brands.join(',')}&priceRanges=${priceRanges.join(',')}&sort=${sortOption}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json'
       },
     });
-
+    
     if (!response.ok) {
       throw new Error('Failed to fetch products');
     }
 
     const products = await response.json();
-
     displayProducts(products);
   } catch (err) {
     console.error('Error fetching products:', err);
@@ -501,12 +518,15 @@ function displayProducts(products) {
   // Create rows with 4 products each
   for (let i = 0; i < products.length; i += 4) {
     const row = document.createElement('div');
-    row.className = 'product-row';
+    row.className = 'row';
 
     // Create product cards for the current row
     for (let j = i; j < i + 4 && j < products.length; j++) {
       const productCard = createProductCard(products[j]);
-      row.appendChild(productCard);
+      const col = document.createElement('div');
+      col.className = 'col-lg-3';
+      col.appendChild(productCard);
+      row.appendChild(col);
     }
 
     // Append the row to the container

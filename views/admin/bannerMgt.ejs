@@ -21,9 +21,9 @@
                     <div class="banner-management-container">
                         <div class="banner-item">
                             <img src="/uploads/banner-images/<%= data.image %>?timestamp=<%= new Date().getTime() %>" alt="Banner Preview" style="width: 100%; height: 40%;" />
-                            <input type="file" id="changeBannerInput" name="banner-image" style="display: none;" onchange="changeBanner('<%=data._id %>')">
+                            <input type="file" id="changeBannerInput_<%=data._id %>" name="banner-image" style="display: none;" onchange="changeBanner('<%=data._id %>')">
                             <button class="btn btn-danger mt-2 mb-2 float-right" onclick="confirmDelete('<%=data._id %>')">Delete Banner</button>
-                            <button class="btn btn-success mt-2 mr-2 mb-2 float-right" onclick=uploadEditImage()>Change Banner</button>
+                            <button class="btn btn-success mt-2 mr-2 mb-2 float-right" onclick="uploadEditImage('<%=data._id %>')">Change Banner</button>
                         </div>
                     </div>
                 <% }) %>
@@ -41,7 +41,6 @@
     async function handleImageUpload() {
         const fileInput = document.getElementById('bannerImageInput');
         const file = fileInput.files[0];
-
         const formData = new FormData();
         formData.append('banner-image', file);
 
@@ -67,14 +66,14 @@
         }
     }
 
-    function uploadEditImage(){
-        const fileInput = document.getElementById('changeBannerInput')
+    function uploadEditImage(bannerId){
+        const fileInput = document.getElementById(`changeBannerInput_${bannerId}`)
         fileInput.click()
     }
 
     // CHANGE THE BANNER
     async function changeBanner(bannerId){
-        const fileInput = document.getElementById('changeBannerInput')
+        const fileInput = document.getElementById(`changeBannerInput_${bannerId}`)
         const file = fileInput.files[0]
 
         const formData = new FormData();

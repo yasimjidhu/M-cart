@@ -152,6 +152,10 @@ admin.post(
 admin.get("/orders",adminauth.verifyAdmin, adminController.toOrders);
 admin.get('/viewDetails/:orderId', adminauth.verifyAdmin, adminController.toAdminDetailedOrders)
 admin.put("/updateOrderStatus",adminauth.verifyAdmin, adminController.updateOrderStatus);
+admin.get('/toReturns',adminauth.verifyAdmin,adminController.toRequestedReturns)
+admin.post('/approve-return/:orderId',adminauth.verifyAdmin,adminController.approveReturn)
+admin.post('/reject-return/:orderId',adminauth.verifyAdmin,adminController.rejectReturn)
+
 
 // download excel sales report
 admin.get('/downloadSalesReport',adminController.downloadSalesReport)

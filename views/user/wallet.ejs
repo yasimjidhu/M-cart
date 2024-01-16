@@ -66,14 +66,14 @@
             <!-- ... -->
             <div class="card shadow" style="border-radius: 10px;">
                 <div class="card-header px-4 py-5 w-100">
-                    <h5 class=" mb-0" style="color: rgb(161, 206, 0);"><b>Available Balance, $<%= userWallet.balance.toFixed(2) %></b></h5>
+                    <h5 class=" mb-0" style="color: rgb(3, 111, 212);"><b>Available Balance, <%= userWallet.balance.toFixed(2) %></b></h5>
                 </div>
                 <div class="card-body w-100">
                     <h3 class="card-subtitle mb-2 text-muted text-center"><b>Wallet History</b></h3>
                     <hr>
                     <% userWallet.transactions.forEach(transaction => { %>
                         <div class="d-flex justify-content-between w-100">
-                            <p class="text-muted mb-0 w-25"><%= transaction.from %></p>
+                            <strong class="text-primary text-bold mb-0 w-25"><%= transaction.from %></strong>
                             <p class="text-muted mb-0" style="color: <%= transaction.transactionType === 'credit' ? 'green' : 'red'; %> !important; font-weight: bold; font-size: 1.2em; width: 100px;">
                                 <% if (transaction.transactionType === 'credit') { %>
                                     +<%= transaction.amount %>
