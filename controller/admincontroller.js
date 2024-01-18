@@ -23,8 +23,10 @@ const Excel = require('exceljs');
 const pdf = require('html-pdf')
 const categoryOffer = require("../model/categoryOffer");
 const cartHelpers = require('../helpers/cartHelpers');
+const helpers = require('../helpers/common')
 const referal = require("../model/referal");
 const Wallet = require("../model/wallet");
+const feedbacks = require("../model/feedback");
 
 
 // Admin creadentials
@@ -43,8 +45,8 @@ const loginAdmin = async (req, res) => {
     req.session.adminlogged = true;
     //Retrieve the User data from the db
     const usersData = await Users.find();
-    res.redirect('/admin/dashboard')
-  } 
+    res.redirect("/admin/dashboard");
+  }
 };
 
 const tologin = (req, res) => {
@@ -80,7 +82,7 @@ const dailySales = async (req, res) => {
       }
     ]);
 
-  
+
 
     res.status(200).json({ success: true, dailySalesData: dailySales });
   } catch (err) {
@@ -479,13 +481,13 @@ const toEditProduct = async (req, res) => {
     if (!product) {
       const productsData = await products.find();
       const categories = await category.find();
-      const brand= await brands.find();
-      return res.status(404).render("./admin/products", { err: "Product not found",productsData,categories, brand});
+      const brand = await brands.find();
+      return res.status(404).render("./admin/products", { err: "Product not found", productsData, categories, brand });
     }
 
     res.render("./admin/editproduct", {
-      priceErr:req.query.priceErr,
-      stockErr:req.query.stockErr,
+      priceErr: req.query.priceErr,
+      stockErr: req.query.stockErr,
       Products: product,
       Brand,
       categories,
@@ -1209,6 +1211,7 @@ const toAdminDetailedOrders = async (req,res)=>{
                   'userId': 1,
                   'status':1,
                   'address':1,
+                  'shippingMethod':1
               }
           },
           {
@@ -1237,7 +1240,8 @@ const toAdminDetailedOrders = async (req,res)=>{
                   'userProfileImage': 1,
                   'status':1,
                   'address':1,
-                  'userId':1
+                  'userId':1,
+                  'shippingMethod':1
               }
           }
           
@@ -1246,11 +1250,15 @@ const toAdminDetailedOrders = async (req,res)=>{
       const addressId = userOrderWithProducts[0].address
       const userId = userOrderWithProducts[0].userId
       const userAllAddress = await address.findOne({userId:userId})
+      const shippingMethod = userOrderWithProducts[0].shippingMethod
       
+      
+      // shipping charge
+      let shippingCharge = helpers.findShippingCharge(shippingMethod)  
       const addressFound = await userAllAddress.address.find(address => address._id.toString()===addressId.toString())
-      console.log('addressfound',addressFound)
+      console.log('newbro',addressFound)
       
-      res.render('./admin/orderDetails',{orderFound,userOrderWithProducts,addressFound, title:'Order Details'})
+      res.render('./admin/orderDetails',{orderFound,userOrderWithProducts,addressFound,shippingCharge, title:'Order Details'})
 
   }catch(err){
       console.log(err)
@@ -1429,7 +1437,6 @@ function findReturnedAmount(shippingMethod,totalAmount){
 const downloadSalesReport = async (req,res)=>{
 
   try{
-
     const {fileFormat,reportType} = req.query
     console.log('fileformat',fileFormat,reportType)
 
@@ -1454,7 +1461,7 @@ const downloadSalesReport = async (req,res)=>{
     }
 
     //GENERATE AND SEND THE SALES REPORT
-    generateAndSendSalesReport(res,fileFormat,salesData)
+    generateAndSendSalesReport(res,fileFormat,salesData,reportType)
 
   }catch(err){
     console.error('Error generating sales report', err);
@@ -1570,18 +1577,7 @@ const fetchWeeklySalesData = async()=>{
       }
     ]);
     console.log('weekly sales',weeklySalesData)
-    const firstWeeklySale = weeklySalesData[0]; // Assuming weeklySales is your array
 
-if (firstWeeklySale && firstWeeklySale.weeklyProducts && firstWeeklySale.weeklyProducts.length > 0) {
-  const firstWeeklyProductsArray = firstWeeklySale.weeklyProducts[0]; // Accessing the first element of weeklyProducts array
-
-  for (const item of firstWeeklyProductsArray) {
-    // Now 'item' represents each item inside the inner array
-    console.log('this is the item which is you are searching',item);
-  }
-} else {
-  console.error('Invalid weekly sales data or empty weeklyProducts array.');
-}
     return weeklySalesData
   }catch(err){
     console.error(err)
@@ -1594,48 +1590,58 @@ if (firstWeeklySale && firstWeeklySale.weeklyProducts && firstWeeklySale.weeklyP
 // download yearly sales
 const fetchYearlySalesData = async () => {
   try {
-       // Get unique years from the deliveryDate in the orders collection
-       const uniqueYears = await orders.aggregate([
+    // Get unique years from the deliveryDate in the orders collection
+    const uniqueYears = await orders.aggregate([
+      {
+        $group: {
+          _id: { $year: '$deliveryDate' } // Grouping by year from deliveryDate
+        }
+      },
+      {
+        $sort: { '_id': 1 } // Sort the data by year
+      }
+    ]);
+
+    const yearlySalesData = [];
+
+    // For each unique year, calculate total sales
+    for (const year of uniqueYears) {
+      const yearVal = year._id;
+
+      // Aggregate pipeline to calculate yearly sales for each unique year
+      const yearlySalesAggregate = await orders.aggregate([
         {
-          $group: {
-            _id: { $year: '$deliveryDate' } // Grouping by year from deliveryDate
+          $match: {
+            deliveryDate: {
+              $gte: new Date(`${yearVal}-01-01T00:00:00.000Z`), // Start of the year
+              $lte: new Date(`${yearVal}-12-31T23:59:59.999Z`) // End of the year
+            },
+            status: 'Paid'
           }
         },
         {
-          $sort: { '_id': 1 } // Sort the data by year
+          $unwind: '$products' // Destructure the products array
+        },
+        {
+          $group: {
+            _id: null, // Grouping all results together for the whole year
+            totalAmount: { $sum: '$totalAmount' },
+            totalProducts: { $sum: '$products.quantity' }, // Summing up the quantity field for each product
+          }
         }
       ]);
-  
-      const yearlySalesData = [];
-  
-      // For each unique year, calculate total sales
-      for (const year of uniqueYears) {
-        const yearVal = year._id;
-  
-        // Aggregate pipeline to calculate yearly sales for each unique year
-        const yearlySalesAggregate = await orders.aggregate([
-          {
-            $match: {
-              deliveryDate: {
-                $gte: new Date(`${yearVal}-01-01T00:00:00.000Z`), // Start of the year
-                $lte: new Date(`${yearVal}-12-31T23:59:59.999Z`) // End of the year
-              },
-              status: 'Paid'
-            }
-          },
-          {
-            $group: {
-              _id: null, // Grouping all results together for the whole year
-              totalSales: { $sum: '$totalAmount' }
-            }
-          }
-        ]);
-  
-        yearlySalesData.push({
-          year: yearVal,
-          sales: yearlySalesAggregate.length > 0 ? yearlySalesAggregate[0].totalSales : 0
-        });
-      }
+
+      yearlySalesData.push({
+        year: yearVal,
+        sales: yearlySalesAggregate.length > 0 ? yearlySalesAggregate[0].totalAmount : 0,
+        totalProducts: yearlySalesAggregate.length > 0 ? yearlySalesAggregate[0].totalProducts : 0,
+        
+      });
+    }
+
+    console.log('yearlysalesdata', yearlySalesData);
+
+    return yearlySalesData;
 
   } catch (err) {
     console.error('Error generating yearly sales report', err);
@@ -1644,19 +1650,17 @@ const fetchYearlySalesData = async () => {
 };
 
 
-const generateAndSendSalesReport = async (res, fileFormat, salesData) => {
+const generateAndSendSalesReport = async (res, fileFormat, salesData, reportType) => {
   try {
     // Set common headers based on file format
-    let contentType, contentDisposition, extension;
+    let contentType, contentDisposition;
 
     if (fileFormat === 'excel') {
       contentType = 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-      contentDisposition = 'attachment; filename="sales-report.xlsx"';
-      extension = 'xlsx';
+      contentDisposition = `attachment; filename="sales-report.xlsx"`;
     } else if (fileFormat === 'pdf') {
       contentType = 'application/pdf';
-      contentDisposition = 'attachment; filename="sales-report.pdf"';
-      extension = 'pdf';
+      contentDisposition = `attachment; filename="sales-report.pdf"`;
     } else {
       // Invalid file format
       res.status(400).json({ success: false, message: 'Invalid file format' });
@@ -1675,27 +1679,70 @@ const generateAndSendSalesReport = async (res, fileFormat, salesData) => {
       const workbook = new Excel.Workbook();
       const worksheet = workbook.addWorksheet('Sales Report');
 
+      if(reportType=='daily'){
+
       // Add headers
       worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
 
-     // Add data to the worksheet
-salesData.forEach(daySale => {
-  if (daySale.weeklyProducts && daySale.weeklyProducts.length > 0) {
-    daySale.weeklyProducts.forEach((productArray, index) => {
-      const product = productArray[0];
-      if (product) {
-        worksheet.addRow([daySale.orderId[index], product.productName, daySale.totalAmount[index], daySale.paymentmode[index]]);
-      }
-    });
-  }
-});
+      // Add data to the worksheet
+      salesData.forEach((data) => {
+        if (data.dailyproducts && data.dailyproducts.length > 0) {
+          data.dailyproducts.forEach((productArray, index) => {
+            const product = productArray[0];
+            if (product) {
+              let totalAmount = data.totalAmount[index];
+              let paymentMode = data.paymentMode[index];
+              worksheet.addRow([
+                data.orderId[index],
+                product.productName,
+                totalAmount,
+                paymentMode,
+              ]);
+            }
+          });
+        }
+      });
 
+      }else if(reportType=='weekly'){
+        // Add headers
+      worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
+
+      // Add data to the worksheet
+      salesData.forEach((data) => {
+        if (data.weeklyProducts && data.weeklyProducts.length > 0) {
+          data.weeklyProducts.forEach((productArray, index) => {
+            const product = productArray[0];
+            if (product) {
+              let totalAmount = data.totalAmount[index];
+              let paymentMode = data.paymentMode[index];
+              worksheet.addRow([
+                data.orderId[index],
+                product.productName,
+                totalAmount,
+                paymentMode,
+              ]);
+            }
+          });
+        }
+      });
+
+      }else if(reportType=='yearly'){
+        worksheet.addRow(['Year','Total Products Sold','Totalsales']);
+
+        salesData.forEach(value =>{
+          worksheet.addRow([
+            value.year,
+            value.totalProducts,
+            value.sales
+          ])
+        })
+      }
 
       // Write the workbook data to the response
       content = await workbook.xlsx.writeBuffer();
     } else if (fileFormat === 'pdf') {
       // Generate HTML content for PDF
-      const htmlContent = generateHtmlForSalesReport(salesData);
+      const htmlContent = generateHtmlForSalesReport(salesData, reportType);
 
       // Options for html-pdf
       const pdfOptions = { format: 'Letter' };
@@ -1715,7 +1762,6 @@ salesData.forEach(daySale => {
 
     // Send the generated content as the response
     res.end(content);
-
   } catch (err) {
     console.error('Error generating sales report', err);
     res.status(500).send('Error generating sales report');
@@ -1723,32 +1769,65 @@ salesData.forEach(daySale => {
 };
 
 
-
-
 // Function to generate HTML content for PDF
-const generateHtmlForSalesReport = (salesData) => {
+const generateHtmlForSalesReport = (salesData,reportType) => {
   // Modify this part based on your HTML structure
-  let htmlContent = '<html><head><title>Daily Sales Report</title></head><body>';
-  htmlContent += '<h1>Daily Sales Report</h1>';
+  let htmlContent = '<html><head><title>Sales Report</title></head><body>';
+  htmlContent += '<h1>Sales Report</h1>';
 
-  salesData.forEach(daySale => {
-    htmlContent += `<h2>Week: ${daySale._id}</h2>`;
-    htmlContent += '<table border="1"><tr><th>Product Name</th><th>User ID</th><th>Payment Mode</th><th>Total Amount</th><th>Order ID</th></tr>';
-
-    daySale.weeklyProducts.forEach((productArray, index) => {
-      const product = productArray[0]; // Assuming dailyproducts is an array of arrays
-
-      htmlContent += `<tr>`;
-      htmlContent += `<td>${product.productName}</td>`;
-      htmlContent += `<td>${daySale.userId[0]}</td>`;
-      htmlContent += `<td>${daySale.paymentMode[index]}</td>`;
-      htmlContent += `<td>${daySale.totalAmount[index]}</td>`;
-      htmlContent += `<td>${daySale.orderId[index]}</td>`;
-      htmlContent += `</tr>`;
+  if(reportType=='daily'){
+    salesData.forEach(daySale => {
+      htmlContent += `<h2>Day: ${daySale._id}</h2>`;
+      htmlContent += '<table border="1"><tr><th>Product Name</th><th>User ID</th><th>Payment Mode</th><th>Total Amount</th><th>Order ID</th></tr>';
+  
+      daySale.dailyproducts.forEach((productArray, index) => {
+        const product = productArray[0]; 
+        htmlContent += `<tr>`;
+        htmlContent += `<td>${product.productName}</td>`;
+        htmlContent += `<td>${daySale.userId[0]}</td>`;
+        htmlContent += `<td>${daySale.paymentMode[index]}</td>`;
+        htmlContent += `<td>${daySale.totalAmount[index]}</td>`;
+        htmlContent += `<td>${daySale.orderId[index]}</td>`;
+        htmlContent += `</tr>`;
+      });
+  
+      htmlContent += '</table><br>';
     });
 
-    htmlContent += '</table><br>';
-  });
+  }else if(reportType === 'weekly'){
+    salesData.forEach(daySale => {
+      htmlContent += `<h2>Week: ${daySale._id}</h2>`;
+      htmlContent += '<table border="1"><tr><th>Product Name</th><th>User ID</th><th>Payment Mode</th><th>Total Amount</th><th>Order ID</th></tr>';
+  
+      daySale.weeklyProducts.forEach((productArray, index) => {
+        const product = productArray[0]; 
+        htmlContent += `<tr>`;
+        htmlContent += `<td>${product.productName}</td>`;
+        htmlContent += `<td>${daySale.userId[0]}</td>`;
+        htmlContent += `<td>${daySale.paymentMode[index]}</td>`;
+        htmlContent += `<td>${daySale.totalAmount[index]}</td>`;
+        htmlContent += `<td>${daySale.orderId[index]}</td>`;
+        htmlContent += `</tr>`;
+      });
+  
+      htmlContent += '</table><br>';
+    });
+  }else if(reportType==='yearly'){
+    salesData.forEach(daySale => {
+      htmlContent += `<h2>year: ${daySale.year}</h2>`;
+      htmlContent += '<table border="1"><tr><th>Year</th><th>Total Product Sold</th><th>Total Sales</th></tr>';
+  
+        htmlContent += `<tr>`;
+        htmlContent += `<td>${daySale.year}</td>`;
+        htmlContent += `<td style="text-align: center;">${daySale.totalProducts}</td>`;
+        htmlContent += `<td>${daySale.sales}</td>`;
+       
+        htmlContent += `</tr>`;
+  
+      htmlContent += '</table><br>';
+    });
+  }
+
 
   htmlContent += '</body></html>';
   return htmlContent;
@@ -2450,6 +2529,41 @@ const deleteBanner = async (req,res)=>{
 }
 
 
+// To Feedbacks
+const toFeedbacks = async(req,res)=>{
+  
+  try{
+
+    const usersFeedbacks = await feedbacks.aggregate([
+      {
+        $lookup:{
+          from:'users',
+          localField:'userId',
+          foreignField:'_id',
+          as:'userFeedback'
+        }
+      },
+      {
+        $project:{
+          'userFeedback.profileImage': 1,
+          'userFeedback.name':1,
+          'userFeedback.email':1,
+          'allFeedbacks':1
+        }
+      }
+    ])
+
+    console.log('userFeedbacks',usersFeedbacks)
+
+    return res.render('./admin/userFeedbacks.ejs',{usersFeedbacks,title:'Feedbacks'})
+
+
+  }catch(err){
+    console.log(err)
+  }
+}
+
+
 module.exports = {
   loginAdmin,
   tologin,
@@ -2514,6 +2628,7 @@ module.exports = {
   downloadSalesReport,
   toRequestedReturns,
   approveReturn,
-  rejectReturn
+  rejectReturn,
+  toFeedbacks
   
 };

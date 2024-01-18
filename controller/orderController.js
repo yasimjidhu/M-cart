@@ -689,6 +689,8 @@ const toViewOrderDetails = async (req,res)=>{
         const allUserAddress = await address.findOne({userId:userId})
         const addressFound = await allUserAddress.address.find(address => address.id.toString()===addressId.toString())
 
+        console.log('orderedProducts',orderedProducts)
+
         res.render('./user/orderDetails.ejs',{userOrderWithProducts:orderedProducts,isAuthenticated,addressFound})
 
     }catch(err){

@@ -1,0 +1,80 @@
+<!--------header---------->
+<%- include('../user/partials/header') %>
+
+    <!--------navbar---------->
+    <%- include('../user/partials/navbar') %>
+
+        <style>
+            header {
+                background-color: #007bff;
+                color: #fff;
+                padding: 10px 0;
+                text-align: center;
+            }
+
+            section {
+                max-width: 800px;
+                margin: 20px auto;
+                padding: 20px;
+                background-color: #f8f9fa;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            }
+
+            h1 {
+                color: #007bff;
+            }
+
+            p {
+                margin-bottom: 20px;
+            }
+
+            img {
+                max-width: 100%;
+                height: auto;
+            }
+        </style>
+
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-lg-2 p-0">
+                    <%-include('../user/partials/sidebar') %>
+                </div>
+                <div class="col-lg-5">
+                    <img src="/images/theme/about.jpeg" alt="">
+                </div>
+                <div class="col-lg-5">
+                        <header class="mt-2">
+                            <h1 class="text-white">About Us</h1>
+                        </header>
+                
+                        <section>
+                            <h2>Our Story</h2>
+                            <p>Welcome to Your E-Commerce Store, where shopping meets convenience! We are passionate about providing you
+                                with a seamless online shopping experience.</p>
+                
+                            <h2>Our Mission</h2>
+                            <p>At Your E-Commerce Store, our mission is to offer a wide range of quality products at competitive prices.
+                                We strive to make your online shopping journey enjoyable, secure, and reliable.</p>
+                
+                            <h2>Why Choose Us?</h2>
+                            <p>We understand that you have numerous options when it comes to online shopping. Here's why you should
+                                choose Your E-Commerce Store:</p>
+                            <ul>
+                                <li>Extensive Product Selection</li>
+                                <li>Competitive Prices</li>
+                                <li>Secure and Convenient Checkout</li>
+                                <li>Fast and Reliable Shipping</li>
+                                <li>Exceptional Customer Support</li>
+                            </ul>
+                
+                
+                            <h2>Contact Us</h2>
+                            <p>If you have any questions or feedback, feel free to <a href="/contact">contact us</a>. Your input is
+                                valuable, and we're here to help!</p>
+                        </section>   
+                </div>
+            </div>
+        </div>
+
+      

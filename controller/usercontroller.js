@@ -9,6 +9,7 @@ const router = require("../Router/userRouter");
 const { transporter, sendOtp, generateOTP } = require("./otpcontroller");
 const brands = require("../model/brands");
 const category = require("../model/category");
+const feedbacks = require('../model/feedback')
 require("dotenv").config();
 const { VERIFYotp } = require('../controller/otpcontroller');
 const Users = require("../model/userSchema");
@@ -466,8 +467,58 @@ const userlog = async (req, res) => {
 };
 
 
+// to about page
+const toAbout = (req,res)=>{
+  res.render('./user/about.ejs')
+}
 
+// to contact page
+const toContact = (req,res)=>{
+  res.render('./user/contact.ejs')
+}
 
+// post contact(feedback)
+const submitFeedback = async (req,res)=>{
+  try{
+
+    const user = await User.findOne({email:req.session.email})
+    const userId = user._id
+
+    const {name,email,subject,message} = req.body
+
+    if(!name||!email||!subject||!message){
+      return res.status(400).json({message:'error occured'})
+    }
+
+    let existingFeedback = await feedbacks.findOne({userId:userId})
+
+    if(!existingFeedback){
+      existingFeedback = new feedbacks({
+        userId:userId,
+        name:name,
+        email:email,
+        allFeedbacks:[]
+      });
+
+      await existingFeedback.save()
+    }
+
+    const newFeedback = {
+      subject:subject,
+      message:message,
+      sentDate:new Date()
+    }
+    
+    existingFeedback.allFeedbacks.push(newFeedback)
+    await existingFeedback.save()
+
+    return res.status(200).json({success:true,message:'successfully sent the feedback to the respective authority '})
+
+  }catch(err){
+    console.log(err)
+    return res.status(500).json({success:false,message:'internal server error'})
+  }
+}
 
 // Signup to Login
 const signupToLogin = (req, res, next) => {
@@ -547,19 +598,42 @@ const productlist = async (req, res) => {
     res.render("./user/productlist", { title: "Products", data,isAuthenticated });
   } catch (e) {
     console.log(e);
-    res.status(500).send("internet server error");
+    res.status(500).send("internal server error");
   }
 };
 
-// To brandwise productions
 const toBrandwise = async (req, res) => {
   const brandid = req.params.brandId;
   const isAuthenticated = req.session.user ? true : false;
 
-  const brandProducts = await products.find({ brand: brandid });
+  // Pagination parameters
+  const page = parseInt(req.query.page) || 1;
+  const pageSize = 10; // Number of items per page
+
+  // Calculate the number of items to skip based on the page number
+  const skip = (page - 1) * pageSize;
+
+  // Fetch total count of brand products
+  const totalCount = await products.countDocuments({ brand: brandid });
+
+  // Calculate total pages
+  const totalPages = Math.ceil(totalCount / pageSize);
+
+  // Fetch brand products with pagination
+  const brandProducts = await products
+    .find({ brand: brandid })
+    .skip(skip)
+    .limit(pageSize)
+    .exec();
+
+  // Fetch all brands (assuming this is used for some dropdown or other UI elements)
   const Brand = await brands.find();
-  res.render("./user/brandwise", { brandProducts, Brand,isAuthenticated });
+
+  res.render("./user/brandwise", { brandProducts, Brand, isAuthenticated, currentPage: page, totalPages });
 };
+
+
+
 async function filterByBrand(req, res) {
   const brandName = req.query.brand;
   console.log(brandName);
@@ -570,24 +644,32 @@ async function filterByBrand(req, res) {
 
 const toViewAll = async (req, res) => {
   const categoryId = req.params.categoryId;
-  // console.log(".......................", categoryId);
+  const itemsPerPage = 10; 
+  let page = req.query.page || 1;
 
   try {
     const isAuthenticated = req.session.user ? true : false;
-    const productData = await products.find({ category: categoryId });
-    // console.log("Category:", productData);
+    const skip = (page - 1) * itemsPerPage;
 
-    if (productData) {
-      res.render("./user/viewall", { productData ,isAuthenticated});
+    const totalProducts = await products.countDocuments({ category: categoryId });
+    const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+    const productData = await products
+      .find({ category: categoryId })
+      .skip(skip)
+      .limit(itemsPerPage);
+
+    if (productData.length > 0) {
+      res.render("./user/viewall", { productData, isAuthenticated, currentPage: page, totalPages });
     } else {
       res.redirect("/user/home");
     }
   } catch (error) {
-    // Handle potential errors such as database errors or other issues
-    console.error("Error fetching category:", error);
+    console.error(error);
     res.status(500).send("Internal Server Error");
   }
 };
+
 
 // User search products
 const productSearch = async (req, res) => {
@@ -714,6 +796,9 @@ module.exports = {
   signupToLogin,
   toSignup,
   userlog,
+  toAbout,
+  toContact,
+  submitFeedback,
   logout,
   productview,
   productlist,

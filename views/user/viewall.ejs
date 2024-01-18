@@ -18,7 +18,7 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h5 class="card-title"><%= brand.productName %></h5>
-                                        <p class="card-text" style="color: red;">Price: ₹ <%= brand.price %></p>
+                                        <h6 class="card-text" style="color: green;">Price: ₹ <%= brand.price %></h6>
                                         <!-- Additional product details if needed -->
                                     </div>
                                 </div>
@@ -35,3 +35,22 @@
         </div>
     </div>
 </div>
+
+<div class="pagination">
+    <%if(currentPage > 1) { %>
+      <a class="next-btn text-white" href="/user/allproductview/?page=<%currentPage - 1 %>">Previous</a>
+    <% } %>
+
+    <% for(let i=1; i<=totalPages; i++) { %>
+      <%if(i===currentPage){%>
+        <span class=""><%=i %></span>
+      <% }else {%>
+        <a class="second" href="/admin/allproductview?page=<%=i %>"><%=i %></a>
+      <%}%>
+    <% } %>
+
+    <%if(currentPage < totalPages) {%>
+      <a class="next-btn text-white" href="/admin/allproductview?page=<%=currentPage + 1 %>">Next</a>
+    <%}%>
+  </div>
+  

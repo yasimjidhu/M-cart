@@ -194,6 +194,9 @@ admin.post('/edit-banner/:bannerId',bannerUpload.single('banner-image'),adminCon
 admin.delete('/delete-banner/:bannerId',adminauth.verifyAdmin,adminController.deleteBanner)
 
 
+// feedbacks
+admin.get('/user-feedbacks',adminauth.verifyAdmin,adminController.toFeedbacks)
+
 
 // error handling middleware
 admin.use((req, res) => {

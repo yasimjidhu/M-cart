@@ -1,33 +1,44 @@
-<!---Navbar-->
+<%- include('../user/partials/header') %>
+<%- include('../user/partials/links') %>
+<!--Navbar-->
 
-<nav class="navbar navbar-expand-lg nav_bar">
-    <div class="container-fluid main-nav justify-content-around">
-        <div class="logo">
-            <h3 class="second"><span class="first">M-</span>CART</h3>
-        </div>  
-        <div class="link">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item">
-                  <a class="nav-link " href="#">Home</a>
-                </li>
-                <li class="nav-item">
-                  <a class="nav-link" href="#">Contact</a>
-                </li>
-                <li class="nav-item ">
-                  <a class="nav-link">
-                    About
-                  </a>
-                </li>
-                <li class="nav-item ">
-                  <a class="nav-link ">Signup</a>
-                </li>
-              </ul>
-        </div>
-      <div class="searchbar" id="navbarSupportedContent">
-            <form class="d-flex" role="search" >
-                <input class=" search-box form-cont mr-3 " type="search" placeholder="what are you loooking for ?" >
-                <i class="fa-solid fa-magnifying-glass search-icon" style="color: #000000;"></i>
-            </form>
+<%-include('../user/partials/navbar') %>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container">
+      <!-- Logo -->
+      <div class="logo">
+          <h3 class="navbar-brand"><span class="first">M-</span>CART</h3>
       </div>
-    </div>
-  </nav>
+
+      <!-- Toggle button for small screens -->
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <!-- Navigation links and search bar -->
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav ml-auto">
+              <li class="nav-item">
+                  <a class="nav-link" href="#">Home</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="#">Contact</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="#">About</a>
+              </li>
+              <li class="nav-item">
+                  <a class="nav-link" href="#">Signup</a>
+              </li>
+          </ul>
+
+          <!-- Search bar -->
+          <form class="form-inline my-2 my-lg-0">
+              <input class="form-control mr-sm-2" type="search" placeholder="What are you looking for?" aria-label="Search">
+              <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fa-solid fa-magnifying-glass search-icon" style="color: #000000;"></i></button>
+          </form>
+      </div>
+  </div>
+</nav>

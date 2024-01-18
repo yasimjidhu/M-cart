@@ -54,13 +54,14 @@
                                           </div>
                                         </div>
                                         <hr class="mb-4" style="background-color: #e0e0e0; opacity: 1;">
-                                    <% } else { %>
-                                      <h3>No data available</h3>
-                                    <% } %>
-                                  <% }) %>
-                                <% } else { %>
-                                  <h3>No data available</h3>
-                                <% } %>
+                                        <% } else { %>
+                                          <h3>No data available</h3>
+                                          <% } %>
+                                          <% }) %>
+                                          <% } else { %>
+                                            <h3>No data available</h3>
+                                            <% } %>
+                                            <strong class="float-right text-dark">shippingCharge: <span class="text-primary"><%=shippingCharge%></span></strong>
                               </div>
                           </div>
                         </div>
@@ -113,13 +114,11 @@
                             </div>
                         </div>
                         <div class="col-7 p-0">
-                            <% if (order.addressinfoaddress && order.addressinfoaddress.length > 0) { %>
-                              <% order.addressinfoaddress.forEach(item =>{ %>
-                                <p class="text-white tag"> <span class="order-span">Full Name:</span> <%= item.fullName %></p>
-                                <p class="text-white tag"> <span class="order-span">Email:</span> <%= item.email %></p>
-                                <p class="text-white tag"> <span class="order-span">Mobile: </span><%= item.phoneNumber %></p>
-                                <p class="text-white tag"> <span class="order-span">PinCode:</span><%= item.pinCode %></p>
-                                <% }) %>
+                            <% if (addressFound) { %>
+                                <p class="text-white tag"> <span class="order-span">Full Name:</span> <%= addressFound.fullName %></p>
+                                <p class="text-white tag"> <span class="order-span">Email:</span> <%= addressFound.email %></p>
+                                <p class="text-white tag"> <span class="order-span">Mobile: </span><%= addressFound.phoneNumber %></p>
+                                <p class="text-white tag"> <span class="order-span">PinCode:</span><%= addressFound.pinCode %></p>
                             <% } %>
                         </div>
                     <% } %>

@@ -22,6 +22,9 @@ router.get('/user/tologin',userauth.userExist,user.signupToLogin)
 
 // User logged Home page
 router.get('/user/home',userauth.verifyUser,userBlock,user.userlog)
+router.get('/user/about',userauth.verifyUser,user.toAbout)
+router.get('/contact',userauth.verifyUser,user.toContact)
+router.post('/submit-contact',userauth.verifyUser,user.submitFeedback)
 router.get('/productview/:id',user.productview)
 router.get('/user/toproduct-list',userauth.verifyUser,user.productlist)
 
