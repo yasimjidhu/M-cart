@@ -8,7 +8,7 @@ const verifyUser = (req,res,next)=>{
 
 const userExist = (req,res,next)=>{
     if(req.session.userlogged){
-        res.redirect('/user/home')
+        res.redirect('/home')
     }else{
         next()
     }
@@ -18,7 +18,7 @@ const profileAuth = (req,res,next)=>{
     if(req.session.userlogged){
         next()
     }else{
-        res.redirect('/user/tosignup')
+        res.redirect('/tosignup')
     }
 }
 

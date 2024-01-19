@@ -8,21 +8,21 @@ const auth =  require('../controller/authcontroller')
 const userBlock = require('../middleware/userblock')
 
 // user login
-router.get('/user/indextologin',userauth.userExist,user.indextologin) 
-router.post('/user/login',userauth.userExist,user.userLogin)
+router.get('/indextologin',userauth.userExist,user.indextologin) 
+router.post('/login',userauth.userExist,user.userLogin)
 router.get('/',userauth.userExist,user.toHome)
 
 // for signup
-router.get('/user/tosignup',userauth.userExist,user.toSignup)
+router.get('/tosignup',userauth.userExist,user.toSignup)
 router.post('/user/signup',user.userSignup);
 router.get('/user/logout',user.logout)
-router.get('/user/tologin',userauth.userExist,user.signupToLogin)
+router.get('/tologin',userauth.userExist,user.signupToLogin)
 
 
 
 // User logged Home page
-router.get('/user/home',userauth.verifyUser,userBlock,user.userlog)
-router.get('/user/about',userauth.verifyUser,user.toAbout)
+router.get('/home',userauth.verifyUser,userBlock,user.userlog)
+router.get('/about',userauth.verifyUser,user.toAbout)
 router.get('/contact',userauth.verifyUser,user.toContact)
 router.post('/submit-contact',userauth.verifyUser,user.submitFeedback)
 router.get('/productview/:id',user.productview)
@@ -58,7 +58,7 @@ router.get('/products-filter',userauth.verifyUser,user.filterProducts)
 
 
 // wallet
-router.get('/user/toWallet',userauth.verifyUser,user.toWallet)
+router.get('/toWallet',userauth.verifyUser,user.toWallet)
 
 // Referal
 router.get('/toReferal',userauth.verifyUser,user.toReferal)

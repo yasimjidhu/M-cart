@@ -533,7 +533,7 @@ const toSignup = (req, res) => {
   req.session.referedUserId = referedUserId
   
   if (req.session.userlogged) {
-    res.redirect("/user/home");
+    res.redirect("/home");
   } else {
     res.render("./user/usersignup", { title: "Signup", err: false,error });
   }
@@ -546,7 +546,7 @@ const logout = (req, res) => {
       console.log(err);
       res.send("error");
     } else {
-      res.redirect("/user/indextologin");
+      res.redirect("/indextologin");
     }
   });
 };
@@ -581,7 +581,7 @@ const productview = async (req, res) => {
     if (!data) {
       return res.status(404).send("product not found");
     } else {
-      res.render("./user/productdetails", { data,originalPrice,discountedPrice,percentage,isAuthenticated });
+      res.render("./user/productdetails", { data,originalPrice,discountedPrice,percentage,isAuthenticated,title:'Product View' });
     }
   } catch (err) {
     res.status(500).send("An error occured");
@@ -662,7 +662,7 @@ const toViewAll = async (req, res) => {
     if (productData.length > 0) {
       res.render("./user/viewall", { productData, isAuthenticated, currentPage: page, totalPages });
     } else {
-      res.redirect("/user/home");
+      res.redirect("/home");
     }
   } catch (error) {
     console.error(error);
@@ -683,7 +683,7 @@ const productSearch = async (req, res) => {
     });
     res.render("./user/searchResults", { Products: foundProducts, searchItem ,isAuthenticated});
   } catch (error) {
-    res.status(500).redirect("/user/home");
+    res.status(500).redirect("/home");
     console.log(error);
   }
 };

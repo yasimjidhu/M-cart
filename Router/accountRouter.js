@@ -8,12 +8,12 @@ const upload = require('../service/profileImage')
 
 
 //  to Profile
-account.get('/profile', userAuth.profileAuth, accountController.toProfile)
+account.get('/', userAuth.profileAuth, accountController.toProfile)
 account.post('/uploadCroppedImage', upload.single('profileImage'), accountController.updateProfile)
 
 
 // to Address Book
-account.get('/addressBook', userAuth.profileAuth, accountController.toAddressBook)
+account.get('/addressBook',userAuth.profileAuth, accountController.toAddressBook)
 
 
 // Add address 

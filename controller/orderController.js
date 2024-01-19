@@ -305,7 +305,7 @@ const verifyPayment = async (req, res) => {
 const orderSuccess = (req,res)=>{
     try {
         const isAuthenticated = req.session.user ? true : false;
-        res.render('./user/orderPlaced',{isAuthenticated})
+        res.render('./user/orderPlaced',{isAuthenticated,title:'Order Success'})
     } catch (error) {
         errorHandler(error,req,res)
     }

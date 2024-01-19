@@ -52,8 +52,8 @@ app.use((req,res,next)=>{
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use('/',userRouter)
 app.use('/admin',admminRouter)
+app.use('/',userRouter)
 app.use('/auth', authRouter);
 app.use('/cart',cartRouter)
 app.use('/account',accountRouter)

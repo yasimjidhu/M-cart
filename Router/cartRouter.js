@@ -4,7 +4,7 @@ require('dotenv').config()
 const cartController = require('../controller/cartController')
 const userAuth = require('../middleware/userAuth')
 
-cart.get('/cart', userAuth.verifyUser,cartController.toCart)
+cart.get('/', userAuth.verifyUser,cartController.toCart)
 cart.get('/cart-products',userAuth.verifyUser,cartController.cartProducts)
 cart.post('/add-cart',userAuth.verifyUser,cartController.addToCart)
 cart.delete('/removeItem/:productID',userAuth.verifyUser,cartController.RemoveItem)

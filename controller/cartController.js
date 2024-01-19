@@ -21,7 +21,7 @@ const toCart = async (req, res) => {
     const message = req.query.message;
 
     if(!req.session.email){
-        return res.redirect('/user/tosignup')
+        return res.redirect('/tosignup')
     }
     const isAuthenticated = req.session.user ? true : false;
     const userEmail = req.session.email;

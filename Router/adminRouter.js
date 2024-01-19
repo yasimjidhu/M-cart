@@ -21,7 +21,7 @@ const storage = multer.diskStorage({
   },
 });
 
-// const upload = multer({ storage: storage });
+
 
 admin.get("/", adminauth.adminExist, adminController.tologin);
 admin.post("/login", adminController.loginAdmin);
@@ -51,8 +51,7 @@ const upload = multer({
   },
 });
 
-admin.post(
-  "/add-product",
+admin.post("/add-product",
   upload.fields([
     { name: "productImage1", maxCount: 1 },
     { name: "productImage2", maxCount: 1 },
@@ -65,14 +64,9 @@ admin.post(
   }
 );
 
-admin.get(
-  "/edit-product/:productid",
-  adminauth.verifyAdmin,
-  adminController.toEditProduct
-);
+admin.get("/edit-product/:productid",adminauth.verifyAdmin,adminController.toEditProduct);
 
-admin.post(
-  "/edit-product/:productId",
+admin.post("/edit-product/:productId",
   upload.fields([
     { name: "newProductImage1", maxCount: 1 },
     { name: "newProductImage2", maxCount: 1 },
@@ -83,16 +77,8 @@ admin.post(
   adminController.updateProduct
 );
 
-admin.post(
-  "/delete-product/:productid",
-  adminauth.verifyAdmin,
-  adminController.deleteProduct
-);
-
-admin.delete(
-  "/products/:productId/images/:imageId",
-  adminController.deleteProductImage
-);
+admin.post("/delete-product/:productid",adminauth.verifyAdmin,adminController.deleteProduct);
+admin.delete("/products/:productId/images/:imageId",adminController.deleteProductImage);
 
 // Block user get
 admin.get("/block/:userId", adminController.blockUser);
@@ -100,53 +86,20 @@ admin.get("/unblock/:userId", adminController.unblockUser);
 
 // Category management
 admin.get("/category", adminauth.verifyAdmin, adminController.toCategory);
-admin.get(
-  "/add-category",
-  adminauth.verifyAdmin,
-  adminController.toaddcategory
-);
+admin.get("/add-category",adminauth.verifyAdmin,adminController.toaddcategory);
 admin.post("/add-category", adminauth.verifyAdmin, adminController.addCategory);
-admin.get(
-  "/edit-category/:categoryId",
-  adminauth.verifyAdmin,
-  adminController.toEditCategory
-);
-admin.post(
-  "/edit-category/:categoryId",
-  adminauth.verifyAdmin,
-  adminController.editCategory
-);
-admin.post(
-  "/delete-category/:categoryId",
-  adminauth.verifyAdmin,
-  adminController.deleteCategory
-);
+admin.get("/edit-category/:categoryId",adminauth.verifyAdmin,adminController.toEditCategory);
+admin.post("/edit-category/:categoryId",adminauth.verifyAdmin,adminController.editCategory);
+admin.post("/delete-category/:categoryId",adminauth.verifyAdmin,adminController.deleteCategory);
 
 // Brands
 admin.get("/brands", adminauth.verifyAdmin, adminController.tobrands);
 admin.get("/add-brand", adminauth.verifyAdmin, adminController.toAddBrand);
 admin.post("/add-brand", upload.single("logo"), adminController.addBrand);
-admin.get(
-  "/edit-brand/:brandId",
-  adminauth.verifyAdmin,
-  adminController.toEditBrand
-);
-admin.post(
-  "/edit-brand/:brandId",
-  adminauth.verifyAdmin,
-  upload.single("logo"),
-  adminController.updateBrand
-);
-admin.post(
-  "/block-brand/:brandId",
-  adminauth.verifyAdmin,
-  adminController.blockBrand
-);
-admin.post(
-  "/unblock-brand/:brandId",
-  adminauth.verifyAdmin,
-  adminController.unblockBrand
-);
+admin.get("/edit-brand/:brandId",adminauth.verifyAdmin,adminController.toEditBrand);
+admin.post("/edit-brand/:brandId",adminauth.verifyAdmin,upload.single("logo"),adminController.updateBrand);
+admin.post("/block-brand/:brandId",adminauth.verifyAdmin,adminController.blockBrand);
+admin.post("/unblock-brand/:brandId",adminauth.verifyAdmin,adminController.unblockBrand);
 
 // Orders
 admin.get("/orders",adminauth.verifyAdmin, adminController.toOrders);

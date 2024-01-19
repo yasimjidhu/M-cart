@@ -14,7 +14,7 @@ router.get('/google', passport.authenticate('google', { scope: ['profile', 'emai
 // Google OAuth callback
 router.get(
     '/google/callback',
-    passport.authenticate('google', { failureRedirect: '/user/home' }),
+    passport.authenticate('google', { failureRedirect: '/home' }),
     (req, res, next) => {
         const googleProfile = req.user;
 
@@ -29,7 +29,7 @@ router.get(
                         if (loginErr) {
                             return next(loginErr);
                         }
-                        return res.redirect('/user/home'); // Redirect to the dashboard
+                        return res.redirect('/home'); // Redirect to the dashboard
                     });
                 } else {
                     // No existing user with the same email is found
@@ -48,7 +48,7 @@ router.get(
                                 if (loginErr) {
                                     return next(loginErr);
                                 }
-                                return res.redirect('/user/home');
+                                return res.redirect('/home');
                             });
                         })
                         .catch(saveErr => {

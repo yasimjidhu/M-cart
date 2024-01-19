@@ -16,7 +16,7 @@
               <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ml-auto">
                   <li class="nav-item">
-                    <a class="nav-link " aria-current="page" href="/user/home"
+                    <a class="nav-link " aria-current="page" href="/home"
                       >Home</a
                     >
                   </li>
@@ -24,15 +24,15 @@
                     <a class="nav-link" href="/contact">Contact</a>
                   </li>
                   <li class="nav-item">
-                    <a class="nav-link" href="/user/about">About</a>
+                    <a class="nav-link" href="/about">About</a>
                   </li>
                   <%if(locals.isAuthenticated){%>
                     <li class="nav-item">
-                      <a class="nav-link" href="/user/tosignup"></a>
+                      <a class="nav-link" href="/tosignup"></a>
                     </li>
                   <%}else{%>
                     <li class="nav-item">
-                      <a class="nav-link" href="/user/tosignup">Signup</a>
+                      <a class="nav-link" href="/tosignup">Signup</a>
                     </li>
                   <%}%>
 
@@ -55,7 +55,7 @@
               </div>
             <div class="cart-like position-relative">
               <!-- <i class="fa-solid fa-heart" style="color: #ffffff; font-size: 28px;cursor: pointer;"></i> -->
-              <a href="/cart/cart" style=" display: inline-block;">
+              <a href="/cart" style=" display: inline-block;">
                 <i class="fa-solid fa-cart-shopping" style="color: #ffffff; font-size: 28px; cursor: pointer; "></i>
                 <% if (locals.cartItemsCount) { %>
                   <a href="#" style="position: absolute; bottom: 16px; right: 56px;"> 
@@ -69,7 +69,7 @@
                 <i class="fa-solid fa-user" style="color: #ffffff; font-size: 28px;"></i>
               </a>
               <div class="dropdown-menu" aria-labelledby="userDropdown" style="left: -100px;">
-                  <a class="dropdown-item" href="/account/profile">Profile</a>
+                  <a class="dropdown-item" href="/account">Profile</a>
                   <a class="dropdown-item" href="/user/logout">Logout</a>
               </div>
           </div>

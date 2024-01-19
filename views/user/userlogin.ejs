@@ -103,7 +103,7 @@
       };
       
       // Make a Fetch request to your server
-      fetch('/user/login', {
+      fetch('/login', {
           method: 'POST',
           headers:{
             "Content-type":"application/json"
@@ -115,8 +115,7 @@
         console.log("response",data);
           // Handle the response from the server
           if (data.success) {
-            
-              window.location.href = "/user/home"; // Redirect to the home page
+              window.location.href = "/home"; // Redirect to the home page
               console.log('Login successful');
           } else {
               document.getElementById("errorMessage").textContent = data.err; // Display the error message 

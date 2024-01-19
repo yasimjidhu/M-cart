@@ -1332,7 +1332,7 @@ const toRequestedReturns = async (req,res)=>{
         }
       }
     ])
-    res.render('./admin/returns.ejs',{requestedRetuns})
+    res.render('./admin/returns.ejs',{requestedRetuns,title:'Returns'})
   }catch(err){
     console.log(err)
   }
@@ -1528,8 +1528,8 @@ const fetchDailySalesData = async () =>{
 }
 
 // DOWNLOAD WEEKLY SALES
-const fetchWeeklySalesData = async()=>{
-  try{
+const fetchWeeklySalesData = async () => {
+  try {
     const today = new Date();
     const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay(), 0, 0, 0, 0);
     const endOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay() + 6, 23, 59, 59, 999);
@@ -1554,36 +1554,37 @@ const fetchWeeklySalesData = async()=>{
       },
       {
         $group: {
-          _id: { $dayOfWeek: '$deliveryDate' }, // Grouping by day of the week (Sunday = 1, Monday = 2, ..., Saturday = 7)
+          _id: { $isoWeek: '$deliveryDate' }, // Use $isoWeek to get the ISO week number
           totalSales: { $sum: '$totalAmount' },
-          weeklyProducts:{$push:'$weeklyproducts'},
+          weeklyProducts: { $push: '$weeklyproducts' },
           userId: { $addToSet: '$userId' },
-          paymentMode:{$push:'$paymentmode'},
-          totalAmount:{$push:'$totalAmount'},
-          orderId:{$push:'$_id'}
+          paymentMode: { $push: '$paymentmode' },
+          totalAmount: { $push: '$totalAmount' },
+          orderId: { $push: '$_id' }
         }
       },
-      { $sort: { '_id': 1 } }, // Sort by day of the week
+      { $sort: { '_id': 1 } },
       {
-        $project:{
+        $project: {
           _id: 1,
           totalSales: 1,
           weeklyProducts: 1,
-          userId:1,
-          paymentMode:1,
-          totalAmount:1,
-          orderId:1
+          userId: 1,
+          paymentMode: 1,
+          totalAmount: 1,
+          orderId: 1
         }
       }
     ]);
-    console.log('weekly sales',weeklySalesData)
+    console.log('weekly sales', weeklySalesData);
 
-    return weeklySalesData
-  }catch(err){
-    console.error(err)
+    return weeklySalesData;
+  } catch (err) {
+    console.error(err);
     throw err;
   }
-}
+};
+
 
 
 
@@ -1679,63 +1680,60 @@ const generateAndSendSalesReport = async (res, fileFormat, salesData, reportType
       const workbook = new Excel.Workbook();
       const worksheet = workbook.addWorksheet('Sales Report');
 
-      if(reportType=='daily'){
-
-      // Add headers
-      worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
-
-      // Add data to the worksheet
-      salesData.forEach((data) => {
-        if (data.dailyproducts && data.dailyproducts.length > 0) {
-          data.dailyproducts.forEach((productArray, index) => {
-            const product = productArray[0];
-            if (product) {
-              let totalAmount = data.totalAmount[index];
-              let paymentMode = data.paymentMode[index];
-              worksheet.addRow([
-                data.orderId[index],
-                product.productName,
-                totalAmount,
-                paymentMode,
-              ]);
-            }
-          });
-        }
-      });
-
-      }else if(reportType=='weekly'){
+      if (reportType === 'daily') {
         // Add headers
-      worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
+        worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
 
-      // Add data to the worksheet
-      salesData.forEach((data) => {
-        if (data.weeklyProducts && data.weeklyProducts.length > 0) {
-          data.weeklyProducts.forEach((productArray, index) => {
-            const product = productArray[0];
-            if (product) {
-              let totalAmount = data.totalAmount[index];
-              let paymentMode = data.paymentMode[index];
-              worksheet.addRow([
-                data.orderId[index],
-                product.productName,
-                totalAmount,
-                paymentMode,
-              ]);
-            }
-          });
-        }
-      });
+        // Add data to the worksheet
+        salesData.forEach((data) => {
+          if (data.dailyproducts && data.dailyproducts.length > 0) {
+            data.dailyproducts.forEach((productArray, index) => {
+              const product = productArray[0];
+              if (product) {
+                let totalAmount = data.totalAmount[index];
+                let paymentMode = data.paymentMode[index];
+                worksheet.addRow([
+                  data.orderId[index],
+                  product.productName,
+                  totalAmount,
+                  paymentMode,
+                ]);
+              }
+            });
+          }
+        });
+      } else if (reportType === 'weekly') {
+        // Add headers
+        worksheet.addRow(['OrderID', 'Product Name', 'Total Amount', 'Payment Method']);
 
-      }else if(reportType=='yearly'){
-        worksheet.addRow(['Year','Total Products Sold','Totalsales']);
+        // Add data to the worksheet
+        salesData.forEach((data) => {
+          if (data.weeklyProducts && data.weeklyProducts.length > 0) {
+            data.weeklyProducts.forEach((productArray, index) => {
+              const product = productArray[0];
+              if (product) {
+                let totalAmount = data.totalAmount[index];
+                let paymentMode = data.paymentMode[index];
+                worksheet.addRow([
+                  data.orderId[index],
+                  product.productName,
+                  totalAmount,
+                  paymentMode,
+                ]);
+              }
+            });
+          }
+        });
+      } else if (reportType === 'yearly') {
+        worksheet.addRow(['Year', 'Total Products Sold', 'Total Sales']);
 
-        salesData.forEach(value =>{
+        salesData.forEach((value) => {
           worksheet.addRow([
             value.year,
             value.totalProducts,
             value.sales
-          ])
-        })
+          ]);
+        });
       }
 
       // Write the workbook data to the response
@@ -1760,7 +1758,7 @@ const generateAndSendSalesReport = async (res, fileFormat, salesData, reportType
       });
     }
 
-    // Send the generated content as the response
+    console.log('content',content)
     res.end(content);
   } catch (err) {
     console.error('Error generating sales report', err);
@@ -1838,7 +1836,7 @@ const generateHtmlForSalesReport = (salesData,reportType) => {
 const toCoupons =async (req,res)=>{
 
   const allCoupons = await coupon.find()
-  res.render('./admin/coupon.ejs',{allCoupons})
+  res.render('./admin/coupon.ejs',{allCoupons,title:'Coupon'})
 }
 
 // Add coupon
@@ -1850,7 +1848,8 @@ const createCoupon = async (req,res)=>{
     const couponExist = await coupon.findOne({couponName:couponName})
 
     if(couponExist){
-      res.status(400).json({success:false,message:'This coupon is already exist'})
+      console.log('duplicate coupon found')
+      return res.status(400).json({duplicate:true,message:'This coupon is already exist'})
     }
 
     const newCoupon = new coupon({
@@ -2346,7 +2345,7 @@ const toReferal = async (req,res)=>{
     ])
 
 
-    return res.render('./admin/referal.ejs',{allReferalData})
+    return res.render('./admin/referal.ejs',{allReferalData,title:'Referal'})
 
   }catch(err){
     console.error(err)
@@ -2411,7 +2410,7 @@ const toBannerManagement = async(req,res)=>{
 
   try{
     const allBanners = await banner.find()
-    res.render('./admin/bannerMgt.ejs',{allBanners})
+    res.render('./admin/bannerMgt.ejs',{allBanners,title:'Banners'})
   }catch(err){
     console.log(err)
   }
@@ -2552,8 +2551,6 @@ const toFeedbacks = async(req,res)=>{
         }
       }
     ])
-
-    console.log('userFeedbacks',usersFeedbacks)
 
     return res.render('./admin/userFeedbacks.ejs',{usersFeedbacks,title:'Feedbacks'})
 

@@ -1,7 +1,7 @@
 <!--header-->
 
 <%- include('../user/partials/header') %>
-
+<%- include('../user/partials/links') %>
     <!--Navbar-->
 <%-include('../admin/partials/nav') %>
 
@@ -250,26 +250,40 @@
                     body: JSON.stringify(couponData)
                 });
 
-                if (!response.ok) {
+            if (!response.ok) {
+                const responseData = await response.json(); 
+                console.log('responsedata',responseData)
+                alert(JSON.stringify(responseData))
+
+                if (responseData.duplicate) {
                     Swal.fire({
                         icon: 'error',
                         title: 'Error',
-                        text: 'Failed to Add coupon',
-                        showConfirmButton: false,
+                        text: responseData.message,
+                        showConfirmButton: true,
                         timer: 2000
                     });
-
                 } else {
                     Swal.fire({
-                        icon: 'success',
-                        title: 'Added',
-                        text: 'coupon added successflly',
-                        showConfirmButton: false,
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to add coupon',
+                        showConfirmButton: true,
                         timer: 2000
-                    }).then(()=>{
-                        window.location.reload()
-                    })
+                    });
                 }
+            } else {
+                // Handle success case
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Added',
+                    text: 'Coupon added successfully',
+                    showConfirmButton: true,
+                    timer: 2000
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
             })
 
 
