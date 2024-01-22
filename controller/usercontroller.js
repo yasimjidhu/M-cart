@@ -185,127 +185,81 @@ const verifyOtp = async (req, res) => {
   try {
     const otp = req.body.otp1 + req.body.otp2 + req.body.otp3 + req.body.otp4;
     const storedOtp = req.session.otp;
-    const storedTimestamp = req.session.otpTimestamp
+    const storedTimestamp = req.session.otpTimestamp;
     const pass = req.session.pass;
     const isAuthenticated = req.session.user ? true : false;
 
-    if(storedOtp && storedTimestamp){
+    if (storedOtp && storedTimestamp) {
       const currentTime = Date.now();
       const timeDifference = currentTime - storedTimestamp;
-    
-    if (otp ===  storedOtp && timeDifference <= 5 * 60 * 1000) {
-      req.session.userlogged = true;
 
-      const { email, name, referredBy } = req.session;
+      if (otp === storedOtp && timeDifference <= 5 * 60 * 1000) {
+        req.session.userlogged = true;
 
-      const newUser = new User({
-        email: req.session.email,
-        password: pass,
-        name: req.session.name,
-        referredBy: referredBy, 
-      });
+        const { email, name, referredBy } = req.session;
 
-      await newUser.save();
-      
-      // find the refered user wallet and give him the necessary rewards
-      const userWallet = await wallet.findOne({userId:referredBy})
-      const referalData = await referal.find()
-      const offerAmount = referalData[0].offerAmount
-
-      if(!userWallet){
-        // if the wallet is doesn't exist for the user create it 
-        const newWallet = new wallet({
-          userId:referredBy,
-          balance:offerAmount,
-          transactions:[{
-            transactionType:'credit',
-            amount:offerAmount,
-            from:'Referal reward',
-            date:new Date()
-          }]
+        const newUser = new User({
+          email: req.session.email,
+          password: pass,
+          name: req.session.name,
+          referredBy: referredBy || null, // Use null if referredBy is not defined
         });
 
-        await newWallet.save()
+        await newUser.save();
 
-      }else{
-        // if the refered user has wallet increment the balance
-        userWallet.balance += offerAmount;
-        userWallet.transactions.push({
-          transactionType:'credit',
-          amount:offerAmount,
-          from:'Referal reward',
-          date:new Date()
-        });
+        // find the referred user wallet and give him the necessary rewards
+        if (referredBy) {
+          const userWallet = await wallet.findOne({ userId: referredBy });
+          const referalData = await referal.find();
+          const offerAmount = referalData[0].offerAmount;
 
-        await userWallet.save()
-      }
+          if (!userWallet) {
+            // if the wallet doesn't exist for the user, create it
+            const newWallet = new wallet({
+              userId: referredBy,
+              balance: offerAmount,
+              transactions: [
+                {
+                  transactionType: 'credit',
+                  amount: offerAmount,
+                  from: 'Referral reward',
+                  date: new Date(),
+                },
+              ],
+            });
 
-      // SET THE REFERED DETAILS TO THE REFERAL MODEL
-      const newReferal = new referal({
-        updatedDate:new Date(),
-        status:true,
-        joinedUser:[
-          {userId:newUser._id},
-        ],
-        invitedUser:[
-          {userId:referredBy},
-        ]
-      });
+            await newWallet.save();
+          } else {
+            // if the referred user has a wallet, increment the balance
+            userWallet.balance += offerAmount;
+            userWallet.transactions.push({
+              transactionType: 'credit',
+              amount: offerAmount,
+              from: 'Referral reward',
+              date: new Date(),
+            });
 
-      await newReferal.save()
+            await userWallet.save();
+          }
 
-      const bestSeller = await category.findOne({CategoryName:'Best seller'})
+          // SET THE REFERRED DETAILS TO THE REFERRAL MODEL
+          const newReferral = new referal({
+            updatedDate: new Date(),
+            status: true,
+            joinedUser: [{ userId: newUser._id }],
+            invitedUser: [{ userId: referredBy }],
+          });
 
-      const flashsales = await category.findOne({
-        CategoryName: "Flash Sales",
-      });
-      const premiumCategory = await category.findOne({
-        CategoryName: "Premium",
-      });
-      
+          await newReferral.save();
+        }
 
-      if (premiumCategory || flashsales) {
-        // Fetch products that belong to the "Premium" category using the category "_id"
-        
-        const blockedBrands = await brands.find({ brandStatus: false });
-        const blockedBrandIds = blockedBrands.map((brand) => brand._id);
+       res.redirect('/home')
 
-        
-        const premiumProducts = await products.find({
-          category: premiumCategory._id,
-        });
-        const flashsalesProducts = await products.find({
-          category: flashsales.id,
-        });
-        const categorywise = await products.find();
-
-        const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
-        const brand = await brands.find();
-        const categories = await category.find()
-        
-
-        res.render("./user/userhome", {
-          title: "Home",
-          err: false,
-          data: premiumProducts,
-          brand,
-          Category: premiumCategory,
-          flashSales: flashsalesProducts,
-          flashSalesId:flashsales?flashsales._id:null,
-          bestSellerId:bestSeller?bestSeller._id:null,
-          bestSellerData:bestSellerProducts,
-          isAuthenticated,
-          categories,
-        });
       } else {
-        // Handle if Premium category is not found
-        res.status(404).send("Premium category not found");
+        console.log("Invalid or expired OTP");
+        res.render("./user/verifyotp", { msg: "Invalid or expired OTP", err: "errorfound" });
       }
-    } else {
-      console.log("Invalid or expired OTP");
-      res.render("./user/verifyotp", { msg: "Invalid or expired OTP", err: "errorfound" });
     }
-  }
   } catch (error) {
     console.error("Error in verifyOtp:", error);
     res.render("./user/usersignup", { msg: "Error during OTP verification" });
@@ -428,7 +382,7 @@ const userlog = async (req, res) => {
 
       const categories = await category.find()
       const allBanners = await banners.find()
-      // console.log('all banners',allBanners)
+      console.log('all banners',allBanners)
 
         let cartItemsCount = 0
         const userEmail = req.session.email
