@@ -62,6 +62,7 @@
         </div>
       <!-- HTML content to display wallet details -->
     <div class="col-lg-10 p-0">
+      <% if(userWallet){ %>
         <section class="h-100 gradient-custom shadow">
             <!-- ... -->
             <div class="card shadow" style="border-radius: 10px;">
@@ -88,6 +89,14 @@
                 </div>
             </div>
         </section>
+
+      <% }else { %>
+        <div class=" text-center">
+          <img src="/images/theme/noData.jpg" alt="" width="50%">
+          <br>
+          <h3 style="color: red;">You dont have wallet at this time</h3>
+        </div>
+     <%  } %>
     </div>
 
     </div>

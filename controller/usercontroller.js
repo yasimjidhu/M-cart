@@ -423,12 +423,14 @@ const userlog = async (req, res) => {
 
 // to about page
 const toAbout = (req,res)=>{
-  res.render('./user/about.ejs')
+  const isAuthenticated = req.session.user ? true : false;
+  res.render('./user/about.ejs',{title:'ABout',isAuthenticated})
 }
 
 // to contact page
 const toContact = (req,res)=>{
-  res.render('./user/contact.ejs')
+  const isAuthenticated = req.session.user ? true : false;
+  res.render('./user/contact.ejs',{isAuthenticated,title:'Contact'})
 }
 
 // post contact(feedback)
