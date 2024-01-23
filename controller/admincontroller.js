@@ -2441,7 +2441,7 @@ const uploadBanner = async (req,res)=>{
 
   // SAVE THE DESIRED IMAGE
   const newFileName = `${bannerImage.filename}`;
-  const imagePath = `./public/uploads/banner-images/${newFileName}`;
+  const imagePath = `./Public/uploads/banner-images/${newFileName}`;
   await sharp(resizedImageBuffer).toFile(imagePath, { quality: 100 });
 
 
@@ -2494,7 +2494,7 @@ const changeBanner = async (req,res)=>{
 
     // SAVE THE DESIRED IMAGE
     const newFileName = `${bannerImage.filename}`;
-    const imagePath = `./public/uploads/banner-images/${newFileName}`
+    const imagePath = `./Public/uploads/banner-images/${newFileName}`
     await sharp(resizedImageBuffer).toFile(imagePath,{quality:100})
 
     exisitingBanner.image = req.file.filename
