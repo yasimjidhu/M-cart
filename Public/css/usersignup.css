@@ -607,7 +607,7 @@ body{
 .footer{
     background-color: #000;
     padding: 20px 0px;
-    margin-top: 70px;
+    margin-top: 5px;
 }
 .footer-search{
     padding: 5px 5px 5px 5px;
@@ -690,7 +690,7 @@ body{
     font-weight: bold; 
 }
 .admin-sidebar a.inactive{
-    color: rgb(99, 90, 90);
+    color: rgb(238, 13, 13);
 }
 .horizontal-list{
     list-style: none;
@@ -1597,10 +1597,31 @@ body{
 .sideUser{
    border-radius: 15px;
 }
-.filter-sidebar{
-    background-color: rgb(109, 106, 106);
-    /* box-shadow: 3px 1px 5px 3px #152938; */
+.filter-sidebar {
+    position: sticky;
+    top: 0;
+    left: 0;
+    height: 100vh; /* Set a specific height for the sidebar */
+    width: 250px; /* Adjust the width as needed */
+    overflow: auto; /* Enable both horizontal and vertical scrolling */
+    background-color: #fff; /* Set the background color */
+    box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1); /* Add a subtle box shadow */
+    z-index: 1000; /* Ensure it's above other elements */
 }
+
+/* Optionally, style the links or any other elements inside the sidebar */
+.filter-sidebar a {
+    display: block;
+    padding: 10px;
+    text-decoration: none;
+    color: #333; /* Set the text color */
+    transition: background-color 0.3s ease;
+}
+
+.filter-sidebar a:hover {
+    background-color: #f5f5f5; /* Set a background color on hover */
+}
+
 .filter-div{
     display: flex;
   flex-direction: column;

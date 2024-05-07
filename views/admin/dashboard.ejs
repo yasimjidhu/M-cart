@@ -1,433 +1,436 @@
 <!--header-->
-<%- include('../user/partials/header') %> 
+<%- include('../user/partials/header') %>
 
-<!--Navbar-->
-<%- include('../admin/partials/nav') %>
+  <!--Navbar-->
+  <%- include('../admin/partials/nav') %>
 
-<div class="container-fluid dashboard p-0">
-    <div class="row m-0">
+    <div class="container-fluid dashboard p-0">
+      <div class="row m-0">
         <div class="col-lg-2 p-0">
-            <%-include('../admin/partials/sidebar') %>
+          <%-include('.. /admin/partials/sidebar') %>
         </div>
         <div class="col-lg-9 d-flex flex-column">
-            <div class="d-flex justify-content-end mt-3">
-                <button type="button" class="btn btn-danger salesbtn btn-sm" id="dailyBtn">Daily</button>
-                <button type="button" class="btn btn-success salesbtn btn-sm" id="weeklyBtn">Weekly</button>
-                <button type="button" class="btn btn-warning salesbtn btn-sm" id="yearlyBtn">yearly</button>
-            </div>
-            
-            
-            <form id="salesReportForm">
-              <label>
-                  <input type="radio" name="reportType" value="daily"> Daily Sales Report
-              </label>
-              <br>
-              <label>
-                  <input type="radio" name="reportType" value="weekly"> Weekly Sales Report
-              </label>
-              <br>
-              <label>
-                  <input type="radio" name="reportType" value="yearly"> Yearly Sales Report
-              </label>
+          <div class="d-flex justify-content-end mt-3">
+            <button type="button" class="btn btn-danger salesbtn btn-sm" id="dailyBtn">Daily</button>
+            <button type="button" class="btn btn-success salesbtn btn-sm" id="weeklyBtn">Weekly</button>
+            <button type="button" class="btn btn-warning salesbtn btn-sm" id="yearlyBtn">yearly</button>
+          </div>
+
+
+          <form id="salesReportForm">
+            <label>
+              <input type="radio" name="reportType" value="daily"> Daily Sales Report
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reportType" value="weekly"> Weekly Sales Report
+            </label>
+            <br>
+            <label>
+              <input type="radio" name="reportType" value="yearly"> Yearly Sales Report
+            </label>
           </form>
-          
 
-  <!-- Add a dropdown for file format selection -->
-  <label for="fileFormat">Select File Format:</label>
-  <select id="fileFormat" name="fileFormat">
-      <option value="pdf">PDF</option>
-      <option value="excel">Excel</option>
-  </select>
-</form>
 
-<button class="btn" style="width:10%; color: black;" onclick="getSalesReport()"><i class="fa fa-download"></i> Download</button>
+          <!-- Add a dropdown for file format selection -->
+          <label for="fileFormat">Select File Format:</label>
+          <select id="fileFormat" name="fileFormat">
+            <option value="pdf">PDF</option>
+            <option value="excel">Excel</option>
+          </select>
+          </form>
 
-            <div class="">
-                <canvas id="myChart" width="600" height="200"></canvas>
-                <div class="col-lg-12 d-flex justify-content-between mt-5">
-                    <div class="col-lg-5 topSelling">
-                       <h6 class="mt-3 text-center">Inventory Status</h6>
-                       <canvas id="InventoryStatus" width="500" height="300"></canvas>
-                       <p class="text-danger mt-3">NB:<span class="text-dark inventoryMsg">IF you can't see the product's status in the chart and you can see the product names on the top , it's quantity is <span class="zero"> 0</span>, take necessary actions</span></p>
-                    </div>
-                    <div class="col-lg-5 topSelling">
-                        <h6 class="mt-3 text-center">Top selling Products</h6>
-                        <canvas id="topSellingChart" width="500" height="300"></canvas>
-                    </div>
-                </div>
+          <button class="btn" style="width:10%; color: black;" onclick="getSalesReport()"><i class="fa fa-download"></i>
+            Download</button>
+
+          <div class="">
+            <canvas id="myChart" width="600" height="200"></canvas>
+            <div class="col-lg-12 d-flex justify-content-between mt-5">
+              <div class="col-lg-5 topSelling">
+                <h6 class="mt-3 text-center">Inventory Status</h6>
+                <canvas id="InventoryStatus" width="500" height="300"></canvas>
+                <p class="text-danger mt-3">NB:<span class="text-dark inventoryMsg">IF you can't see the product's
+                    status in the chart and you can see the product names on the top , it's quantity is <span
+                      class="zero"> 0</span>, take necessary actions</span></p>
+              </div>
+              <div class="col-lg-5 topSelling">
+                <h6 class="mt-3 text-center">Top selling Products</h6>
+                <canvas id="topSellingChart" width="500" height="300"></canvas>
+              </div>
             </div>
+          </div>
         </div>
+      </div>
     </div>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function(){
-  let myChart; 
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+        let myChart;
 
-function updateDailySales() {
-  fetch('/admin/daily-salesData')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        
-        const salesData = data.dailySalesData.map(dayData => dayData.totalSales); // Extract totalSales for each day
-        const dayLabels = data.dailySalesData.map(dayData => dayData._id); // Extract dates as labels
-        // Update the chart with daily sales data and labels for the days
-        myChart.data.labels = dayLabels;
-        myChart.data.datasets[0].data = salesData;
-        myChart.data.datasets[0].label = 'Daily Sales';
-        myChart.data.datasets[0].type = 'bar';
-        myChart.update();
-      } else {
-        alert('An error occurred while fetching daily sales data');
-      }
-    })
-    .catch(error => console.error('Error fetching data:', error));
-}
+        function updateDailySales() {
+          fetch('/admin/daily-salesData')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
 
-updateDailySales();
+                const salesData = data.dailySalesData.map(dayData => dayData.totalSales); // Extract totalSales for each day
+                const dayLabels = data.dailySalesData.map(dayData => dayData._id); // Extract dates as labels
+                // Update the chart with daily sales data and labels for the days
+                myChart.data.labels = dayLabels;
+                myChart.data.datasets[0].data = salesData;
+                myChart.data.datasets[0].label = 'Daily Sales';
+                myChart.data.datasets[0].type = 'bar';
+                myChart.update();
+              } else {
+                alert('An error occurred while fetching daily sales data');
+              }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
 
-    const dailyButton = document.querySelector('#dailyBtn');
-    dailyButton.addEventListener('click', updateDailySales);
+        updateDailySales();
 
-
-// Function to update weekly sales data
-function updateWeeklySales() {
-  fetch('/admin/weekly-salesData')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        const salesData = Array.from({ length: 4 }, () => 0); // Assuming 4 weeks in a month for example
-
-        data.weeklyData.forEach(weekData => {
-          const weekNumber = weekData._id ; // add 1 to get the array index
-
-          // Update salesData array at the respective index with the totalSales value
-          salesData[weekNumber] = weekData.totalSales;
-        });
-
-        // Update the chart with weekly sales data and labels for the weeks
-        const weekLabels = Array.from({ length: 4 }, (_, i) => `Week ${i + 1}`); // Update the length according to your data
-
-        myChart.data.labels = weekLabels;
-        myChart.data.datasets[0].data = salesData;
-        myChart.data.datasets[0].label = 'Weekly Sales';
-
-        myChart.update();
-
-        console.log('Weekly sales data:', salesData);
-      } else {
-        alert('An error occurred while fetching weekly sales data');
-      }
-    })
-    .catch(error => console.error('Error fetching data:', error));
-}
+        const dailyButton = document.querySelector('#dailyBtn');
+        dailyButton.addEventListener('click', updateDailySales);
 
 
-    // Button event listener to update the chart with weekly sales data when the "Weekly" button is clicked
-    const weeklyButton = document.querySelector('#weeklyBtn');
-    weeklyButton.addEventListener('click', updateWeeklySales);
+        // Function to update weekly sales data
+        function updateWeeklySales() {
+          fetch('/admin/weekly-salesData')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const salesData = Array.from({ length: 4 }, () => 0); // Assuming 4 weeks in a month for example
 
-    // Chart configuration
-    var ctx = document.getElementById('myChart').getContext('2d');
-    myChart = new Chart(ctx, {
-        type: 'line',
-        data: {
+                data.weeklyData.forEach(weekData => {
+                  const weekNumber = weekData._id; // add 1 to get the array index
+
+                  // Update salesData array at the respective index with the totalSales value
+                  salesData[weekNumber] = weekData.totalSales;
+                });
+
+                // Update the chart with weekly sales data and labels for the weeks
+                const weekLabels = Array.from({ length: 4 }, (_, i) => `Week ${i + 1}`); // Update the length according to your data
+
+                myChart.data.labels = weekLabels;
+                myChart.data.datasets[0].data = salesData;
+                myChart.data.datasets[0].label = 'Weekly Sales';
+
+                myChart.update();
+
+                console.log('Weekly sales data:', salesData);
+              } else {
+                alert('An error occurred while fetching weekly sales data');
+              }
+            })
+            .catch(error => console.error('Error fetching data:', error));
+        }
+
+
+        // Button event listener to update the chart with weekly sales data when the "Weekly" button is clicked
+        const weeklyButton = document.querySelector('#weeklyBtn');
+        weeklyButton.addEventListener('click', updateWeeklySales);
+
+        // Chart configuration
+        var ctx = document.getElementById('myChart').getContext('2d');
+        myChart = new Chart(ctx, {
+          type: 'line',
+          data: {
             labels: [],
             datasets: [{
-                label: 'Sales Data',
-                data: [],
-                backgroundColor: 'rgba(54, 162, 35, 1)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
+              label: 'Sales Data',
+              data: [],
+              backgroundColor: 'rgba(54, 162, 35, 1)',
+              borderColor: 'rgba(54, 162, 235, 1)',
+              borderWidth: 1
             }]
-        },
-        options: {
+          },
+          options: {
             scales: {
-                yAxes: [{
-                    ticks: {
+              yAxes: [{
+                ticks: {
+                  beginAtZero: true,
+                  stepSize: 10000, // Adjust step size as per your data
+                  min: 0
+                }
+              }]
+            }
+          }
+        });
+
+        function updateYearlySales() {
+          fetch('/admin/yearly-sales')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const salesData = data.yearlySalesData.map(yearData => yearData.sales);
+                const yearLabels = data.yearlySalesData.map(yearData => yearData.year);
+
+                // Update the chart with yearly sales data and labels for the years
+                myChart.data.labels = yearLabels;
+                myChart.data.datasets[0].data = salesData;
+                myChart.data.datasets[0].label = 'Yearly Sales';
+
+                // Modify chart options for a single data point
+                myChart.options = {
+                  scales: {
+                    yAxes: [{
+                      ticks: {
                         beginAtZero: true,
-                        stepSize: 10000, // Adjust step size as per your data
-                        min: 0
-                    }
-                }]
-            }
-        }
-    });
+                      },
+                    }],
+                  },
+                  elements: {
+                    point: {
+                      radius: 6, // Increase the point size
+                      borderWidth: 4, // Increase the border width of the point
+                      hoverRadius: 8, // Increase the point size on hover
+                    },
+                    line: {
+                      tension: 0, // Set tension to 0 for straight lines
+                    },
+                  },
+                };
 
-    function updateYearlySales() {
-  fetch('/admin/yearly-sales')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        const salesData = data.yearlySalesData.map(yearData => yearData.sales);
-        const yearLabels = data.yearlySalesData.map(yearData => yearData.year);
+                myChart.update();
 
-        // Update the chart with yearly sales data and labels for the years
-        myChart.data.labels = yearLabels;
-        myChart.data.datasets[0].data = salesData;
-        myChart.data.datasets[0].label = 'Yearly Sales';
-
-        // Modify chart options for a single data point
-        myChart.options = {
-          scales: {
-            yAxes: [{
-              ticks: {
-                beginAtZero: true,
-              },
-            }],
-          },
-          elements: {
-            point: {
-              radius: 6, // Increase the point size
-              borderWidth: 4, // Increase the border width of the point
-              hoverRadius: 8, // Increase the point size on hover
-            },
-            line: {
-              tension: 0, // Set tension to 0 for straight lines
-            },
-          },
-        };
-
-        myChart.update();
-
-        console.log('Yearly sales data:', salesData);
-      } else {
-        alert('An error occurred while fetching yearly sales data');
-      }
-    })
-    .catch(error => console.error('Error fetching data:', error));
-}
-
-const yearlyButton = document.querySelector('#yearlyBtn');
-yearlyButton.addEventListener('click', updateYearlySales);
-
-
-
-
-// pie chart for best selling brand
-
-function getBestSellingProducts() {
-  fetch('/admin/bestSellingProducts')
-    .then(respons => respons.json())
-    .then(data => {
-      if (data.success) {
-        // Extracting product names and quantities from the fetched data
-        const productNames = data.bestSellingProducts.map(product => product.productName);
-        const quantities = data.bestSellingProducts.map(product => product.totalQuantity);
-
-        // Logging the extracted data for debugging
-
-        var ctx = document.getElementById('topSellingChart').getContext('2d');
-        var bestSellingChart = new Chart(ctx, {
-          type: 'pie',
-          data: {
-            labels: productNames,
-            datasets: [{
-              label: 'Quantity',
-              data: quantities,
-              backgroundColor: [
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-                // Add more colors if needed
-              ],
-              borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-                // Add more colors if needed
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            // Your chart options
-          }
-        });
-      }
-    })
-    .catch(error => {
-      console.error('Error fetching data:', error);
-    });
-}
-
-getBestSellingProducts();
-
-
-
-function getInventoryStatus(){
-  fetch('/admin/get-Inventory-Status')
-    .then(response => response.json())
-    .then(data => {
-      if (data.success) {
-        const productName = data.inventoryStatus.map(product => product.productName);
-        const quantity = data.inventoryStatus.map(product => product.stock);
-
-        var ctx = document.getElementById('InventoryStatus').getContext('2d');
-        var InventoryStatusChart = new Chart(ctx, {
-          type: "doughnut",
-          data: {
-            labels: productName,
-            datasets: [{
-              label: 'Quantity',
-              data: quantity,
-              backgroundColor: [
-                  'rgba(0, 102, 204, 1)',   // Darker blue
-                  'rgba(204, 0, 0, 1)',     // Darker red
-                  'rgba(255, 128, 0, 1)',   // Darker orange
-                  'rgba(0, 128, 128, 1)',   // Darker teal
-                  'rgba(204, 153, 0, 1)',   // Darker yellow
-                  'rgba(102, 0, 204, 1)'    // Darker purple
-                  // Add more dark colors if needed
-              ],
-              borderColor: [
-                'rgba(255, 99, 132, 1)',
-                'rgba(54, 162, 235, 1)',
-                'rgba(255, 206, 86, 1)',
-                'rgba(75, 192, 192, 1)',
-                'rgba(153, 102, 255, 1)',
-                'rgba(255, 159, 64, 1)'
-                // Add more colors if needed
-              ],
-              borderWidth: 1
-            }]
-          },
-          options: {
-            plugins: {
-              datalabels: {
-                formatter: (value, ctx) => {
-                  let label = ctx.chart.data.labels[ctx.dataIndex];
-                  return `${label}: ${value}`;
-                },
-                color: '#fff',
-                anchor: 'end',
-                align: 'start'
+                console.log('Yearly sales data:', salesData);
+              } else {
+                alert('An error occurred while fetching yearly sales data');
               }
-            }
-          }
-        });
-      }
-    });
-}
-
-getInventoryStatus();
-
-
-// function to get  latest orders
-function toGetLatestOrders(){
-    fetch('/admin/getLatestOrders')
-    .then(response => response.json())
-    .then(data =>{
-        if(data.success){
-
-            // alert('latest orders got'+JSON.stringify(data))
+            })
+            .catch(error => console.error('Error fetching data:', error));
         }
-    })
-}
 
-toGetLatestOrders()
-
-})
-
-async function getSalesReport(){
-  try{
-    const fileFormat = document.getElementById('fileFormat').value;
-
-    // Get the selected report type
-    const reportType = Array.from(document.getElementsByName('reportType'))
-      .filter(checkbox => checkbox.checked)
-      .map(checkbox => checkbox.value);
-
-      if (reportType.length === 0) {
-      alert('Please select a report type (Daily, Weekly, Yearly)');
-      return;
-    }
-
-
-
-    // Fetch data based on the selected report type
-    const response = await fetch(`/admin/downloadSalesReport?fileFormat=${fileFormat}&reportType=${reportType}`, {
-      method: 'GET',
-    });
-
-    if (response.ok) {
-      // create a blob from the response
-      const blob = await response.blob();
-
-      // create a temporarily URL for the blob
-      const url = window.URL.createObjectURL(blob);
-
-      // create an anchor element to trigger the download
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `sales-report.${fileFormat}`; // set the file name here
-      document.body.appendChild(a);
-      a.click();
-
-      // cleanup
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } else {
-      alert('Failed to download sales report');
-      console.error('Failed to download sales report');
-    }
-  } catch (err) {
-    alert('Catch worked');
-    console.error('Error generating sales report', err);
-  }
-}
-
-
-// Function to trigger download of weekly sales report
-// const downloadWeeklySales = async () => {
-//   try {
-//     const response = await fetch('/download-weekly-sales');
-//     if (response.ok) {
-//       const blob = await response.blob();
-//       const url = window.URL.createObjectURL(blob);
-//       const a = document.createElement('a');
-//       a.href = url;
-//       a.download = 'weekly-sales-report.xlsx';
-//       document.body.appendChild(a);
-//       a.click();
-//       document.body.removeChild(a);
-//     } else {
-//       console.error('Failed to download weekly sales report');
-//     }
-//   } catch (error) {
-//     console.error('Error downloading weekly sales report:', error);
-//   }
-// };
-
-// Function to trigger download of yearly sales report
-// const downloadYearlySales = async () => {
-//   try {
-//     const response = await fetch('/download-yearly-sales');
-//     if (response.ok) {
-//       const blob = await response.blob();
-//       const url = window.URL.createObjectURL(blob);
-//       const a = document.createElement('a');
-//       a.href = url;
-//       a.download = 'yearly-sales-report.xlsx';
-//       document.body.appendChild(a);
-//       a.click();
-//       document.body.removeChild(a);
-//     } else {
-//       console.error('Failed to download yearly sales report');
-//     }
-//   } catch (error) {
-//     console.error('Error downloading yearly sales report:', error);
-//   }
-// };
+        const yearlyButton = document.querySelector('#yearlyBtn');
+        yearlyButton.addEventListener('click', updateYearlySales);
 
 
 
 
-</script>
+        // pie chart for best selling brand
+
+        function getBestSellingProducts() {
+          fetch('/admin/bestSellingProducts')
+            .then(respons => respons.json())
+            .then(data => {
+              if (data.success) {
+                // Extracting product names and quantities from the fetched data
+                const productNames = data.bestSellingProducts.map(product => product.productName);
+                const quantities = data.bestSellingProducts.map(product => product.totalQuantity);
+
+                // Logging the extracted data for debugging
+
+                var ctx = document.getElementById('topSellingChart').getContext('2d');
+                var bestSellingChart = new Chart(ctx, {
+                  type: 'pie',
+                  data: {
+                    labels: productNames,
+                    datasets: [{
+                      label: 'Quantity',
+                      data: quantities,
+                      backgroundColor: [
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                        // Add more colors if needed
+                      ],
+                      borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                        // Add more colors if needed
+                      ],
+                      borderWidth: 1
+                    }]
+                  },
+                  options: {
+                    // Your chart options
+                  }
+                });
+              }
+            })
+            .catch(error => {
+              console.error('Error fetching data:', error);
+            });
+        }
+
+        getBestSellingProducts();
+
+
+
+        function getInventoryStatus() {
+          fetch('/admin/get-Inventory-Status')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+                const productName = data.inventoryStatus.map(product => product.productName);
+                const quantity = data.inventoryStatus.map(product => product.stock);
+
+                var ctx = document.getElementById('InventoryStatus').getContext('2d');
+                var InventoryStatusChart = new Chart(ctx, {
+                  type: "doughnut",
+                  data: {
+                    labels: productName,
+                    datasets: [{
+                      label: 'Quantity',
+                      data: quantity,
+                      backgroundColor: [
+                        'rgba(0, 102, 204, 1)',   // Darker blue
+                        'rgba(204, 0, 0, 1)',     // Darker red
+                        'rgba(255, 128, 0, 1)',   // Darker orange
+                        'rgba(0, 128, 128, 1)',   // Darker teal
+                        'rgba(204, 153, 0, 1)',   // Darker yellow
+                        'rgba(102, 0, 204, 1)'    // Darker purple
+                        // Add more dark colors if needed
+                      ],
+                      borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(153, 102, 255, 1)',
+                        'rgba(255, 159, 64, 1)'
+                        // Add more colors if needed
+                      ],
+                      borderWidth: 1
+                    }]
+                  },
+                  options: {
+                    plugins: {
+                      datalabels: {
+                        formatter: (value, ctx) => {
+                          let label = ctx.chart.data.labels[ctx.dataIndex];
+                          return `${label}: ${value}`;
+                        },
+                        color: '#fff',
+                        anchor: 'end',
+                        align: 'start'
+                      }
+                    }
+                  }
+                });
+              }
+            });
+        }
+
+        getInventoryStatus();
+
+
+        // function to get  latest orders
+        function toGetLatestOrders() {
+          fetch('/admin/getLatestOrders')
+            .then(response => response.json())
+            .then(data => {
+              if (data.success) {
+
+                // alert('latest orders got'+JSON.stringify(data))
+              }
+            })
+        }
+
+        toGetLatestOrders()
+
+      })
+
+      async function getSalesReport() {
+        try {
+          const fileFormat = document.getElementById('fileFormat').value;
+
+          // Get the selected report type
+          const reportType = Array.from(document.getElementsByName('reportType'))
+            .filter(checkbox => checkbox.checked)
+            .map(checkbox => checkbox.value);
+
+          if (reportType.length === 0) {
+            alert('Please select a report type (Daily, Weekly, Yearly)');
+            return;
+          }
+
+
+
+          // Fetch data based on the selected report type
+          const response = await fetch(`/admin/downloadSalesReport?fileFormat=${fileFormat}&reportType=${reportType}`, {
+            method: 'GET',
+          });
+
+          if (response.ok) {
+            // create a blob from the response
+            const blob = await response.blob();
+
+            // create a temporarily URL for the blob
+            const url = window.URL.createObjectURL(blob);
+
+            // create an anchor element to trigger the download
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sales-report.${fileFormat}`; // set the file name here
+            document.body.appendChild(a);
+            a.click();
+
+            // cleanup
+            window.URL.revokeObjectURL(url);
+            document.body.removeChild(a);
+          } else {
+            alert('Failed to download sales report');
+            console.error('Failed to download sales report');
+          }
+        } catch (err) {
+          alert('Catch worked');
+          console.error('Error generating sales report', err);
+        }
+      }
+
+
+      // Function to trigger download of weekly sales report
+      // const downloadWeeklySales = async () => {
+      //   try {
+      //     const response = await fetch('/download-weekly-sales');
+      //     if (response.ok) {
+      //       const blob = await response.blob();
+      //       const url = window.URL.createObjectURL(blob);
+      //       const a = document.createElement('a');
+      //       a.href = url;
+      //       a.download = 'weekly-sales-report.xlsx';
+      //       document.body.appendChild(a);
+      //       a.click();
+      //       document.body.removeChild(a);
+      //     } else {
+      //       console.error('Failed to download weekly sales report');
+      //     }
+      //   } catch (error) {
+      //     console.error('Error downloading weekly sales report:', error);
+      //   }
+      // };
+
+      // Function to trigger download of yearly sales report
+      // const downloadYearlySales = async () => {
+      //   try {
+      //     const response = await fetch('/download-yearly-sales');
+      //     if (response.ok) {
+      //       const blob = await response.blob();
+      //       const url = window.URL.createObjectURL(blob);
+      //       const a = document.createElement('a');
+      //       a.href = url;
+      //       a.download = 'yearly-sales-report.xlsx';
+      //       document.body.appendChild(a);
+      //       a.click();
+      //       document.body.removeChild(a);
+      //     } else {
+      //       console.error('Failed to download yearly sales report');
+      //     }
+      //   } catch (error) {
+      //     console.error('Error downloading yearly sales report:', error);
+      //   }
+      // };
+
+
+
+
+    </script>
