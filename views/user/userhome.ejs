@@ -190,10 +190,15 @@
 
 
           <div class="view-all">
-            <form action="/allproductview/<%= Category._id %>" method="get">
-              <button type="submit">View All Products</button>
-            </form>
+            <% if (Category && Category._id) { %>
+              <form action="/allproductview/<%= Category._id %>" method="get">
+                <button type="submit">View All Products</button>
+              </form>
+            <% } else { %>
+              <p>No category available.</p>
+            <% } %>
           </div>
+          
 
           <section>
             <div class="container">

@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata: 
+  name: mcart
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: mcart
+  template:
+    metadata:
+      labels:
+        app: mcart
+    spec: 
+      containers:
+        - name: m-cart
+          image: yasimjidhu/ecommerce
+          ports:
+          - containerPort: 6000

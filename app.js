@@ -54,7 +54,6 @@ app.use(passport.session());
 
 app.use('/admin',admminRouter)
 app.use('/',userRouter)
-app.use('/auth', authRouter);
 app.use('/cart',cartRouter)
 app.use('/account',accountRouter)
 app.use('/order',orderRouter)
@@ -67,14 +66,14 @@ app.use((err,req,res,next)=>{
 })
 
 
-const port = process.env.PORT||4000
+const port = process.env.PORT||3000
 
 app.listen(port,()=>{
     const {couponChecker,productOfferChecker,categoryOfferChecker} = require('./service/cronjob')
     couponChecker()
     productOfferChecker()
     categoryOfferChecker()
-    console.log("server is running on http://localhost:3000 ");
+    console.log("server is running on http://localhost:2000 ");
 })
 
 
