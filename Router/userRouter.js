@@ -29,7 +29,7 @@ router.get('/productview/:id',user.productview)
 router.get('/user/toproduct-list',userauth.verifyUser,user.productlist)
 
 // Brand wise product view
-router.get('/products/:brandId',userauth.verifyUser)
+router.get('/products/:brandId',userauth.verifyUser)    
 
 //Forgot password
 router.get('/forgot-pass',auth.renderforgotpassword)

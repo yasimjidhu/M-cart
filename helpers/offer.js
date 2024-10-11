@@ -2,7 +2,7 @@ const express = require('express')
 
 //function for generate referl link
 function generateReferralCode(userId) {
-    const baseUrl = 'http://localhost:2000/tosignup?userId=';
+    const baseUrl = 'https://m-cart.onrender.com/tosignup?userId=';
     return baseUrl + userId;
   }
   
