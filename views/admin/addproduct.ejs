@@ -1,21 +1,44 @@
-
 <!--header-->
 <%- include('../user/partials/header') %> 
 
 <!--Navbar-->
 <%- include('../admin/partials/nav') %>
 <style>
-
-.small-img {
-            margin-bottom: 10px;
-        }
-        .preview-image {
-            max-width: 100%;
-            height: auto;
-        }
-
+    .small-img {
+        margin-bottom: 10px;
+    }
+    .preview-image {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .form-control {
+        margin-bottom: 10px;
+    }
+    .btn-cancel {
+        background-color: #6c757d;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+        text-decoration: none;
+        display: inline-block;
+        margin-right: 10px;
+    }
+    .btn-sub {
+        background-color: #007bff;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 4px;
+    }
+    .error-message {
+        color: red;
+        font-size: 12px;
+        margin-top: 5px;
+    }
 </style>
-
 
 <section>
     <div class="container-fluid p-0 m-0">
@@ -25,111 +48,96 @@
             </div>
             <div class="col-10 p-0 m-0">
                 <%if(locals.error){%>
-                    <p style="color: red; text-align: center;"><%=error%></p>
-                   <%}%>
-                <form action="/admin/add-product" method="post" enctype="multipart/form-data" id="form">
-                    <div class="row p-0 " style="justify-content: space-evenly;">
+                    <p class="error-message text-center"><%=error%></p>
+                <%}%>
+                <form action="/admin/add-product" method="post" enctype="multipart/form-data" id="addProductForm">
+                    <div class="row p-0" style="justify-content: space-evenly;">
                         <div class="col-10 p-0 m-0">
-                    <form action="/admin/add-product" method="post" enctype="multipart/form-data">
-                        <div class="row p-0">
-
-                            <div class="col-lg-3 p-0">
-                                <div class="col-lg-12 small-img">
-                                    <input type="file" name="productImage1" id="productImage1" accept="image/*" onchange="previewImage(event, 'preview1')">
-                                    <div class="preview" id="preview1"></div>
+                            <div class="row p-0">
+                                <div class="col-lg-3 p-0">
+                                    <div class="col-lg-12 small-img">
+                                        <input type="file" name="productImage1" id="productImage1" accept="image/*" class="form-control-file" onchange="previewImage(event, 'preview1')">
+                                        <div class="preview" id="preview1"></div>
+                                    </div>
+                                    <div class="col-lg-12 small-img">
+                                        <input type="file" name="productImage2" id="productImage2" accept="image/*" class="form-control-file" onchange="previewImage(event, 'preview2')">
+                                        <div class="preview" id="preview2"></div>
+                                    </div>
+                                    <div class="col-lg-12 small-img">
+                                        <input type="file" name="productImage3" id="productImage3" accept="image/*" class="form-control-file" onchange="previewImage(event, 'preview3')">
+                                        <div class="preview" id="preview3"></div>
+                                    </div>
+                                    <div class="col-lg-12 small-img">
+                                        <input type="file" name="productImage4" id="productImage4" accept="image/*" class="form-control-file" onchange="previewImage(event, 'preview4')">
+                                        <div class="preview" id="preview4"></div>
+                                    </div>
                                 </div>
-                                <div class="col-lg-12 small-img">
-                                    <input type="file" name="productImage2" id="productImage2" accept="image/*" onchange="previewImage(event, 'preview2')">
-                                    <div class="preview" id="preview2"></div>
+                                <div class="col-5">
+                                    <input type="file" name="mainImage" id="mainImage" accept="image/*" class="form-control-file" onchange="previewImage(event, 'preview5')">
+                                    <div class="preview" id="preview5"></div>
                                 </div>
-                                <div class="col-lg-12 small-img">
-                                    <input type="file" name="productImage3" id="productImage3" accept="image/*" onchange="previewImage(event, 'preview3')">
-                                    <div class="preview" id="preview3"></div>
+                                <div class="col-4">
+                                    <div class="form-group">
+                                        <label for="category">Category</label>
+                                        <select class="form-control" id="category" name="category">
+                                            <% categories.forEach(category => { %>
+                                                <option value="<%= category._id %>"><%= category.CategoryName %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="productName">Product Name</label>
+                                        <input type="text" class="form-control" id="productName" name="productName" placeholder="eg:Samsung S23 Ultra">
+                                        <p class="error-message" id="productNameError"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="price">Price</label>
+                                        <input type="number" class="form-control" id="price" name="price" placeholder="eg:8000">
+                                        <p class="error-message" id="priceError"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="stock">Stock</label>
+                                        <input type="number" class="form-control" id="stock" name="stock" placeholder="eg:500">
+                                        <p class="error-message" id="stockError"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="brand">Brand</label>
+                                        <select class="form-control" id="brand" name="brand">
+                                            <% Brand.forEach(brand => { %>
+                                                <option value="<%= brand._id %>"><%= brand.brandName %></option>
+                                            <% }); %>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="description">Description</label>
+                                        <textarea class="form-control" id="description" name="description" placeholder="This is flagship edition of Samsung and it's very expensive"></textarea>
+                                        <p class="error-message" id="descriptionError"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="specification1">Specification 1</label>
+                                        <textarea class="form-control" id="specification1" name="specifications[]" placeholder="8 GB RAM 128 GB ROM"></textarea>
+                                        <p class="error-message" id="specification1Error"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="specification2">Specification 2</label>
+                                        <textarea class="form-control" id="specification2" name="specifications[]" placeholder="Another specification"></textarea>
+                                        <p class="error-message" id="specification2Error"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="specification3">Specification 3</label>
+                                        <textarea class="form-control" id="specification3" name="specifications[]" placeholder="Yet another specification"></textarea>
+                                        <p class="error-message" id="specification3Error"></p>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="specification4">Specification 4</label>
+                                        <textarea class="form-control" id="specification4" name="specifications[]" placeholder="One more specification"></textarea>
+                                        <p class="error-message" id="specification4Error"></p>
+                                    </div>
+                                    <div class="cancel-sub">
+                                        <a href="/admin/products" class="btn-cancel">Cancel</a>
+                                        <button type="submit" class="btn-sub">Submit</button>
+                                    </div>
                                 </div>
-                            <div class="col-lg-12 small-img">
-                                <input type="file" name="productImage4" id="productImage4" accept="image/*" onchange="previewImage(event, 'preview4')">
-                                <div class="preview" id="preview4"></div>
-                            </div>
-                        </div>
-                        <div class="col-5">
-                            <input type="file" name="mainImage" id="mainImage" accept="image/*" onchange="previewImage(event, 'preview5')">
-                            <div class="preview"  id="preview5"></div>
-                        </div>
-                        <div class="col-4">
-                                         <!-- Your form fields here -->
-                            <div class="form-group">
-                                <label for="category">Category</label>
-                                <select class="form-control" id="category" name="category">
-                                    <% categories.forEach(category => { %>
-                                        <option value="<%= category._id %>">"<%= category.CategoryName %>"</option>
-                                    <% }); %>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label for="productName">Product Name</label>
-                                <input type="text" class="form-control" id="productName" name="productName" placeholder="eg:Samsung S23 Ultra">
-                                <% if (locals.nameErr||locals.error) { %>
-                                    <p style="color: rgb(207, 0, 0); font-size: 13px;" id="productError"><%= locals.nameErr || locals.error %></p>
-                                  <% } %>
-                                  <p id="productNameError"></p>
-                            </div>
-                            <div class="form-group">
-                                <label for="price">Price</label>
-                                <input type="number" class="form-control" id="price" name="price" placeholder="eg:8000">
-                                <p id="priceError"></p>
-                                <% if (locals.priceErr) { %>
-                                    <p style="color: rgb(207, 0, 0); font-size: 13px;" id="productError"><%= locals.priceErr %></p>
-                                  <% } %>
-                            </div>
-                            <div class="form-group">
-                                <label for="stock">Stock</label>
-                                <input type="number" class="form-control" id="stock" name="stock" placeholder="eg:500">
-                                <p id="stockError"></p>
-                                <% if (locals.stockErr) { %>
-                                    <p style="color: rgb(207, 0, 0); font-size: 13px;" id="stockErr"><%= locals.stockErr %></p>
-                                  <% } %>
-                            </div>
-                            <div class="form-group">
-                                <label for="brand">Brand</label>
-                                <select class="form-control" id="brand" name="brand">
-                                    <% Brand.forEach(brand => { %>
-                                        <option value="<%= brand._id %>"><%= brand.brandName %></option>
-                                        <!-- Replace 'brandName' with the actual field name containing brand names -->
-                                    <% }); %>
-                                </select>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="description">Description</label>
-                                <textarea class="form-control" id="description" name="description" placeholder="This is flagship edition of Samsung and it's very expensive"></textarea>
-                                <p id="descriptionError"></p>
-                            </div>
-                            <div class="form-group">
-                                <label for="specification1">Specification 1</label>
-                                <textarea class="form-control" id="specification1" name="specifications[]" placeholder="8 GB RAM 128 GB ROM"></textarea>
-                                <p id="specification1Error"></p>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="specification2">Specification 2</label>
-                                <textarea class="form-control" id="specification2" name="specifications[]" placeholder="Another specification"></textarea>
-                                <p id="specification2Error"></p>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="specification3">Specification 3</label>
-                                <textarea class="form-control" id="specification3" name="specifications[]" placeholder="Yet another specification"></textarea>
-                                <p id="specification3Error"></p>
-                            </div>
-                            
-                            <div class="form-group">
-                                <label for="specification4">Specification 4</label>
-                                <textarea class="form-control" id="specification4" name="specifications[]" placeholder="One more specification"></textarea>
-                                <p id="specification4Error"></p>
-                            </div>
-                            <div class="cancel-sub">
-                                <a href="/admin/products"><button class="btn-cancel">Cancel</button></a>
-                                <button type="submit" class="btn-sub">Submit</button>
                             </div>
                         </div>
                     </div>
@@ -139,172 +147,58 @@
     </div>
 </section>
 
-<script src="/node_modules/cropperjs/dist/cropper.min.js"></script>
-<script src="index.js"></script>
-
 <script>
-   
-
-
-    // PRODUCT IMAGE CROPPING
-    document.addEventListener('DOMContentLoaded', function () {
-        // Function to create Cropper instances for the given image input and preview
-        function setupImageCropping(imageInputId, previewId) {
-            const imageInput = document.getElementById(imageInputId);
-            const preview = document.getElementById(previewId);
-
-            imageInput.addEventListener('change', function (event) {
-                const file = event.target.files[0];
-                const reader = new FileReader();
-
-                reader.onload = function (event) {
-                    const img = document.createElement('img');
-                    img.src = event.target.result;
-                    img.className = 'preview-image';
-                    preview.innerHTML = '';
-                    preview.appendChild(img);
-
-                    // Create Cropper instance for the uploaded image
-                    const cropper = new Cropper(img, {
-                        aspectRatio: 1 / 1, // Set your desired aspect ratio here
-                        viewMode: 2, // Set Cropper view mode as needed
-                        zoomable: false // Set zoomable property as needed
-                    });
-                };
-
-                if (file) {
-                    reader.readAsDataURL(file);
-                }
-            });
+    function previewImage(event, previewId) {
+        const input = event.target;
+        const preview = document.getElementById(previewId);
+        
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            
+            reader.onload = function(e) {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                img.className = 'preview-image';
+                preview.innerHTML = '';
+                preview.appendChild(img);
+            };
+            
+            reader.readAsDataURL(input.files[0]);
         }
+    }
 
-        // Setup image cropping for each product image input
-        setupImageCropping('productImage1', 'preview1');
-        setupImageCropping('productImage2', 'preview2');
-        setupImageCropping('productImage3', 'preview3');
-        setupImageCropping('productImage4', 'preview4');
-        setupImageCropping('mainImage', 'preview5');
-    });
-    
-/*>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>Form Validation>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>*/errmsg
+    document.getElementById('addProductForm').addEventListener('submit', function(event) {
+        const fields = [
+            { id: 'productName', error: 'productNameError', message: 'Product Name cannot be empty' },
+            { id: 'price', error: 'priceError', message: 'Please enter a valid price' },
+            { id: 'stock', error: 'stockError', message: 'Please enter a valid stock' },
+            { id: 'description', error: 'descriptionError', message: 'Description cannot be empty' },
+            { id: 'specification1', error: 'specification1Error', message: 'Specification 1 cannot be empty' },
+            { id: 'specification2', error: 'specification2Error', message: 'Specification 2 cannot be empty' },
+            { id: 'specification3', error: 'specification3Error', message: 'Specification 3 cannot be empty' },
+            { id: 'specification4', error: 'specification4Error', message: 'Specification 4 cannot be empty' }
+        ];
 
-            // field empty function
-            function isEmpty(value){
-                const trimmedValue = value.trim()
-                return trimmedValue ===""
-            }
-            function isValid(value){
-                const regex = /^[a-zA-Z]+$/
-                return regex.test(value)
-            }
+        let isValid = true;
 
-            function numberValid(value){
-                return value>0
-            }
+        fields.forEach(field => {
+            const input = document.getElementById(field.id);
+            const error = document.getElementById(field.error);
+            error.textContent = '';
 
-            document.querySelector('#form').addEventListener('submit', function(event){
-
-            // Product Name 
-            const productNameInput = document.querySelector('#productName')
-            const productNameValue = productNameInput.value
-            const productNameError = document.querySelector('#productNameError')
-
-            // Description
-            const descriptionInput = document.querySelector('#description')
-            const descriptionValue = descriptionInput.value
-            const descriptionError = document.querySelector('#descriptionError')
-
-            // Specifications1
-            const specification1Input = document.querySelector('#specification1')
-            const specification1Value = specification1Input.value
-            const specification1Error = document.querySelector('#specification1Error')
-
-            // Specification 2
-            const specification2Input = document.querySelector('#specification2')
-            const specification2Value = specification2Input.value
-            const specification2Error = document.querySelector('#specification2Error')
-
-            // Specifiaction 3
-            const specification3Input = document.querySelector('#specification3')
-            const specification3Value = specification3Input.value
-            const specification3Error = document.querySelector('#specification3Error') 
-
-            // Specification 4
-            const specification4Input = document.querySelector('#specification4')
-            const specification4Value = specification4Input.value
-            const specification4Error = document.querySelector('#specification4Error')
-
-            // Price
-            const priceInput = document.querySelector('#price')
-            const priceValue = priceInput.value
-            const priceError = document.querySelector('#priceError')
-
-            // Stock
-            const stockInput = document.querySelector('#stock')
-            const stockValue = stockInput.value
-            const stockError = document.querySelector('#stockError')
-
-            productNameError.textContent=""
-            descriptionError.textContent=""
-            specification1Error.textContent=""
-            specification2Error.textContent=""
-            specification3Error.textContent=""
-            specification4Error.textContent=""
-            priceError.textContent=""
-            stockError.textContent=""
-
-            if(isEmpty(productNameValue)){
-                productNameError.textContent="Product Name cannot be empty"
-                productNameError.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(descriptionValue)){
-                descriptionError.textContent="description cannot be empty"
-                descriptionError.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(specification1Value)){
-                specification1Error.textContent="specification cannot be empty"
-                specification1Error.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(specification2Value)){
-                specification2Error.textContent="specification cannot be empty"
-                specification2Error.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(specification3Value)){
-                specification3Error.textContent="specification cannot be empty"
-                specification3Error.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(specification4Value)){
-                specification4Error.textContent="specification cannot be empty"
-                specification4Error.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(priceValue)){
-                priceError.textContent="Price cannot be empty"
-                priceError.style.color="red"
-                event.preventDefault()
-            }
-            if(isEmpty(stockValue)){
-                stockError.textContent="stock cannot be empty"
-                stockError.style.color="red"
-                event.preventDefault()
-            }
-
-            if(!numberValid(priceValue)){
-                priceError.textContent="please enter valid price"
-                priceError.style.color="red"
-                event.preventDefault()
-            }
-            if(!numberValid(stockValue)){
-                stockError.textContent="please enter valid stock"
-                stockError.style.color="red"
-                event.preventDefault()
+            if (field.id === 'price' || field.id === 'stock') {
+                if (isNaN(input.value) || Number(input.value) <= 0) {
+                    error.textContent = field.message;
+                    isValid = false;
+                }
+            } else if (!input.value.trim()) {
+                error.textContent = field.message;
+                isValid = false;
             }
         });
 
- 
+        if (!isValid) {
+            event.preventDefault();
+        }
+    });
 </script>

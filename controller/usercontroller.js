@@ -373,11 +373,12 @@ const userlog = async (req, res) => {
 
       const flashsales = await category.findOne({ CategoryName: "Flash Sales" });
       const premiumCategory = await category.findOne({ CategoryName: "Premium" });
-      const bestSeller = await category.findOne({CategoryName:'Best seller'})
+      const bestSeller = await category.findOne({CategoryName:'Best Seller'})
 
       const flashsalesProducts = flashsales ? await products.find({ category: flashsales._id, brand: { $nin: blockedBrandIds } }): [];
       const premiumProducts = premiumCategory ? await products.find({ category: premiumCategory._id, brand: { $nin: blockedBrandIds } }): [];
       const bestSellerProducts = bestSeller ? await products.find({category:bestSeller._id, brand:{$nin:blockedBrandIds}}):[];
+      console.log('best seller data',bestSellerProducts)
       const brandData = await brands.find();
 
       const categories = await category.find()

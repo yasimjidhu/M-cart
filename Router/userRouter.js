@@ -63,15 +63,6 @@ router.get('/toWallet',userauth.verifyUser,user.toWallet)
 // Referal
 router.get('/toReferal',userauth.verifyUser,user.toReferal)
 
-// error handling middleware
-// router.use((req, res) => {
-//     try {
-//       console.log('Handling 404 middleware for', req.originalUrl);
-//       res.status(404).render("./user/404");
-//     } catch (err) {
-//       console.error(err);
-//       res.status(500).send("internal server error");
-//     }
-//   });
+
 
 module.exports = router

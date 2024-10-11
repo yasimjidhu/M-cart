@@ -12,6 +12,7 @@
 <%-include('./partials/header') %>
 
   <%-include('./partials/navbar') %>
+
     <div class="page ">
       <div class="row m-0">
         <div class="col-2 filter-sidebar  p-0">
@@ -202,7 +203,7 @@
 
           <section>
             <div class="container">
-              <div class="row">
+              <div class="row"> 
                 <div class="premium">
                   <div class="premium-text">
                     <div class="square"></div>
@@ -345,26 +346,60 @@
           </section>
 
           <div class="container">
-            <div class="row">
-              <% bestSellerData.forEach(product=>{%>
-                <div class="col-sm-12 col-md-4 col-lg-3">
-                  <div class="iphone">
-                    <a href="/productview/<%=product._id %>"><img class="product-images"
-                        src="/uploads/<%=product.image[4]%>" alt=""></a>
-                  </div>
-                  <div class="details">
-                    <h6 class="mt-4" style="font-size: 20px;">
-                      <%= product.productName.toUpperCase() %>
-                    </h6>
-                    <p style="font-size: 20px;">$<%= product.price.toLocaleString() %>
-                    </p>
-                  </div>
-                  <a class="btn" style="background-color:#001524; color: white; width: 100%;"
-                    data-productId="<%=product._id %>" onclick="addToCart(event)">Add To Cart</a>
-                </div>
-                <%})%>
-            </div>
-          </div>
+  <div class="row">
+    <% bestSellerData.forEach(product => { %>
+      <div class="col-sm-12 col-md-4 col-lg-3">
+        <div class="iphone">
+          <% if (offeredProducts && offeredProducts.length > 0) { %>
+            <% let hasProductOffer = false; %>
+            <% let hasCategoryOffer = false; %>
+            <% let productOfferPercentage = 0; %>
+            <% let categoryOfferPercentage = 0; %>
+            <% offeredProducts.forEach(offer => { %>
+              <% if (offer.offerType === 'productOffer') { %>
+                <% offer.offerProducts.forEach(data => { %>
+                  <% if (product._id.toString() === data.productId.toString()) { %>
+                    <% hasProductOffer = true; %>
+                    <% productOfferPercentage = data.OfferPercentage; %>
+                  <% } %>
+                <% }); %>
+              <% } else if (offer.offerType === 'categoryOffer') { %>
+                <% offer.productsWithCategoryOffer.forEach(item => { %>
+                  <% if (product.category.toString() === item.categoryId.toString()) { %>
+                    <% hasCategoryOffer = true; %>
+                    <% categoryOfferPercentage = item.OfferPercentage; %>
+                  <% } %>
+                <% }); %>
+              <% } %>
+            <% }); %>
+
+            <% if (hasProductOffer) { %>
+              <div class="offer-badge">
+                <span><%= productOfferPercentage %>% Offer</span>
+              </div>
+            <% } else if (hasCategoryOffer) { %>
+              <div class="offer-badge bg-success">
+                <span><%= categoryOfferPercentage %>% Offer</span>
+              </div>
+            <% } %>
+          <% } %>
+
+          <a href="/productview/<%= product._id %>"><img class="product-images"
+            src="/uploads/<%= product.image[4] %>" alt="<%= product.name %>" /></a>
+        </div>
+        <div class="details">
+          <h6 class="mt-4" style="font-size: 20px;">
+            <%= product.productName.toUpperCase() %>
+          </h6>
+          <p style="font-size: 20px;">$<%= product.price.toLocaleString() %></p>
+        </div>
+        <a class="btn" style="background-color:#001524; color: white; width: 100%;"
+          data-productId="<%= product._id %>" onclick="addToCart(event)">Add To Cart</a>
+      </div>
+    <% }); %>
+  </div>
+</div>
+
 
           <div class="view-all">
             <form action="/allproductview/<%= locals.bestSellerId %>" method="get">
